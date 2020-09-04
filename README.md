@@ -6,7 +6,7 @@
   - Developers:
     - [Jeffrey M. Dudek][url_homepage_jd]
     - [Vu H. N. Phan][url_homepage_vp]
-- CP-2020 paper: **DPMC: Weighted Model Counting by Dynamic Programming on Project-Join Trees**
+- CP-2020 paper: [**DPMC: Weighted Model Counting by Dynamic Programming on Project-Join Trees**](https://arxiv.org/abs/2008.08748)
   - Authors:
     - [Jeffrey M. Dudek][url_homepage_jd]
     - [Vu H. N. Phan][url_homepage_vp]

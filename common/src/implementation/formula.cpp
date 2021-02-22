@@ -6,12 +6,10 @@
 
 const string &CNF_WORD = "cnf";
 const string &WCNF_WORD = "wcnf";
+const string &WPCNF_WORD = "wpcnf";
 const string &WEIGHTS_WORD = "weights";
 const string &WEIGHT_WORD = "w";
 const string &LINE_END_WORD = "0";
-
-const Float CACHET_DEFAULT_VAR_WEIGHT = 0.5;
-const Float MCC_DEFAULT_LITERAL_WEIGHT = 1;
 
 /* classes ********************************************************************/
 
@@ -23,6 +21,20 @@ void Label::addNumber(Int i) {
 }
 
 /* class Cnf ******************************************************************/
+
+string Cnf::getWeightFormatWord(WeightFormat weightFormat) {
+  switch (weightFormat) {
+    case WeightFormat::WCNF: {
+      return WCNF_WORD;
+    }
+    case WeightFormat::WPCNF: {
+      return WPCNF_WORD;
+    }
+    default: {
+      return CNF_WORD;
+    }
+  }
+}
 
 void Cnf::updateApparentVars(Int literal) {
   Int var = util::getCnfVar(literal);
@@ -72,8 +84,7 @@ vector<Int> Cnf::getMcsVarOrdering() const {
   Graph graph = getGaifmanGraph();
 
   auto startVertex = graph.beginVertices();
-  if (startVertex == graph.endVertices()) // empty graph
-    return vector<Int>();
+  if (startVertex == graph.endVertices()) return vector<Int>();
 
   Map<Int, Int> rankedNeighborCounts; // unranked vertex |-> number of ranked neighbors
   for (auto it = std::next(startVertex); it != graph.endVertices(); it++) rankedNeighborCounts[*it] = 0;
@@ -145,41 +156,44 @@ vector<Int> Cnf::getLexmVarOrdering() const {
       Label &wLabel = wIt->second;
 
       /* removes numbered vertices except v: */
-      for (Int numberedVertex : numberedVertices)
-        if (numberedVertex != v)
+      for (Int numberedVertex : numberedVertices) {
+        if (numberedVertex != v) {
           subgraph.removeVertex(numberedVertex);
+        }
+      }
 
       /* removes each non-w unnumbered vertex whose label is not less than w's */
       for (const std::pair<Int, Label> &kv : unnumberedVertices) {
         Int unnumberedVertex = kv.first;
         const Label &label = kv.second;
-        if (unnumberedVertex != w && label >= wLabel)
+        if (unnumberedVertex != w && label >= wLabel) {
           subgraph.removeVertex(unnumberedVertex);
+        }
       }
 
-      if (subgraph.hasPath(v, w)) wLabel.addNumber(i);
+      if (subgraph.hasPath(v, w)) {
+        wLabel.addNumber(i);
+      }
     }
   }
   return numberedVertices;
 }
 
-vector<Int> Cnf::getMinFillVarOrdering() const {
+vector<Int> Cnf::getMinfillVarOrdering() const {
   vector<Int> varOrdering;
 
   Graph graph = getGaifmanGraph();
-  Set<Int> unmarkedVertices(apparentVars.begin(), apparentVars.end());
-  while (!unmarkedVertices.empty()) {
-    Int vertex = graph.getMinFillVertex(unmarkedVertices);
+  while (graph.beginVertices() != graph.endVertices()) {
+    Int vertex = graph.getMinfillVertex();
     graph.fillInEdges(vertex);
-    unmarkedVertices.erase(vertex);
-
+    graph.removeVertex(vertex);
     varOrdering.push_back(vertex);
   }
 
   return varOrdering;
 }
 
-vector<Int> Cnf::getVarOrdering(VarOrderingHeuristic varOrderingHeuristic, bool inverse) const {
+vector<Int> Cnf::getVarOrdering(VarOrderingHeuristic varOrderingHeuristic, bool inverseVarOrdering) const {
   vector<Int> varOrdering;
   switch (varOrderingHeuristic) {
     case VarOrderingHeuristic::APPEARANCE: {
@@ -206,18 +220,28 @@ vector<Int> Cnf::getVarOrdering(VarOrderingHeuristic varOrderingHeuristic, bool 
       varOrdering = getLexmVarOrdering();
       break;
     }
-    case VarOrderingHeuristic::MIN_FILL: {
-      varOrdering = getMinFillVarOrdering();
+    case VarOrderingHeuristic::MINFILL: {
+      varOrdering = getMinfillVarOrdering();
       break;
     }
     default: {
-      showError("DUMMY_VAR_ORDERING_HEURISTIC -- Cnf::getVarOrdering");
+      showError("Cnf::getVarOrdering");
     }
   }
-  if (inverse) {
+  if (inverseVarOrdering) {
     util::invert(varOrdering);
   }
   return varOrdering;
+}
+
+vector<Int> Cnf::getRestrictedVarOrdering(VarOrderingHeuristic varOrderingHeuristic, bool inverseVarOrdering, const Set<Int> &restrictedVars) const {
+  vector<Int> restrictedVarOrdering;
+  for (Int var : getVarOrdering(varOrderingHeuristic, inverseVarOrdering)) {
+    if (util::isFound(var, restrictedVars)) {
+      restrictedVarOrdering.push_back(var);
+    }
+  }
+  return restrictedVarOrdering;
 }
 
 Int Cnf::getDeclaredVarCount() const { return declaredVarCount; }
@@ -237,6 +261,18 @@ const vector<vector<Int>> &Cnf::getClauses() const { return clauses; }
 
 const vector<Int> &Cnf::getApparentVars() const { return apparentVars; }
 
+const Set<Int> &Cnf::getAdditiveVars() const { return additiveVars; }
+
+Set<Int> Cnf::getDisjunctiveVars() const {
+  Set<Int> disjunctiveVars;
+  for (Int var = 1; var <= declaredVarCount; var++) {
+    if (!util::isFound(var, additiveVars)) {
+      disjunctiveVars.insert(var);
+    }
+  }
+  return disjunctiveVars;
+}
+
 void Cnf::printLiteralWeights() const {
   util::printLiteralWeights(literalWeights);
 }
@@ -246,7 +282,7 @@ void Cnf::printClauses() const {
 }
 
 void Cnf::printWeightedFormula(const WeightFormat &outputWeightFormat) const {
-  printComment("Printing weighted formula...", 1);
+  printComment("printing weighted formula...", 1);
   printThinLine();
 
   Int apparentVarCount = apparentVars.size();
@@ -282,7 +318,7 @@ void Cnf::printWeightedFormula(const WeightFormat &outputWeightFormat) const {
 
       break;
     }
-    case WeightFormat::MCC: {
+    case WeightFormat::WCNF: {
       cout << PROBLEM_WORD << " " << WCNF_WORD << " " << apparentVarCount << " " << clauses.size() << "\n";
 
       for (Int var = 1; var <= apparentVarCount; var++) {
@@ -293,7 +329,7 @@ void Cnf::printWeightedFormula(const WeightFormat &outputWeightFormat) const {
       break;
     }
     default: {
-      showError("outputWeightFormat " + util::getWeightFormatName(outputWeightFormat) + " unsupported by Cnf::printWeightedFormula");
+      showError("outputWeightFormat " + util::getWeightFormatName(outputWeightFormat) + " unsupported | Cnf::printWeightedFormula");
     }
   }
 
@@ -308,17 +344,20 @@ void Cnf::printWeightedFormula(const WeightFormat &outputWeightFormat) const {
 }
 
 Cnf::Cnf(const vector<vector<Int>> &clauses) {
-  this->clauses = clauses;
-
   for (const vector<Int> &clause : clauses) {
+    addClause(clause);
     for (Int literal : clause) {
-      updateApparentVars(literal);
+      additiveVars.insert(util::getCnfVar(literal));
     }
   }
+  declaredVarCount = apparentVars.size();
 }
 
 Cnf::Cnf(const string &filePath, WeightFormat weightFormat) {
-  printComment("Reading CNF formula...", 1);
+  signal(SIGINT, util::handleSignal); // Ctrl c
+  signal(SIGTERM, util::handleSignal); // timeout
+
+  printComment("processing cnf formula...", 1);
 
   std::ifstream inputFileStream(filePath); // variable will be destroyed if it goes out of scope
   std::istream *inputStream;
@@ -326,7 +365,7 @@ Cnf::Cnf(const string &filePath, WeightFormat weightFormat) {
     inputStream = &std::cin;
 
     printThickLine();
-    printComment("Getting cnf from stdin... (end input with 'Enter' then 'Ctrl d')");
+    printComment("getting cnf from stdin... (end input with 'Enter' then 'Ctrl d')");
   }
   else {
     if (!inputFileStream.is_open()) {
@@ -342,14 +381,14 @@ Cnf::Cnf(const string &filePath, WeightFormat weightFormat) {
 
   Int lineIndex = 0;
   Int problemLineIndex = DUMMY_MIN_INT;
-  Int minic2dWeightLineIndex = DUMMY_MIN_INT;
+  Int minic2dWeightsLineIndex = DUMMY_MIN_INT;
 
   string line;
   while (std::getline(*inputStream, line)) {
     lineIndex++;
     std::istringstream inputStringStream(line);
 
-    if (verbosityLevel >= 3) printComment("Line " + to_string(lineIndex) + "\t" + line);
+    if (verbosityLevel >= 3) printComment("line " + to_string(lineIndex) + "\t" + line);
 
     vector<string> words;
     std::copy(std::istream_iterator<string>(inputStringStream), std::istream_iterator<string>(), std::back_inserter(words));
@@ -369,27 +408,47 @@ Cnf::Cnf(const string &filePath, WeightFormat weightFormat) {
         showError("problem line " + to_string(lineIndex) + " has " + to_string(wordCount) + " words (should be 4)");
       }
 
-      const string &cnfKey = weightFormat == WeightFormat::MCC ? WCNF_WORD : CNF_WORD;
+      const string &cnfKey = getWeightFormatWord(weightFormat);
       const string &cnfWord = words.at(1);
       if (cnfKey != cnfWord) {
-        showError("expected '" + cnfKey + "', found '" + cnfWord + "' -- line " + to_string(lineIndex));
+        showWarning("expected '" + cnfKey + "', found '" + cnfWord + "' | line " + to_string(lineIndex));
       }
 
       declaredVarCount = std::stoll(words.at(2));
       declaredClauseCount = std::stoll(words.at(3));
     }
+    else if (startWord == "vp") { // additive-variable line
+      if (weightFormat == WeightFormat::WPCNF) {
+        for (Int i = 1; i < wordCount; i++) {
+          Int num = std::stoll(words.at(i));
+
+          if (num < 0 || num > declaredVarCount) {
+            showError("var '" + to_string(num) + "' inconsistent with declared var count '" + to_string(declaredVarCount) + "' | line " + to_string(lineIndex));
+          }
+
+          if (num == 0) {
+            if (i != wordCount - 1) {
+              showError("additive variables terminated prematurely by '0' | line " + to_string(lineIndex));
+            }
+          }
+          else {
+            additiveVars.insert(num);
+          }
+        }
+      }
+    }
     else if (startWord == "c") { // comment
-      if (weightFormat == WeightFormat::MINIC2D && wordCount > 1 && words.at(1) == WEIGHTS_WORD) { // MINIC2D weight line
+      if (weightFormat == WeightFormat::MINIC2D && wordCount > 1 && words.at(1) == WEIGHTS_WORD) { // MINIC2D weights line
         if (problemLineIndex == DUMMY_MIN_INT) {
-          showError("no problem line before MINIC2D weight line " + to_string(lineIndex));
+          showError("no problem line before MINIC2D weights | line " + to_string(lineIndex));
         }
-        if (minic2dWeightLineIndex != DUMMY_MIN_INT) {
-          showError("multiple MINIC2D weight lines: " + to_string(minic2dWeightLineIndex) + " and " + to_string(lineIndex));
+        if (minic2dWeightsLineIndex != DUMMY_MIN_INT) {
+          showError("multiple MINIC2D weights lines: " + to_string(minic2dWeightsLineIndex) + " and " + to_string(lineIndex));
         }
-        minic2dWeightLineIndex = lineIndex;
+        minic2dWeightsLineIndex = lineIndex;
 
         if (wordCount != 2 + declaredVarCount * 2) {
-          showError("wrong number of MINIC2D literal weights -- line " + to_string(lineIndex));
+          showError("wrong number of MINIC2D literal weights | line " + to_string(lineIndex));
         }
 
         for (Int var = 1; var <= declaredVarCount; var++) {
@@ -400,30 +459,30 @@ Cnf::Cnf(const string &filePath, WeightFormat weightFormat) {
     }
     else if (startWord == WEIGHT_WORD) {
       if (problemLineIndex == DUMMY_MIN_INT) {
-        showError("no problem line before weight line " + to_string(lineIndex));
+        showError("no problem line before weight | line " + to_string(lineIndex));
       }
 
-      if (weightFormat == WeightFormat::CACHET && wordCount == 3) {
+      if (weightFormat == WeightFormat::CACHET && (wordCount == 3 || wordCount == 4 && words.at(3) == LINE_END_WORD)) {
         Int var = std::stoll(words.at(1));
         if (var <= 0 || var > declaredVarCount) {
-          showError("var '" + to_string(var) + "' is inconsistent with declared var count '" + to_string(declaredVarCount) + "' -- line " + to_string(lineIndex));
+          showError("var '" + to_string(var) + "' inconsistent with declared var count '" + to_string(declaredVarCount) + "' | line " + to_string(lineIndex));
         }
         Float weight = std::stold(words.at(2));
         literalWeights[var] = weight;
       }
-      else if (weightFormat == WeightFormat::MCC && (wordCount == 3 || wordCount == 4 && words.at(3) == LINE_END_WORD)) {
+      else if ((weightFormat == WeightFormat::WCNF || weightFormat == WeightFormat::WPCNF) && (wordCount == 3 || wordCount == 4 && words.at(3) == LINE_END_WORD)) {
         Int literal = std::stoll(words.at(1));
 
         Int var = util::getCnfVar(literal);
         if (var <= 0 || var > declaredVarCount) {
-          showError("literal '" + to_string(literal) + "' is inconsistent with declared var count '" + to_string(declaredVarCount) + "' -- line " + to_string(lineIndex));
+          showError("literal '" + to_string(literal) + "' inconsistent with declared var count '" + to_string(declaredVarCount) + "' | line " + to_string(lineIndex));
         }
 
         Float weight = std::stold(words.at(2));
         literalWeights[literal] = weight;
       }
       else {
-        showError("weight line " + to_string(lineIndex) + " is inconsistent with weight format " + util::getWeightFormatName(weightFormat));
+        showError("weight inconsistent with weight format " + util::getWeightFormatName(weightFormat) + " | line " + to_string(lineIndex));
       }
     }
     else { // clause line
@@ -436,12 +495,12 @@ Cnf::Cnf(const string &filePath, WeightFormat weightFormat) {
         Int num = std::stoll(words.at(i));
 
         if (num > declaredVarCount || num < -declaredVarCount) {
-          showError("literal '" + to_string(num) + "' is inconsistent with declared var count '" + to_string(declaredVarCount) + "' -- line " + to_string(lineIndex));
+          showError("literal '" + to_string(num) + "' inconsistent with declared var count '" + to_string(declaredVarCount) + "' | line " + to_string(lineIndex));
         }
 
         if (num == 0) {
           if (i != wordCount - 1) {
-            showError("clause terminated prematurely by '0' -- line " + to_string(lineIndex));
+            showError("clause terminated prematurely by '0' | line " + to_string(lineIndex));
           }
 
           addClause(clause);
@@ -449,7 +508,7 @@ Cnf::Cnf(const string &filePath, WeightFormat weightFormat) {
         }
         else { // literal
           if (i == wordCount - 1) {
-            showError("missing end-of-clause indicator '" + to_string(0) + "' -- line " + to_string(lineIndex));
+            showError("missing end-of-clause indicator '" + to_string(0) + "' | line " + to_string(lineIndex));
           }
           clause.push_back(num);
         }
@@ -458,7 +517,7 @@ Cnf::Cnf(const string &filePath, WeightFormat weightFormat) {
   }
 
   if (filePath == STDIN_CONVENTION) {
-    printComment("Getting cnf from stdin: done");
+    printComment("getting cnf from stdin: done");
     printThickLine();
   }
 
@@ -466,39 +525,51 @@ Cnf::Cnf(const string &filePath, WeightFormat weightFormat) {
     showError("no problem line before cnf file ends on line " + to_string(lineIndex));
   }
 
-  if (weightFormat == WeightFormat::MINIC2D && minic2dWeightLineIndex == DUMMY_MIN_INT) {
-    showError("MINIC2D weight line not found");
-  }
-
-  if (weightFormat == WeightFormat::UNWEIGHTED) { // populates literalWeights with 1s
+  if (weightFormat != WeightFormat::WPCNF) {
     for (Int var = 1; var <= declaredVarCount; var++) {
-      literalWeights[var] = 1;
-      literalWeights[-var] = 1;
+      additiveVars.insert(var);
     }
   }
-  else if (weightFormat == WeightFormat::CACHET) { // completes literalWeights
-    for (Int var = 1; var <= declaredVarCount; var++) {
-      Float varWeight = CACHET_DEFAULT_VAR_WEIGHT;
-      if (literalWeights.find(var) != literalWeights.end()) {
-        varWeight = literalWeights.at(var);
-      }
 
-      Float negativeLiteralWeight = 1 - varWeight;
-      if (varWeight == -1) {
-        varWeight = negativeLiteralWeight = 1;
+  switch (weightFormat) {
+    case WeightFormat::MINIC2D: {
+      if (minic2dWeightsLineIndex == DUMMY_MIN_INT) {
+        showError("MINIC2D weights line not found");
       }
-
-      literalWeights[var] = varWeight;
-      literalWeights[-var] = negativeLiteralWeight;
+      break;
     }
-  }
-  else if (weightFormat == WeightFormat::MCC) { // completes literalWeights
-    for (Int var = 1; var <= declaredVarCount; var++) {
-      if (literalWeights.find(var) == literalWeights.end()) {
-        literalWeights[var] = MCC_DEFAULT_LITERAL_WEIGHT;
+    case WeightFormat::UNWEIGHTED: { // populates literalWeights with 1s
+      for (Int var = 1; var <= declaredVarCount; var++) {
+        literalWeights[var] = 1;
+        literalWeights[-var] = 1;
       }
-      if (literalWeights.find(-var) == literalWeights.end()) {
-        literalWeights[-var] = MCC_DEFAULT_LITERAL_WEIGHT;
+      break;
+    }
+    case WeightFormat::CACHET: { // completes literalWeights
+      for (Int var = 1; var <= declaredVarCount; var++) {
+        Float varWeight = 0.5; // default
+        if (literalWeights.find(var) != literalWeights.end()) {
+          varWeight = literalWeights.at(var);
+        }
+
+        Float negativeLiteralWeight = 1 - varWeight;
+        if (varWeight == -1) {
+          varWeight = negativeLiteralWeight = 1;
+        }
+
+        literalWeights[var] = varWeight;
+        literalWeights[-var] = negativeLiteralWeight;
+      }
+      break;
+    }
+    default: { // completes literalWeights for WCNF and WPCNF
+      for (Int var = 1; var <= declaredVarCount; var++) {
+        if (literalWeights.find(var) == literalWeights.end()) {
+          literalWeights[var] = 1;
+        }
+        if (literalWeights.find(-var) == literalWeights.end()) {
+          literalWeights[-var] = 1;
+        }
       }
     }
   }

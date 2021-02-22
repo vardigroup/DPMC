@@ -13,23 +13,26 @@ Copyright (c) 2020, Jeffrey Dudek
 #include <vector>
 
 namespace decomposition {
-
-std::optional<JoinTree> JoinTree::from_tree_decomposition(
+int create_grade(
+  const util::GradedClauses &graded_clauses,
   const util::Formula &formula,
-  const TreeDecomposition &tree_decomposition) {
-  JoinTree result;
+  const TreeDecomposition &tree_decomposition,
+  JoinTree *result,
+  const int starting_node
+) {
+  const std::vector<util::GradedClauses> &clauses = graded_clauses.components();
 
   // Record the clauses that each variable appears in
   std::vector<std::vector<size_t>> appearances(formula.num_variables()+1);
-  for (size_t i = 0; i < formula.clause_variables().size(); i++) {
-    for (size_t var : formula.clause_variables()[i]) {
+  for (size_t i = 0; i < clauses.size(); i++) {
+    for (size_t var : clauses[i].variables()) {
       appearances[var].push_back(i);
     }
   }
-  std::vector<bool> found(formula.clause_variables().size(), false);
+  std::vector<bool> found(clauses.size(), false);
 
   // Build the structure of the join tree from the tree decomposition.
-  int root = tree_decomposition.visit<int>(1, [&] (
+  int root = tree_decomposition.visit<int>(starting_node, [&] (
     const TreeDecompositionNode &node,
     std::vector<int> children) {
 
@@ -47,9 +50,19 @@ std::optional<JoinTree> JoinTree::from_tree_decomposition(
 
         if (std::includes(node.bag.begin(),
                           node.bag.end(),
-                          formula.clause_variables()[clause_id].begin(),
-                          formula.clause_variables()[clause_id].end())) {
-          children.push_back(result.add_leaf(clause_id));
+                          clauses[clause_id].variables().begin(),
+                          clauses[clause_id].variables().end())) {
+          int below;
+          if (clauses[clause_id].clause_id() == SIZE_MAX) {
+            below = create_grade(clauses[clause_id],
+                                 formula,
+                                 tree_decomposition,
+                                 result,
+                                 node.id);
+          } else {
+            below = result->add_leaf(clauses[clause_id].clause_id());
+          }
+          children.push_back(below);
           found[clause_id] = true;
         }
       }
@@ -61,9 +74,29 @@ std::optional<JoinTree> JoinTree::from_tree_decomposition(
     } else if (children.size() == 1) {
       return children[0];  // No join needed.
     } else {
-      return static_cast<int>(result.add_internal(children));
+      return static_cast<int>(result->add_internal(children));
     }
   });
+
+  // Ensure that free variables are kept until at least this point
+  if (graded_clauses.variables().size() == 0) {
+    return root;
+  } else {
+    return result->add_downgrade(root, graded_clauses.variables());
+  }
+}
+
+
+std::optional<JoinTree> JoinTree::graded_from_tree_decomposition(
+  const util::GradedClauses &graded_clauses,
+  const util::Formula &formula,
+  const TreeDecomposition &tree_decomposition) {
+  JoinTree result;
+  int root = create_grade(graded_clauses,
+                          formula,
+                          tree_decomposition,
+                          &result,
+                          1);
   if (!result.set_root(static_cast<size_t>(root))) {
     return std::nullopt;  // Unable to set root.
   }
@@ -76,6 +109,10 @@ void JoinTree::compute_projected_variables(const util::Formula &formula) {
   auto visitor = [&] (const JoinTreeNode &node,
                       std::vector<std::vector<int>> children) {
     if (children.size() == 1) {
+      // Ensure that forced variables are kept until at least this point
+      for (size_t var : node.forced_variables) {
+        children[0][var] = node.node_id;
+      }
       return children[0];
     }
 
@@ -127,13 +164,19 @@ void JoinTree::write(std::ostream *output) const {
                                        std::vector<size_t> children) {
     if (children.size() == 0) {
       if (node.projected_variables.size() == 0) {
-        return 1;
+        return static_cast<size_t>(1);
       } else {
-        return 2;
+        // A dummy node will be added later
+        return static_cast<size_t>(2);
       }
     }
 
-    return 1 + std::accumulate(children.begin(), children.end(), 0);
+    size_t result = std::accumulate(children.begin(), children.end(), 0);
+    // Nodes with 1 child and no projections will be skipped
+    if (children.size() > 1 || node.projected_variables.size() > 0) {
+      result += 1;
+    }
+    return result;
   });
 
   // Write the join tree header
@@ -149,6 +192,9 @@ void JoinTree::write(std::ostream *output) const {
                  std::vector<size_t> children) {
     if (children.size() == 0 && node.projected_variables.size() == 0) {
       return node.clause_id+1;  // CNF clauses are numbered 1 to M
+    }
+    if (children.size() == 1 && node.projected_variables.size() == 0) {
+      return children[0];  // Skip nodes with 1 child and 0 projections
     }
 
     if (children.size() == 0) {
@@ -188,6 +234,15 @@ size_t JoinTree::add_internal(const std::vector<int> &children) {
   for (int child : children) {
     tree_.add_edge(child, num_nodes_);
   }
+  num_nodes_++;
+  return num_nodes_-1;
+}
+
+size_t JoinTree::add_downgrade(int child, const std::vector<size_t> &forced) {
+  JoinTreeNode &info = tree_.add_vertex(num_nodes_);
+  info.node_id = num_nodes_;
+  info.forced_variables = forced;
+  tree_.add_edge(child, num_nodes_);
   num_nodes_++;
   return num_nodes_-1;
 }

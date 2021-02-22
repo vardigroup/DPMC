@@ -22,6 +22,7 @@ namespace decomposition {
 struct TreeDecompositionNode {
  public:
   std::vector<size_t> bag;
+  int id;
 };
 
 /**

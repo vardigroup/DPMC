@@ -6,7 +6,6 @@
 
 /* uses ***********************************************************************/
 
-using util::getSeconds;
 using util::printComment;
 using util::printThickLine;
 using util::printThinLine;
@@ -36,5 +35,5 @@ public:
   void removeVertex(Int v); // also removes edges from/to v
   void fillInEdges(Int v); // does not remove v
   Int countFillInEdges(Int v) const;
-  Int getMinFillVertex(const Set<Int> &unmarkedVertices) const; // unmarkedVertices: nonempty subset of vertices
+  Int getMinfillVertex() const;
 };

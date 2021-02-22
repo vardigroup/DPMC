@@ -1,0 +1,29 @@
+Bootstrap: docker
+From: debian:buster-slim
+
+%setup
+  mkdir -p ${SINGULARITY_ROOTFS}/common
+  cp -t ${SINGULARITY_ROOTFS}/common -R ../common/src ../common/INSTALL.sh ../common/lib.zip ../common/Makefile
+
+  mkdir -p ${SINGULARITY_ROOTFS}/htb
+  cp -R SETUP.sh ${SINGULARITY_ROOTFS}/htb
+
+%post
+  apt-get update
+
+  # htb
+  apt-get -y install g++
+  apt-get -y install make
+  apt-get -y install unzip
+  apt-get -y install cmake
+  apt-get -y install libboost-all-dev
+  apt-get -y install libgmp-dev
+  cd /htb
+  chmod +x ./SETUP.sh
+  ./SETUP.sh
+
+%help
+  This is a Singularity container for the planning tool.
+
+%runscript
+  /htb/htb "$@"

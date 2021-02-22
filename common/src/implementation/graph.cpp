@@ -112,13 +112,11 @@ Int Graph::countFillInEdges(Int v) const {
   return count;
 }
 
-Int Graph::getMinFillVertex(const Set<Int> &unmarkedVertices) const {
+Int Graph::getMinfillVertex() const {
   Int vertex = DUMMY_MIN_INT;
   Int fillInEdgeCount = DUMMY_MAX_INT;
 
-  for (Int v : unmarkedVertices) {
-    if (!util::isFound(v, vertices)) util::showError("vertex " + to_string(v) + " not in graph");
-
+  for (Int v : vertices) {
     Int count = countFillInEdges(v);
     if (count < fillInEdgeCount) {
       fillInEdgeCount = count;
@@ -126,7 +124,7 @@ Int Graph::getMinFillVertex(const Set<Int> &unmarkedVertices) const {
     }
   }
 
-  if (vertex == DUMMY_MIN_INT) util::showError("no unmarked vertex");
+  if (vertex == DUMMY_MIN_INT) util::showError("graph has no vertex");
 
   return vertex;
 }

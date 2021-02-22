@@ -1,8 +1,6 @@
 /* inclusions *****************************************************************/
 
-#include "../lib/cxxopts.hpp"
-
-#include "counter.hpp"
+#include "phase.hpp"
 
 /* classes ********************************************************************/
 
@@ -16,15 +14,17 @@ public:
 
   /* optional: */
   Int weightFormatOption;
+  string planningStrategyOption;
   Float jtWaitSeconds;
   Float performanceFactor;
   Int ddVarOrderingHeuristicOption;
-  Int randomSeedOption;
-  Int verbosityLevelOption;
+  Int ddPackageOption;
+  Int workerCount;
+  string joinPriorityOption;
+  Int randomSeed;
+  Int verbosityLevel;
 
   cxxopts::Options *options;
-  Int cnfFilePathCount;
-  Int jtFilePathCount;
 
   void printOptionalOptions() const;
   void printHelp() const;
@@ -38,9 +38,13 @@ namespace solving {
     const string &cnfFilePath,
     const string &jtFilePath,
     Int weightFormatOption,
+    const string &planningStrategyOption,
     Float jtWaitSeconds,
     Float performanceFactor,
-    Int ddVarOrderingHeuristicOption
+    Int ddVarOrderingHeuristicOption,
+    Int ddPackageOption,
+    Int workerCount,
+    const string &joinPriorityOption
   );
   void solveCommand(int argc, char *argv[]);
 }

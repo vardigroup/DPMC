@@ -37,8 +37,10 @@ namespace util {
 
     // Remove trailing whitespace from the prefix, and return it
     if (split == 0) return "";
-    std::size_t space = line.find_last_not_of(" \t", split);
-    return line.substr(0, space == std::string::npos ? split : space-1);
+    while (split > 0 && (line.at(split-1) == ' ' || line.at(split-1) == '\t')) {
+      split--;
+    }
+    return line.substr(0, split);
   }
 
   bool DimacsParser::parseExpectedLine(const std::string_view &prefix,

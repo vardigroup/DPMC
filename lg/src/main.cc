@@ -7,6 +7,7 @@ Copyright (c) 2020, Jeffrey Dudek
 
 #include "util/dimacs_parser.h"
 #include "util/formula.h"
+#include "util/graded_clauses.h"
 #include "decomposition/tree_decomposition.h"
 #include "decomposition/join_tree.h"
 
@@ -40,17 +41,19 @@ int main(int argc, char *argv[]) {
     std::cout << "c pid " << pid << std::endl;
     auto start_time = std::chrono::steady_clock::now();
 
-    // Provide the line graph of the input formula to the solver.
+    // Parse the input formula
     std::optional<util::Formula> f = util::Formula::parse_DIMACS(&std::cin);
-    if (f.has_value()) {
-      f->write_line_graph(&solver_input);
-      solver_input.flush();
-      solver_input.pipe().close();
-    } else {
+    if (!f.has_value()) {
       solver.terminate();
       std::cerr << "Error: Unable to process formula." << std::endl;
       return -1;
     }
+
+    // Provide the line graph of the input formula to the solver.
+    util::GradedClauses clauses = f->graded_clauses();
+    clauses.write_line_graph(&solver_input, f->num_variables());
+    solver_input.flush();
+    solver_input.pipe().close();
 
     while (true) {
       // Read a single tree decomposition from the solver.
@@ -62,7 +65,8 @@ int main(int argc, char *argv[]) {
       }
 
       // Convert the tree decomposition into a join tree.
-      auto jt = decomposition::JoinTree::from_tree_decomposition(*f, *td);
+      auto jt = decomposition::JoinTree::graded_from_tree_decomposition(
+        clauses, *f, *td);
       if (!jt.has_value()) {
         std::cerr << "Error: Unable to build join tree." << std::endl;
         solver.terminate();

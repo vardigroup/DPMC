@@ -1,13 +1,13 @@
 /* inclusions *****************************************************************/
 
-#include "../../lib/cxxopts.hpp"
-
-#include "counter.hpp"
+#include "phase.hpp"
 
 /* classes ********************************************************************/
 
 class OptionDict {
 public:
+  bool hasEnoughArgs;
+
   /* required: */
   string cnfFilePath;
 
@@ -15,13 +15,12 @@ public:
   Int weightFormatOption;
   Int clusteringHeuristicOption;
   Int cnfVarOrderingHeuristicOption;
-  Int randomSeedOption;
-  Int verbosityLevelOption;
+  Int randomSeed;
+  Int verbosityLevel;
 
   cxxopts::Options *options;
   Int cnfFilePathCount;
 
-  bool hasEnoughArgs() const;
   void printOptionalOptions() const;
   void printHelp() const;
   OptionDict(int argc, char *argv[]);

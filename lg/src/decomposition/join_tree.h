@@ -9,6 +9,7 @@ Copyright (c) 2020, Jeffrey Dudek
 #include "decomposition/tree.h"
 #include "decomposition/tree_decomposition.h"
 #include "util/formula.h"
+#include "util/graded_clauses.h"
 
 
 /**
@@ -23,7 +24,8 @@ struct JoinTreeNode {
  public:
   size_t clause_id;
   size_t node_id;
-    std::vector<size_t> projected_variables;
+  std::vector<size_t> projected_variables;
+  std::vector<size_t> forced_variables;
 };
 
 /**
@@ -63,6 +65,11 @@ class JoinTree {
   size_t add_internal(const std::vector<int> &children);
 
   /**
+   * Add an downgrade node to the join tree.
+   */
+  size_t add_downgrade(int child, const std::vector<size_t> &forced_variables);
+
+  /**
    * Store the projected variables implicit in joining with the provided formula.
    */
   void compute_projected_variables(const util::Formula &formula);
@@ -81,7 +88,8 @@ class JoinTree {
   /**
    * Construct the join tree represented by the provided tree decomposition.
    */
-  static std::optional<JoinTree> from_tree_decomposition(
+  static std::optional<JoinTree> graded_from_tree_decomposition(
+    const util::GradedClauses &graded_clauses,
     const util::Formula &formula,
     const decomposition::TreeDecomposition &tree_decomposition);
 

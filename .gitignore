@@ -1,33 +1,21 @@
-out
-
-benchmarks
-common/addmc
 common/dmc
 common/htb
-common/lib
-common/obj
-DMC/dmc
-HTB/htb
+common/lib/
+common/obj/
 
-*.nnf
-*.query
+dmc/dmc
+htb/htb
 
-__pycache__
-*.pyc
-
-venv
-.idea
-
-*.swp
-
-build
-.vscode
+experiments/.ipynb_checkpoints/
+experiments/benchmarks*
+experiments/data*
+experiments/figures/
 
 *.sif
 
 
 ################################################################################
-## GitHub default ignores: C
+## GitHub default: C
 ################################################################################
 
 # Prerequisites
@@ -84,7 +72,7 @@ dkms.conf
 
 
 ################################################################################
-## GitHub default ignores: C++
+## GitHub default: C++
 ################################################################################
 
 # Compiled Object files
@@ -118,7 +106,7 @@ dkms.conf
 
 
 ################################################################################
-## GitHub default ignores: TeX
+## GitHub default: TeX
 ################################################################################
 
 ## Core latex/pdflatex auxiliary files:

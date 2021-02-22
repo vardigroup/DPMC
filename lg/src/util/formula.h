@@ -10,6 +10,8 @@ Copyright (c) 2020, Jeffrey Dudek
 #include <utility>
 #include <vector>
 
+#include "util/graded_clauses.h"
+
 namespace util {
 /**
  * Represents a boolean formula in CNF with literal weights.
@@ -26,11 +28,10 @@ class Formula {
    */
   bool add_clause(std::vector<int> literals);
 
-
   /**
-   * Output the line graph of this formula.
+   * Get the set of clauses, graded according to the relevant variables.
    */
-  void write_line_graph(std::ostream *output) const;
+  util::GradedClauses graded_clauses();
 
   int num_variables() const { return num_variables_; }
 
@@ -55,5 +56,9 @@ class Formula {
   std::vector<std::vector<int>> clauses_ = {};
   // Set of variables in each clause (sorted)
   std::vector<std::vector<size_t>> clause_variables_ = {};
+
+
+  // Set of relevant variables
+  std::vector<size_t> relevant_vars_;
 };
 }  // namespace util

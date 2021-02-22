@@ -36,7 +36,9 @@ namespace util {
 
     // Parse the header
     std::vector<double> entries;
-    if (!parser.parseExpectedLine("p cnf", &entries) || entries.size() != 2) {
+    std::string prefix = parser.parseLine(&entries);
+    if ((prefix != "p cnf" && prefix != "p wpcnf" &&
+         prefix != "p wcnf" && prefix != "p pcnf") || entries.size() < 2) {
       return std::nullopt;
     }
 
@@ -46,10 +48,17 @@ namespace util {
     // Parse the remaining clauses
     while (!parser.finished()) {
       entries.clear();
-      std::string prefix = parser.parseLine(&entries);
+      prefix = parser.parseLine(&entries);
 
-      if (prefix == "w" && entries.size() == 2) {
+      if (prefix == "w") {
         continue;  // Ignore weight lines
+      } else if (prefix == "vp") {
+        // vp [x] [y] ... [z] 0 indicates {x, ..., z} are existential vars
+        for (double entry : entries) {
+          if (entry != 0) {   // ignore trailing 0s, if they exist
+            result.relevant_vars_.push_back(entry);
+          }
+        }
       } else if (prefix == "") {
         // [x] [y] ... [z] 0 indicates a clause with literals (x, y, ..., z)
         if (entries.size() == 0 || entries.back() != 0) {
@@ -58,7 +67,7 @@ namespace util {
 
         // Clause lines end in a trailing 0, so remove it
         std::vector<int> clause(entries.begin(),
-                    std::prev(entries.end()));
+                                std::prev(entries.end()));
         if (!result.add_clause(clause)) {
             return std::nullopt;
         }
@@ -77,21 +86,12 @@ namespace util {
     return result;
   }
 
-  void Formula::write_line_graph(std::ostream *output) const {
-    size_t edge_count = 0;
-    for (const std::vector<int> &clause : clauses_) {
-      edge_count += (clause.size() * (clause.size()-1)) / 2;
+  GradedClauses Formula::graded_clauses() {
+    util::GradedClauses result(clause_variables_);
+    // If relevant variables were specified, group using them
+    if (relevant_vars_.size() > 0) {
+      result.group_by(relevant_vars_, num_variables_);
     }
-
-    *output << "p tw " << num_variables_ << " " << edge_count << "\n";
-
-    for (const std::vector<int> &clause : clauses_) {
-      for (size_t i = 0; i < clause.size(); i++) {
-        for (size_t j = i+1; j < clause.size(); j++) {
-          *output << abs(clause[i]) << " ";
-          *output << abs(clause[j]) << "\n";
-        }
-      }
-    }
+    return result;
   }
 }  // namespace util

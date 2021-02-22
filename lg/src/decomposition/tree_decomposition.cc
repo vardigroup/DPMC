@@ -51,6 +51,7 @@ std::optional<TreeDecomposition> TreeDecomposition::parse_one(
         return std::nullopt;  // Node id is not in range.
       }
       TreeDecompositionNode &node = result.add_vertex(entries[0]);
+      node.id = static_cast<int>(entries[0]);
       for (size_t i = 1; i < entries.size(); i++) {
         if (entries[i] <= 0 || entries[i] > max_bag_entry) {
           return std::nullopt;  // Bad bag entry.

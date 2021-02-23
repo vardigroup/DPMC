@@ -27,10 +27,10 @@ unzip ./benchmarksSsat.zip
 <!-- ####################################################################### -->
 
 ## Tools
-- `lg.sif`: ProCount planner [LG](../lg)
-- `htb`: ProCount planner [HTB](../htb)
+- `lg.sif`: ProCount (main) planner [LG](../lg)
+- `htb`: ProCount (alternate) planner [HTB](../htb)
 - `dmc`: ProCount executor [DMC](../dmc)
-- `LgDmc.sh`: ProCount model counter [LG+DMC](./LgDmc.sh)
+- `LgDmc.sh`: [ProCount model counter](./LgDmc.sh)
 - `d4`: [d4p & projMC model counters](http://www.cril.univ-artois.fr/KC/d4.html)
 - `abc`: [reSSAT model counter](https://github.com/nianzelee/ssatABC)
 - `cryptominisat5_amd64_linux_static`: [SAT solver](https://github.com/msoos/cryptominisat)

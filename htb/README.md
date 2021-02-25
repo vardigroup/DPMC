@@ -1,5 +1,5 @@
-# `htb` (Heuristic Tree Builder)
-`htb` constructs join trees of formulas in conjunctive normal form for model counting
+# HTB (Heuristic Tree Builder)
+HTB constructs join trees of formulas in conjunctive normal form for model counting
 - Developer: Vu Phan
 
 <!-- ####################################################################### -->

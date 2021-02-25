@@ -1,5 +1,5 @@
-# `dmc` (Diagram Model Counter)
-`dmc` computes exact literal-weighted model counts of formulas in conjunctive normal form using algebraic decision diagrams
+# DMC (Diagram Model Counter)
+DMC computes exact literal-weighted model counts of formulas in conjunctive normal form using algebraic decision diagrams
 - Developer: Vu Phan
 
 <!-- ####################################################################### -->

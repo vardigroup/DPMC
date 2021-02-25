@@ -1,3 +1,5 @@
+#!/usr/bin/bash
+
 cnfFile=$1
 treeDecomposer=$2
 diagramVarOrder=$3

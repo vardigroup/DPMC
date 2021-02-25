@@ -30,7 +30,7 @@ unzip ./benchmarksSsat.zip
 - `lg.sif`: ProCount (main) planner [LG](../lg)
 - `htb`: ProCount (alternate) planner [HTB](../htb)
 - `dmc`: ProCount executor [DMC](../dmc)
-- `LgDmc.sh`: [ProCount model counter](./LgDmc.sh)
+- `LgDmc.sh`: [ProCount model counter (script to pipe LG's output into DMC's input)](./LgDmc.sh)
 - `d4`: [d4p & projMC model counters](http://www.cril.univ-artois.fr/KC/d4.html)
 - `abc`: [reSSAT model counter](https://github.com/nianzelee/ssatABC)
 - `cryptominisat5_amd64_linux_static`: [SAT solver](https://github.com/msoos/cryptominisat)
@@ -105,10 +105,10 @@ Dir `./data/solving/ssat0`
 ## [Jupyter notebook](./procount.ipynb)
 - Near the end, there are 7 figures (4 in the main paper, 3 in the appendix)
 - Run all cells again to re-generate these figures from dir `./data`
-- Some Python lines for running experiments (e.g., submitting slurm jobs and parsing stdout/stderr) have been commented out
+- Some Python lines for running experiments (e.g., submitting Slurm jobs and parsing stdout/stderr) have been commented out
 
 <!-- ####################################################################### -->
 
 ## Notes on timing
 - Only for the figures, we used max(`time`, .001) for display purposes (the time axis is in log scale)
-- For everything else (e.g., number of benchmarks solved), we used the original `time`
+- For everything else (e.g., number of benchmarks solved), we used the original `time` recorded

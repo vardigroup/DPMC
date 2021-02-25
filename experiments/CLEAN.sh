@@ -4,5 +4,5 @@ find -name _worker_logs.zip -delete
 
 find -name _results.db -delete
 
-rm -rf .ipynb_checkpoints
-rm -rf figures
+# rm -rf .ipynb_checkpoints/
+rm -rf figures/

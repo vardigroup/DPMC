@@ -110,5 +110,6 @@ Dir `./data/solving/ssat0`
 <!-- ####################################################################### -->
 
 ## Notes on timing
-- Only for the figures, we used max(`time`, .001) for display purposes (the time axis is in log scale)
-- For everything else (e.g., number of benchmarks solved), we used the original `time` recorded
+Recall that `time` is the time a solver spent to solve a benchmark
+- If a figure's time axis is in logarithmic scale, then we used max(`time`, 1e-3) for display purposes
+- Otherwise, we used the original `time` recorded

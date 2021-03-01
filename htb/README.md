@@ -31,7 +31,7 @@ sudo make
 <!-- ####################################################################### -->
 
 ## Examples
-If you use Singularity, then replace `./htb` with `singularity run --bind="/:/host" ./htb.sif` in the following commands.
+If you use Singularity, then replace `./htb --cf=$cnfFile` with `singularity run --bind="/:/host" ./htb.sif --cf=/host$(realpath $cnfFile)` in the following commands.
 
 ### Showing command-line options
 #### Command

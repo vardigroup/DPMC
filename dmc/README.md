@@ -31,7 +31,7 @@ sudo make
 <!-- ####################################################################### -->
 
 ## Examples
-If you use Singularity, then replace `./dmc` with `singularity run --bind="/:/host" ./dmc.sif` in the following commands.
+If you use Singularity, then replace `./dmc --cf=$cnfFile` with `singularity run --bind="/:/host" ./dmc.sif --cf=/host$(realpath $cnfFile)` in the following commands.
 
 ### Showing command-line options
 #### Command

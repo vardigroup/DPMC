@@ -1,5 +1,5 @@
-# OPT=-Ofast# provided from command line
-# LINK=-static
+# OPT=-Ofast# Ofast: must not use inf or nan
+# LINK=-static# static: segfault with std::thread
 
 ################################################################################
 

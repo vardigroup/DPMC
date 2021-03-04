@@ -3,7 +3,11 @@ HTB_DIR=$(pwd)
 cd ../common
 
 ./INSTALL.sh
-make htb OPT=-Ofast
-cp htb $HTB_DIR
 
-cd $HTB_DIR
+make clean
+
+make htb OPT=-Ofast # LINK=-static
+## Ofast: must not use inf or nan
+## static: segfault with std::thread
+
+cp htb $HTB_DIR/htb

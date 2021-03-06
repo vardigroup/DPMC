@@ -1,29 +1,24 @@
 Bootstrap: docker
-From: debian:buster-slim
+From: ubuntu:20.04
 
 %setup
-  mkdir -p ${SINGULARITY_ROOTFS}/common
-  cp -t ${SINGULARITY_ROOTFS}/common -R ../common/src ../common/INSTALL.sh ../common/lib.zip ../common/Makefile
-
-  mkdir -p ${SINGULARITY_ROOTFS}/dmc
-  cp -R SETUP.sh ${SINGULARITY_ROOTFS}/dmc
+  mkdir ${SINGULARITY_ROOTFS}/common
+  cp -t ${SINGULARITY_ROOTFS}/common -r ../common/src ../common/lib.zip ../common/Makefile
 
 %post
   apt-get update
 
-  # dmc
-  apt-get -y install g++
-  apt-get -y install make
-  apt-get -y install unzip
   apt-get -y install cmake
+  apt-get -y install g++
   apt-get -y install libboost-all-dev
   apt-get -y install libgmp-dev
-  cd /dmc
-  chmod +x ./SETUP.sh
-  ./SETUP.sh
+  apt-get -y install make
+  apt-get -y install unzip
+
+  make --directory=/common dmc OPT=-Ofast
 
 %help
-  This is a Singularity container for the execution tool.
+  This is a container for the execution tool DMC.
 
 %runscript
-  /dmc/dmc "$@"
+  /common/dmc "$@"

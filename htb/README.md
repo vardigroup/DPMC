@@ -21,11 +21,11 @@ HTB constructs join trees of formulas in conjunctive normal form for model count
 ### Command
 #### With Singularity 3.5 (slow)
 ```bash
-sudo make
+sudo make htb.sif
 ```
 #### Without Singularity (quick)
 ```bash
-./SETUP.sh
+make htb
 ```
 
 <!-- ####################################################################### -->

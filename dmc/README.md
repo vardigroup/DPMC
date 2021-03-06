@@ -21,11 +21,11 @@ DMC computes exact literal-weighted model counts of formulas in conjunctive norm
 ### Command
 #### With Singularity 3.5 (slow)
 ```bash
-sudo make
+sudo make dmc.sif
 ```
 #### Without Singularity (quick)
 ```bash
-./SETUP.sh
+make dmc
 ```
 
 <!-- ####################################################################### -->

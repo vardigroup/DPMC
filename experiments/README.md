@@ -27,9 +27,9 @@ unzip ./benchmarksSsat.zip
 <!-- ####################################################################### -->
 
 ## Tools
-- `lg.sif`: ProCount (main) planner [LG](../lg)
-- `htb`: ProCount (alternate) planner [HTB](../htb)
-- `dmc`: ProCount executor [DMC](../dmc)
+- `lg.sif`: ProCount's (main) planner [LG](../lg)
+- `htb`: ProCount's (alternate) planner [HTB](../htb)
+- `dmc`: ProCount's executor [DMC](../dmc)
 - `LgDmc.sh`: [ProCount model counter (script to pipe LG's output into DMC's input)](./LgDmc.sh)
 - `d4`: [d4p & projMC model counters (corrected version provided by author)](https://github.com/vardigroup/DPMC/releases/download/v2.0.0/d4)
 - `abc`: [reSSAT model counter](https://github.com/nianzelee/ssatABC)
@@ -103,7 +103,7 @@ Dir `./data/solving/ssat0`
 <!-- ####################################################################### -->
 
 ## [Jupyter notebook](./procount.ipynb)
-- Near the end, there are 7 figures (4 in the main paper, 3 in the appendix)
+- Near the end, there are 7 figures (4 in the main paper and 3 in the supplement)
 - Run all cells again to re-generate these figures from dir `./data`
 - Some Python lines for running experiments (e.g., submitting Slurm jobs and parsing stdout/stderr) have been commented out
 

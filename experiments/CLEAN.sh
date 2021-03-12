@@ -1,8 +1,9 @@
-find -name _inputs.zip -delete
-find -name _outputs.zip -delete
-find -name _worker_logs.zip -delete
+DIR=`dirname $0`
 
-find -name _results.db -delete
+find $DIR/data -name _inputs.zip -delete
+find $DIR/data -name _outputs.zip -delete
+find $DIR/data -name _worker_logs.zip -delete
 
-# rm -rf .ipynb_checkpoints/
-rm -rf figures/
+find $DIR/data -name _results.db -delete
+
+rm -rf figures

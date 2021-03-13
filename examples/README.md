@@ -1,3 +1,6 @@
 # Examples
-- [Weighted projected cnf formula](./phi.wpcnf)
-- [Project-join tree](./phi.jt)
+
+File        | Description
+----------- | -----------
+`phi.pcnf`  | Projected CNF formula
+`phi.jt`    | Jointree of `phi.wpcnf`

@@ -1,0 +1,25 @@
+c Every comment line starts with "c ".
+c The weight format here is WMC.
+
+c The problem line has the form "p wcnf $numVars $numClauses":
+p cnf 2 3
+
+c Every weight line has the form "w $literal $weight" (0 <= $weight <= 1).
+c By default, $weight = 1.
+
+c A weight line specifying weight(x1) = 0.3:
+w 1 0.3
+
+c A weight line specifying weight(-x1) = 0.4:
+w -1 0.4
+
+c Every clause line lists literals and ends with "0".
+
+c A clause line for the positive literal x1:
+1 0
+
+c A clause line for the negative literal -x2:
+-2 0
+
+c A clause line for the disjunction x1 \/ -x2:
+1 -2 0

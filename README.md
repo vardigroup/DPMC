@@ -1,8 +1,8 @@
-# ProCount (Projected Model Counting)
-ProCount computes weighted projected model counts of formulas in conjunctive normal form (cnf)
-- The ProCount framework runs in two phases:
-  - Planning phase: [LG](./lg) or [HTB](./htb) constructs a graded join tree of a cnf formula
-  - Execution phase: [DMC](./dmc) computes the projected model count of the cnf formula using the constructed graded join tree
+# MultiCount (Multicore Model Counting)
+MultiCount computes model counts of formulas in conjunctive normal form (cnf)
+- The MultiCount framework runs in two phases:
+  - Planning phase: [LG](./lg) or [HTB](./htb) constructs a jointree of a cnf formula
+  - Execution phase: [DMC](./dmc) computes the model count of the cnf formula using the constructed jointree
 - Developers:
   - Jeffrey Dudek
   - Vu Phan
@@ -10,10 +10,6 @@ ProCount computes weighted projected model counts of formulas in conjunctive nor
 <!-- ####################################################################### -->
 
 ## [Example files](./examples)
-
-<!-- ####################################################################### -->
-
-## [Experimental evaluation](./experiments)
 
 <!-- ####################################################################### -->
 

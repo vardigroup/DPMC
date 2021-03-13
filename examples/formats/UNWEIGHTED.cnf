@@ -1,0 +1,18 @@
+c Every comment line starts with "c ".
+c The weight format here is UNWEIGHTED.
+
+c The problem line has the form "p cnf $numVars $numClauses":
+p cnf 2 3
+
+c Every literal has weight 1.
+
+c Every clause line lists literals and ends with "0".
+
+c A clause line for the positive literal x1:
+1 0
+
+c A clause line for the negative literal -x2:
+-2 0
+
+c A clause line for the disjunction x1 \/ -x2:
+1 -2 0

@@ -10,7 +10,7 @@ From: ubuntu:20.04
 
   apt-get -y install cmake
   apt-get -y install g++
-  apt-get -y install libboost-all-dev
+  # apt-get -y install libboost-all-dev
   apt-get -y install libgmp-dev
   apt-get -y install make
   apt-get -y install unzip

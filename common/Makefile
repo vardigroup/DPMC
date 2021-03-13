@@ -3,45 +3,40 @@
 
 ################################################################################
 
-HPP_DIR = src/interface
-CPP_DIR = src/implementation
-
-################################################################################
-
 CUDD_DIR = lib/cudd
 CUDD_INCLUSIONS = -I$(CUDD_DIR) -I$(CUDD_DIR)/cudd -I$(CUDD_DIR)/epd -I$(CUDD_DIR)/mtr -I$(CUDD_DIR)/st
 CUDD_LINKS = -L$(CUDD_DIR)/cudd/.libs -lcudd
 
 SYLVAN_DIR = lib/sylvan
 SYLVAN_INCLUSIONS = -I$(SYLVAN_DIR)/src
-SYLVAN_LINKS = -L$(SYLVAN_DIR)/build/src -lsylvan -lpthread -lgmp -lgmpxx -lm -lrt# order matters
+SYLVAN_LINKS = -L$(SYLVAN_DIR)/build/src -lsylvan -lpthread
+
+ASSEMBLY_OPTIONS = $(OPT) -g -Ilib -Isrc -fconcepts -std=c++2a -Wno-register
+LINK_OPTIONS = $(LINK) -lgmpxx -lgmp -lm -lrt# order matters
 
 ################################################################################
 
-O_DIR = obj
+OBJECTS = util.o logic.o
+DMC_OBJECTS = $(OBJECTS) dmc.o
+HTB_OBJECTS = $(OBJECTS) htb.o
 
-_OBJ = util.o graph.o formula.o join.o phase.o
-_OBJ_DMC = $(_OBJ) main_dmc.o
-_OBJ_HTB = $(_OBJ) main_htb.o
+dmc: $(DMC_OBJECTS)
+	g++ -o dmc $(DMC_OBJECTS) $(LINK_OPTIONS) $(CUDD_LINKS) $(SYLVAN_LINKS) && echo
 
-OBJ_DMC = $(patsubst %, $(O_DIR)/%, $(_OBJ_DMC))
-OBJ_HTB = $(patsubst %, $(O_DIR)/%, $(_OBJ_HTB))
+dmc.o: src/dmc.cc src/dmc.hh src/logic.hh src/util.hh lib
+	g++ -o dmc.o src/dmc.cc -c $(ASSEMBLY_OPTIONS) $(CUDD_INCLUSIONS) $(SYLVAN_INCLUSIONS) && echo
 
-################################################################################
+htb: $(HTB_OBJECTS)
+	g++ -o htb $(HTB_OBJECTS) $(LINK_OPTIONS) && echo
 
-GCC = g++ -g# debugging information
-GCC_FLAGS = $(OPT) $(LINK) -I./$(HPP_DIR) -Ilib $(CUDD_INCLUSIONS) $(SYLVAN_INCLUSIONS) -fconcepts -std=c++14
+htb.o: src/htb.cc src/htb.hh src/logic.hh src/util.hh lib
+	g++ -o htb.o src/htb.cc -c $(ASSEMBLY_OPTIONS) && echo
 
-################################################################################
+logic.o: src/logic.cc src/logic.hh src/util.hh lib
+	g++ -o logic.o src/logic.cc -c $(ASSEMBLY_OPTIONS) && echo
 
-dmc: $(OBJ_DMC)
-	$(GCC) -o dmc $^ $(GCC_FLAGS) $(CUDD_LINKS) $(SYLVAN_LINKS) && echo
-
-htb: $(OBJ_HTB)
-	$(GCC) -o htb $^ $(GCC_FLAGS) $(CUDD_LINKS) $(SYLVAN_LINKS) && echo
-
-$(O_DIR)/%.o: $(CPP_DIR)/%.cpp $(HPP_DIR)/%.hpp lib
-	mkdir -p $(O_DIR) && $(GCC) -c -o $@ $< $(GCC_FLAGS) && echo
+util.o: src/util.cc src/util.hh lib
+	g++ -o util.o src/util.cc -c $(ASSEMBLY_OPTIONS) && echo
 
 lib: lib.zip
 	unzip -qq -n -D lib.zip && \
@@ -62,4 +57,4 @@ lib: lib.zip
 all: dmc htb
 
 clean:
-	rm -rf $(O_DIR) dmc htb
+	rm -rf $(OBJECTS) dmc.o htb.o dmc htb && echo

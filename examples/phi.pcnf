@@ -1,0 +1,38 @@
+c Every comment line starts with "c ".
+c The weight format here is PROJECTED.
+
+c The problem line has the form "p pcnf $vars $clauses":
+p pcnf 6 5
+
+c The Sum-var line lists Sum-vars and ends with "0".
+c Sum-vars X = {z1, z3, z5}:
+vp 1 3 5 0
+
+c For every Sum-var z, there are weight lines for literals z and -z.
+c Every weight line has the form "w $literal $weight".
+c Weight lines for Sum-vars X = {z1, z3, z5}:
+w  1 0.1
+w -1 0.9
+w  3 1
+w -3 1
+w  5 1.5
+w -5 2.5
+
+c There are no weight lines for Exist-vars Y = {z2, z4, z6}.
+
+c Every clause line lists literals and ends with "0".
+
+c Clause 1 contains literals {z1, z2, -z4}:
+1 2 -4 0
+
+c Clause 2:
+1 6 0
+
+c Clause 3:
+1 0
+
+c Clause 4:
+3 5 0
+
+c Clause 5:
+-3 -5 0

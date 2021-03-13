@@ -1,0 +1,19 @@
+c Every comment line starts with "c ".
+c The weight format here is MINIC2D.
+
+c The problem line has the form "p cnf $numVars $numClauses":
+p cnf 2 3
+
+c The weights line has the form "c weights $weight(x1) $weight(-x1) $weight(x2) $weight(-x2)":
+c weights 1 1.1 2 2.2
+
+c Every clause line lists literals and ends with "0".
+
+c A clause line for the positive literal x1:
+1 0
+
+c A clause line for the negative literal -x2:
+-2 0
+
+c A clause line for the disjunction x1 \/ -x2:
+1 -2 0

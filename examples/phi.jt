@@ -1,13 +1,12 @@
-c Each comment line starts with "c".
+c Every comment line starts with "c ".
 
-c The problem line for join trees of CNF formulas is "p jt $vars $clauses $nodes".
-c A 10-node join tree of a CNF formula with 6 variables and 5 clauses:
+c The problem line has the form "p jt $vars $clauses $nodes":
 p jt 6 5 10
 
-c Each leaf node corresponds to a unique CNF clause.
-c Leaf nodes are implicitly numbered {1,..., $clauses} ({n1,..., n5} in this case).
+c Every leaf node corresponds to a unique CNF clause.
+c Leaf nodes are implicitly numbered {1,..., $clauses} ({n1,..., n5} here).
 
-c Each internal node line is "$index $children e $elimVars".
+c Every internal-node line has the form "$index $children e $elimVars".
 c $index identifies this node (an integer in {clauses + 1,..., $nodes}).
 c $children is a list of indices of child nodes (subset of {1,..., $index - 1}).
 c $elimVars is a list of variables to be eliminated/projected (subset of {1,..., $vars}).

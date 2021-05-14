@@ -7,9 +7,14 @@ dmc/dmc
 htb/htb
 
 experiments/.ipynb_checkpoints/
-experiments/benchmarks*
-experiments/data*
+experiments/benchmarks
+experiments/data.zip
+experiments/data/
 experiments/figures/
+
+# symbolic links:
+experiments/postprocessor.py
+experiments/wrapper.py
 
 *.sif
 

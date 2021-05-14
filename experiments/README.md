@@ -100,6 +100,9 @@ Dir `./data/solving/projmc0`
 ### reSSAT
 Dir `./data/solving/ssat0`
 
+### nestHDB & ProCount: 90 de-weighted WAPS benchmarks with 100-second timeout (preliminary results)
+Dir `./data/camera/`
+
 <!-- ####################################################################### -->
 
 ## [Jupyter notebook](./procount.ipynb)

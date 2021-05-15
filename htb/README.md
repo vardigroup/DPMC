@@ -76,7 +76,7 @@ Usage:
            3    input lines as well                               
 ```
 
-### Computing join tree given cnf file
+### Computing join tree given CNF file
 #### Command
 ```bash
 ./htb --cf=../examples/s27_3_2.wpcnf

@@ -85,7 +85,7 @@ Usage:
            3    input lines as well                               
 ```
 
-### Computing model count given cnf file and join tree from jt file
+### Computing model count given CNF file and join tree from jt file
 #### Command
 ```bash
 ./dmc --cf=../examples/s27_3_2.wpcnf --jf=../examples/s27_3_2.jt.htb --dp=2 --sw=3
@@ -131,7 +131,7 @@ c seconds                       0.005
 c ==================================================================
 ```
 
-### Computing model count given join tree (from `lg`) and formula (from cnf file)
+### Computing model count given join tree (from `lg`) and formula (from CNF file)
 #### Command
 ```bash
 cnf="../examples/s27_3_2.wpcnf" && ../lg/lg.sif "/solvers/htd-master/bin/htd_main -s 1234567 --opt width --iterations 0 --strategy challenge --print-progress --preprocessing full" < $cnf | ./dmc --cf=$cnf --jf=-

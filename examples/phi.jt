@@ -5,7 +5,7 @@ c A 10-node join tree of a CNF formula with 6 variables and 5 clauses:
 p jt 6 5 10
 
 c Each leaf node corresponds to a unique CNF clause.
-c Leaf nodes are implicitly numbered {1,..., $clauses} ({n1,..., n5} in this case).
+c Leaf nodes are implicitly numbered {1,..., $clauses} (in this case, {n1,..., n5}).
 
 c Each internal node line is "$index $children e $elimVars".
 c $index identifies this node (an integer in {clauses + 1,..., $nodes}).

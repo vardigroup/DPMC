@@ -34,6 +34,9 @@ const string &CLUSTER_VAR_ORDER_OPTION = "cv";
 const string &DIAGRAM_VAR_ORDER_OPTION = "dv";
 const string &RANDOM_SEED_OPTION = "rs";
 const string &VERBOSITY_LEVEL_OPTION = "vl";
+const string &COUNT_OR_SAMPLE_OPTION = "cs";
+const string &SAMPLE_FILE_OPTION = "sf";
+const string &NUM_SAMPLES_OPTION = "ns";
 
 const std::map<Int, WeightFormat> WEIGHT_FORMAT_CHOICES = {
   {1, WeightFormat::UNWEIGHTED},
@@ -79,6 +82,11 @@ const Int DEFAULT_RANDOM_SEED = 10;
 
 const vector<Int> VERBOSITY_LEVEL_CHOICES = {0, 1, 2, 3};
 const Int DEFAULT_VERBOSITY_LEVEL_CHOICE = 0;
+
+const char DEFAULT_COUNT_OR_SAMPLE_CHOICE = 'c';
+const string &DEFAULT_SAMPLE_FILE_CHOICE = "/tmp/samples.txt";
+
+const Int DEFAULT_NUM_SAMPLES_CHOICE = 1000;
 
 const Float NEGATIVE_INFINITY = -std::numeric_limits<Float>::infinity();
 
@@ -235,6 +243,21 @@ void util::printVerbosityLevelOption() {
     if (verbosityLevelOption == DEFAULT_VERBOSITY_LEVEL_CHOICE) cout << "Default arg: " << DEFAULT_VERBOSITY_LEVEL_CHOICE;
     cout << "\n";
   }
+}
+
+void util::printCountOrSampleOption(){
+  cout << "      --" << COUNT_OR_SAMPLE_OPTION << std::left << std::setw(56) << "=arg  c: Compute Model-Count s: Get Samples";
+  cout << "Default arg: " << DEFAULT_COUNT_OR_SAMPLE_CHOICE << "\n";
+}
+
+void util::printSampleFileOption(){
+  cout << "      --" << SAMPLE_FILE_OPTION << std::left << std::setw(56) << "=arg  path to file to store samples";
+  cout << "Default arg: " << DEFAULT_SAMPLE_FILE_CHOICE << "\n";
+}
+
+void util::printNumSamplesOption(){
+  cout << "      --" << NUM_SAMPLES_OPTION << std::left << std::setw(56) << "=arg  number of samples to generate";
+  cout << "Default arg: " << DEFAULT_NUM_SAMPLES_CHOICE << "\n";
 }
 
 /* functions: argument parsing ************************************************/

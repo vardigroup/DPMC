@@ -1,7 +1,7 @@
 /* inclusions *****************************************************************/
 
 #include "../interface/counter.hpp"
-
+#include "../interface/sampler/ADDSampler.hpp"
 /* namespaces *****************************************************************/
 
 /* namespace dd ***************************************************************/
@@ -151,7 +151,12 @@ ADD Counter::countSubtree(JoinNode *joinNode, const Cnf &cnf, Set<Int> &projecte
         dd *= countSubtree(child, cnf, projectedCnfVars);
       }
     }
-
+    
+    if (doSampling){
+      if (joinNode->getProjectableCnfVars().size()>0){
+        joinNode->setNodeDD(dd);
+      }
+    }
     for (Int cnfVar : joinNode->getProjectableCnfVars()) {
       projectedCnfVars.insert(cnfVar);
 
@@ -191,7 +196,74 @@ Float Counter::getModelCount(const Cnf &cnf) {
   }
 }
 
-void Counter::output(const Cnf &cnf, OutputFormat outputFormat) {
+Float Counter::writeSamples(const Cnf &cnf, string sampleFile, Int numSamples){
+  Int indEmpty = cnf.getEmptyClauseIndex();
+  if (indEmpty != DUMMY_MIN_INT) { // empty clause found
+    showWarning("clause " + to_string(indEmpty + 1) + " of cnf is empty (1-indexing)");
+    return 0;
+  }
+  else {
+    doSampling = true;
+    orderDdVars(cnf);
+
+    Set<Int> projectedCnfVars;
+    ADD dd = countSubtree(static_cast<JoinNode *>(joinRoot), cnf, projectedCnfVars);
+    //call addSampler with joinRoot as parameter
+
+    //below lines taken from adjustModelCount are used for sanity checks.
+    Float apparentModelCount = diagram::countConstDdFloat(dd);
+    
+    Float totalModelCount = apparentModelCount;
+
+    Map<Int, Float> literalWeights = cnf.getLiteralWeights();
+    Int totalLiteralCount = literalWeights.size();
+    if (totalLiteralCount % 2 == 1) showError("odd total literal count");
+
+    Int totalVarCount = totalLiteralCount / 2;
+    if (totalVarCount < projectedCnfVars.size()) showError("more projected vars than total vars");
+
+    Set<Int> freeVars;
+    for (Int cnfVar = 1; cnfVar <= totalVarCount; cnfVar++) {
+      if (!util::isFound(cnfVar, projectedCnfVars)) {
+        totalModelCount *= literalWeights.at(cnfVar) + literalWeights.at(-cnfVar);
+        freeVars.insert(cnfVar);
+      }
+    }
+    if (totalModelCount == 0) {
+      showError("Model Count is 0. Floating-point underflow may have occured. Aborting sampling!");
+    }
+    //cout<<"Apparent Vars size:"<<cnf.getApparentVars().size()<<"\n";
+    Sampler::ADDSampler addSampler(static_cast<JoinNode *>(joinRoot), mgr, totalVarCount, cnf.getApparentVars().size(), cnfVarToDdVarMap, ddVarToCnfVarMap, 
+			literalWeights, freeVars, true, 0.0l);
+    addSampler.buildDataStructures();
+    printComment("Starting Sampling to file "+sampleFile+" ..");
+    //double sampleTime = cpuTimeTotal(); 
+    Int nTSteps = 10, nT = 1;
+    
+    FILE* ofp = fopen(sampleFile.c_str(),"w");
+		fprintf(ofp,"%s %ld %ld\n",sampleFile.c_str(), totalVarCount, numSamples);
+		for (uint32_t i =1 ; i<=numSamples; i++){
+			addSampler.drawSample();
+			if (((i-1)%(std::max((numSamples/10),1l)))==1) printComment("Writing trace "+to_string(i)+" out of "+to_string(numSamples)+" to file..");
+			addSampler.writeAsmtToFile(ofp);
+			if(i==nT){
+				//printTimeTaken(ss,cpuTimeTotal()-sampleTime,2);
+				nT *= nTSteps;
+			}
+		}
+    //string ss = "Sampletime-Total";
+    //printTimeTaken(ss,cpuTimeTotal()-sampleTime,2);
+    //printDoubleLine();
+    //cout<<endl<<endl<< "sample_trace ended at ";
+    //print_wall_time(); cout<<endl;
+    //printTimeTaken(string("Total"),(cpuTimeTotal()-startTime),1);
+		fclose(ofp);
+    printComment("Done Sampling!");
+    return totalModelCount;
+  }
+}
+
+void Counter::output(const Cnf &cnf, string sampleFile, Int numSamples, OutputFormat outputFormat) {
   printComment("Computing output...", 1);
 
   signal(SIGINT, handleSignals); // Ctrl c
@@ -207,6 +279,13 @@ void Counter::output(const Cnf &cnf, OutputFormat outputFormat) {
     }
     case OutputFormat::MODEL_COUNT: {
       util::printSolutionLine(getModelCount(cnf));
+      break;
+    }
+    case OutputFormat::SAMPLE: {
+      util::printSolutionLine(writeSamples(cnf, sampleFile, numSamples));
+      printThinLine();
+      printComment("Samples written successfully!");
+      printThinLine();
       break;
     }
     default: {

@@ -27,6 +27,9 @@ protected:
   vector<Int> ddVarToCnfVarMap; // e.g. [42, 13], i.e. ddVarOrdering
 
   JoinNonterminal *joinRoot;
+  
+  bool doSampling = false;
+  vector<ADD> intermediates;
 
   static void handleSignals(int signal); // `timeout` sends SIGTERM
 
@@ -50,11 +53,13 @@ public:
 
   ADD countSubtree(JoinNode *joinNode, const Cnf &cnf, Set<Int> &projectedCnfVars); // handles cnf without empty clause
   Float countJoinTree(const Cnf &cnf); // handles cnf with/without empty clause
+  void sampleJoinTree(const Cnf &cnf);
 
   virtual Float computeModelCount(const Cnf &cnf) = 0; // handles cnf without empty clause
   Float getModelCount(const Cnf &cnf); // handles cnf with/without empty clause
-
-  void output(const Cnf &cnf, OutputFormat outputFormat);
+  Float writeSamples(const Cnf &cnf, string sampleFile, Int numSamples);
+  
+  void output(const Cnf &cnf, string sampleFile, Int numSamples, OutputFormat outputFormat);
 };
 
 class JoinTreeCounter : public Counter {

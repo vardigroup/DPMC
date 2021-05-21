@@ -78,6 +78,9 @@ extern const string &CLUSTER_VAR_ORDER_OPTION;
 extern const string &DIAGRAM_VAR_ORDER_OPTION;
 extern const string &RANDOM_SEED_OPTION;
 extern const string &VERBOSITY_LEVEL_OPTION;
+extern const string &COUNT_OR_SAMPLE_OPTION;
+extern const string &SAMPLE_FILE_OPTION;
+extern const string &NUM_SAMPLES_OPTION;
 
 enum class WeightFormat { UNWEIGHTED, MINIC2D, CACHET, MCC };
 extern const std::map<Int, WeightFormat> WEIGHT_FORMAT_CHOICES;
@@ -86,7 +89,7 @@ extern const Int DEFAULT_WEIGHT_FORMAT_CHOICE;
 extern const Float DEFAULT_JT_WAIT_SECONDS;
 extern const Float DEFAULT_PERFORMANCE_FACTOR;
 
-enum class OutputFormat { WEIGHTED_FORMULA, JOIN_TREE, MODEL_COUNT };
+enum class OutputFormat { WEIGHTED_FORMULA, JOIN_TREE, MODEL_COUNT, SAMPLE };
 extern const std::map<Int, OutputFormat> OUTPUT_FORMAT_CHOICES;
 extern const Int DEFAULT_OUTPUT_FORMAT_CHOICE;
 
@@ -106,6 +109,11 @@ extern const Int DEFAULT_RANDOM_SEED;
 
 extern const vector<Int> VERBOSITY_LEVEL_CHOICES;
 extern const Int DEFAULT_VERBOSITY_LEVEL_CHOICE;
+
+extern const char DEFAULT_COUNT_OR_SAMPLE_CHOICE;
+extern const string &DEFAULT_SAMPLE_FILE_CHOICE;
+
+extern const Int DEFAULT_NUM_SAMPLES_CHOICE;
 
 extern const Float NEGATIVE_INFINITY;
 
@@ -143,6 +151,9 @@ namespace util {
   void printDdVarOrderingHeuristicOption();
   void printRandomSeedOption();
   void printVerbosityLevelOption();
+  void printCountOrSampleOption();
+  void printSampleFileOption();
+  void printNumSamplesOption();
 
   /* functions: argument parsing **********************************************/
 
@@ -153,6 +164,9 @@ namespace util {
   string getClusteringHeuristicName(ClusteringHeuristic clusteringHeuristic);
   string getVarOrderingHeuristicName(VarOrderingHeuristic varOrderingHeuristic);
   string getVerbosityLevelName(Int verbosityLevel);
+  string getCountOrSampleName(char countOrSample);
+  string getSampleFileOption(string sampleFile);
+  string getNumSamplesOption(Int numSamples);
 
   /* functions: CNF ***********************************************************/
 

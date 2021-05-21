@@ -109,35 +109,36 @@ void solving::solveOptions(
 
   VarOrderingHeuristic ddVarOrderingHeuristic = VarOrderingHeuristic::DUMMY_VAR_ORDERING_HEURISTIC;
   bool inverseDdVarOrdering = false; // dummy
+  string dummyString; Int dummyInt;
   switch (clusteringHeuristic) {
     case ClusteringHeuristic::MONOLITHIC: {
       MonolithicCounter monolithicCounter(ddVarOrderingHeuristic, inverseDdVarOrdering);
-      monolithicCounter.output(cnf, OutputFormat::JOIN_TREE);
+      monolithicCounter.output(cnf, dummyString, dummyInt, OutputFormat::JOIN_TREE);
       break;
     }
     case ClusteringHeuristic::LINEAR: {
       LinearCounter linearCounter(ddVarOrderingHeuristic, inverseDdVarOrdering);
-        linearCounter.output(cnf, OutputFormat::JOIN_TREE);
+        linearCounter.output(cnf,dummyString, dummyInt, OutputFormat::JOIN_TREE);
       break;
     }
     case ClusteringHeuristic::BUCKET_LIST: {
       BucketCounter bucketCounter(false, cnfVarOrderingHeuristic, inverseCnfVarOrdering, ddVarOrderingHeuristic, inverseDdVarOrdering);
-      bucketCounter.output(cnf, OutputFormat::JOIN_TREE);
+      bucketCounter.output(cnf, dummyString, dummyInt, OutputFormat::JOIN_TREE);
       break;
     }
     case ClusteringHeuristic::BUCKET_TREE: {
       BucketCounter bucketCounter(true, cnfVarOrderingHeuristic, inverseCnfVarOrdering, ddVarOrderingHeuristic, inverseDdVarOrdering);
-      bucketCounter.output(cnf, OutputFormat::JOIN_TREE);
+      bucketCounter.output(cnf, dummyString, dummyInt, OutputFormat::JOIN_TREE);
       break;
     }
     case ClusteringHeuristic::BOUQUET_LIST: {
       BouquetCounter bouquetCounter(false, cnfVarOrderingHeuristic, inverseCnfVarOrdering, ddVarOrderingHeuristic, inverseDdVarOrdering);
-      bouquetCounter.output(cnf, OutputFormat::JOIN_TREE);
+      bouquetCounter.output(cnf, dummyString, dummyInt, OutputFormat::JOIN_TREE);
       break;
     }
     case ClusteringHeuristic::BOUQUET_TREE: {
       BouquetCounter bouquetCounter(true, cnfVarOrderingHeuristic, inverseCnfVarOrdering, ddVarOrderingHeuristic, inverseDdVarOrdering);
-      bouquetCounter.output(cnf, OutputFormat::JOIN_TREE);
+      bouquetCounter.output(cnf, dummyString, dummyInt, OutputFormat::JOIN_TREE);
       break;
     }
     default: {

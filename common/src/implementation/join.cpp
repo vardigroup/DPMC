@@ -60,6 +60,13 @@ const Set<Int> &JoinNode::getProjectableCnfVars() const {
   return projectableCnfVars;
 }
 
+SamplerUtils::ADDWrapper& JoinNode::getNodeDD(){
+  return nodeDD;
+}
+
+void JoinNode::setNodeDD(SamplerUtils::ADDWrapper nodeDD_){
+  nodeDD = nodeDD_;
+}
 /* class JoinTerminal *****************************************************/
 
 const Set<Int> &JoinTerminal::getApparentCnfVars(const vector<vector<Int>> &clauses) {

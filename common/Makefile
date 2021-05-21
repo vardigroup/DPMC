@@ -5,6 +5,7 @@ STATIC = -static
 
 HPP_DIR = src/interface
 CPP_DIR = src/implementation
+SAMPLE_DIR = sampler
 
 ################################################################################
 
@@ -15,14 +16,18 @@ CUDD_INCLUSIONS = -I$(CUDD_DIR) -I$(CUDD_DIR)/cudd -I$(CUDD_DIR)/epd -I$(CUDD_DI
 CUDD_LIBS = $(CUDD_DIR)/cudd/.libs
 CUDD_LINK = -lcudd
 
+GMP_LINK = -lgmp
 ################################################################################
 
 O_DIR = obj
 
 _OBJ = util.o graph.o formula.o join.o visual.o counter.o
-_OBJ_HTB = $(_OBJ) main_htb.o
-_OBJ_DMC = $(_OBJ) main_dmc.o
-_OBJ_ADDMC = $(_OBJ) main_addmc.o
+_OBJ_SAMPLE = RandomBits.o utils.o NumType.o GMPNumType.o SamplerNode.o SamplerNodeFactory.o ADDSampler.o 
+OBJ_SAMPLE = $(patsubst %, $(SAMPLE_DIR)/%, $(_OBJ_SAMPLE))
+_OBJ_HTB = $(_OBJ) $(OBJ_SAMPLE) main_htb.o
+_OBJ_DMC = $(_OBJ) $(OBJ_SAMPLE) main_dmc.o
+_OBJ_ADDMC = $(_OBJ) $(OBJ_SAMPLE) main_addmc.o
+
 
 OBJ_HTB = $(patsubst %, $(O_DIR)/%, $(_OBJ_HTB))
 OBJ_DMC = $(patsubst %, $(O_DIR)/%, $(_OBJ_DMC))
@@ -52,16 +57,20 @@ GCC_FLAGS = $(OPTIMIZATION) $(STATIC) -I./$(HPP_DIR) -I$(LIB_DIR) $(CUDD_INCLUSI
 all: $(HTB) $(DMC) $(ADDMC)
 
 $(HTB): $(OBJ_HTB)
-	mkdir -p $(BIN_DIR) && $(GCC) -o $(HTB_BIN) $^ $(GCC_FLAGS) -L $(CUDD_LIBS) $(CUDD_LINK) && echo
+	mkdir -p $(BIN_DIR) && $(GCC) -o $(HTB_BIN) $^ $(GCC_FLAGS) -L $(CUDD_LIBS) $(CUDD_LINK) $(GMP_LINK) && echo
 
 $(DMC): $(OBJ_DMC)
-	mkdir -p $(BIN_DIR) && $(GCC) -o $(DMC_BIN) $^ $(GCC_FLAGS) -L $(CUDD_LIBS) $(CUDD_LINK) && echo
+	mkdir -p $(BIN_DIR) && $(GCC) -o $(DMC_BIN) $^ $(GCC_FLAGS) -L $(CUDD_LIBS) $(CUDD_LINK) $(GMP_LINK) && echo
 
 $(ADDMC): $(OBJ_ADDMC)
-	mkdir -p $(BIN_DIR) && $(GCC) -o $(ADDMC_BIN) $^ $(GCC_FLAGS) -L $(CUDD_LIBS) $(CUDD_LINK) && echo
+	mkdir -p $(BIN_DIR) && $(GCC) -o $(ADDMC_BIN) $^ $(GCC_FLAGS) -L $(CUDD_LIBS) $(CUDD_LINK) $(GMP_LINK) && echo
+
+$(O_DIR)/$(SAMPLE_DIR)/%.o: $(CPP_DIR)/$(SAMPLE_DIR)/%.cpp $(HPP_DIR)/$(SAMPLE_DIR)/%.hpp
+	mkdir -p $(O_DIR)/$(SAMPLE_DIR) && $(GCC) -c -o $@ $< $(GCC_FLAGS) && echo
 
 $(O_DIR)/%.o: $(CPP_DIR)/%.cpp $(HPP_DIR)/%.hpp
 	mkdir -p $(O_DIR) && $(GCC) -c -o $@ $< $(GCC_FLAGS) && echo
 
 clean:
 	rm -rf $(O_DIR) $(HTB_BIN) $(DMC_BIN) $(ADDMC_BIN) && echo
+	rm -rf $(O_DIR)/$(SAMPLE_DIR) && echo

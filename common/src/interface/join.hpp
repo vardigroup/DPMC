@@ -3,7 +3,7 @@
 /* inclusions *****************************************************************/
 
 #include "util.hpp"
-
+#include "sampler/utils.hpp"
 /* uses ***********************************************************************/
 
 using util::getSeconds;
@@ -37,6 +37,8 @@ protected:
 
   Set<Int> apparentCnfVars; // lazy evaluation
   bool evaluatedApparentCnfVars = false;
+  
+  SamplerUtils::ADDWrapper nodeDD;
 
 public:
   static void resetStaticFields();
@@ -52,6 +54,9 @@ public:
   virtual const Set<Int> &getApparentCnfVars(const vector<vector<Int>> &clauses) = 0; // after projecting all child->projectableCnfVars and before projecting this->projectableCnfVars
   virtual Int getMaxVarCount(const vector<vector<Int>> &clauses) = 0;
   virtual void printSubtree(const string &prefix = "") const = 0;
+
+  SamplerUtils::ADDWrapper& getNodeDD();
+  void setNodeDD(SamplerUtils::ADDWrapper);
 };
 
 class JoinTerminal : public JoinNode {

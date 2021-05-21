@@ -21,6 +21,9 @@ public:
   Int ddVarOrderingHeuristicOption;
   Int randomSeedOption;
   Int verbosityLevelOption;
+  char countOrSampleOption;
+  string sampleFileOption;
+  Int numSamplesOption;
 
   cxxopts::Options *options;
   Int cnfFilePathCount;
@@ -40,7 +43,10 @@ namespace solving {
     Int weightFormatOption,
     Float jtWaitSeconds,
     Float performanceFactor,
-    Int ddVarOrderingHeuristicOption
+    Int ddVarOrderingHeuristicOption,
+    char countOrSampleOption,
+    string sampleFileOption,
+    Int numSamplesOption
   );
   void solveCommand(int argc, char *argv[]);
 }

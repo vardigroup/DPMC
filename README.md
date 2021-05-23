@@ -10,18 +10,12 @@ ProCount computes weighted projected model counts of formulas in conjunctive nor
 <!-- ####################################################################### -->
 
 ## [Releases](https://github.com/vardigroup/DPMC/releases)
-- 2021/05/15: [procount](https://github.com/vardigroup/DPMC/releases/tag/procount)
+- 2021/05/15: [v2.0.0](https://github.com/vardigroup/DPMC/releases/tag/v2.0.0)
   - SAT-2021 paper: **ProCount: Weighted Projected Model Counting with Graded Project-Join Trees**
-    - Authors:
-      - Jeffrey M. Dudek
-      - Vu H. N. Phan
-      - Moshe Y. Vardi
+    - Authors: Jeffrey Dudek, Vu Phan, Moshe Vardi
 - 2020/07/20: [v1.0.0](https://github.com/vardigroup/DPMC/releases/tag/v1.0.0)
   - CP-2020 paper: **DPMC: Weighted Model Counting by Dynamic Programming on Project-Join Trees**
-    - Authors:
-      - Jeffrey M. Dudek
-      - Vu H. N. Phan
-      - Moshe Y. Vardi
+    - Authors: Jeffrey Dudek, Vu Phan, Moshe Vardi
 
 <!-- ####################################################################### -->
 

@@ -5,9 +5,9 @@
 ## Benchmarks
 
 ### Downloading archives to this dir (`experiments`)
-- [ProCount](https://github.com/vardigroup/DPMC/releases/download/procount/benchmarksDpmc.zip)
-- [D4P & projMC](https://github.com/vardigroup/DPMC/releases/download/procount/benchmarksD4.zip)
-- [reSSAT](https://github.com/vardigroup/DPMC/releases/download/procount/benchmarksSsat.zip)
+- [ProCount](https://github.com/vardigroup/DPMC/releases/download/v2.0.0/benchmarksDpmc.zip)
+- [D4P & projMC](https://github.com/vardigroup/DPMC/releases/download/v2.0.0/benchmarksD4.zip)
+- [reSSAT](https://github.com/vardigroup/DPMC/releases/download/v2.0.0/benchmarksSsat.zip)
 
 ### Extracting downloaded archives into the same new dir `experiments/benchmarks`
 ```bash
@@ -31,7 +31,7 @@ unzip ./benchmarksSsat.zip
 - `htb`: ProCount's (alternate) planner [HTB](../htb)
 - `dmc`: ProCount's executor [DMC](../dmc)
 - `LgDmc.sh`: [ProCount model counter (script to pipe LG's output into DMC's input)](./LgDmc.sh)
-- `d4`: [d4p & projMC model counters (corrected version provided by author)](https://github.com/vardigroup/DPMC/releases/download/procount/d4)
+- `d4`: [d4p & projMC model counters (corrected version provided by author)](https://github.com/vardigroup/DPMC/releases/download/v2.0.0/d4)
 - `abc`: [reSSAT model counter](https://github.com/nianzelee/ssatABC)
 - `cryptominisat5_amd64_linux_static`: [SAT solver](https://github.com/msoos/cryptominisat)
 
@@ -79,7 +79,7 @@ sdimacsFile=benchmarks/bird/sdimacs/blasted_case102.no_w.sdimacs && abc -c "ssat
 <!-- ####################################################################### -->
 
 ## Data
-- Download [archive](https://github.com/vardigroup/DPMC/releases/download/procount/data.zip) to this dir (`experiments`)
+- Download [archive](https://github.com/vardigroup/DPMC/releases/download/v2.0.0/data.zip) to this dir (`experiments`)
 - Extract downloaded archive into dir `experiments/data`
 
 ### ProCount, using planner LG (with tree decomposer FlowCutter) and executor DMC (with heuristic MCS)

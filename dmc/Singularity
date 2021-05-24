@@ -2,23 +2,25 @@ Bootstrap: docker
 From: ubuntu:20.04
 
 %setup
-  mkdir ${SINGULARITY_ROOTFS}/common
-  cp -t ${SINGULARITY_ROOTFS}/common -r ../common/src ../common/lib.zip ../common/Makefile
+  make -C ../addmc clean-libraries
+  mkdir ${SINGULARITY_ROOTFS}/addmc
+  cp -t ${SINGULARITY_ROOTFS}/addmc -r ../addmc/libraries ../addmc/src ../addmc/Makefile
 
 %post
-  apt-get update
+  export DEBIAN_FRONTEND=noninteractive
 
-  apt-get -y install cmake
-  apt-get -y install g++
-  apt-get -y install libboost-all-dev
-  apt-get -y install libgmp-dev
-  apt-get -y install make
-  apt-get -y install unzip
+  apt update
 
-  make --directory=/common dmc OPT=-Ofast
+  apt -y install automake
+  apt -y install cmake
+  apt -y install g++
+  apt -y install libgmp-dev
+  apt -y install make
+
+  make -C /addmc dmc opt=-Ofast
 
 %help
-  This is a container for the execution tool DMC.
+  This is a container for the tool DMC.
 
 %runscript
-  /common/dmc "$@"
+  /addmc/dmc "$@"

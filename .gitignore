@@ -1,26 +1,31 @@
-common/dmc
-common/htb
-common/lib/
-common/obj/
+mc/bin/*.cnf
+mc/bin/dmc
+mc/bin/flow_cutter_pace17
+mc/bin/htb
+mc/bin/lg
+mc/bin/pmc
+mc/*.zip
 
+addmc/dmc
+addmc/htb
 dmc/dmc
 htb/htb
-
-experiments/.ipynb_checkpoints/
-experiments/benchmarks
-experiments/data.zip
-experiments/data/
-experiments/figures/
-
-# symbolic links:
-experiments/postprocessor.py
-experiments/wrapper.py
 
 *.sif
 
 lg/build
 lg/solvers/flow-cutter-pace17/flow_cutter_pace17
 lg/solvers/htd-master/build
+
+__pycache__
+*.pyc
+
+venv
+.idea
+
+*.swp
+
+.vscode
 
 ################################################################################
 ## GitHub default: C

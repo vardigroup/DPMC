@@ -3,7 +3,6 @@ mc/bin/dmc
 mc/bin/flow_cutter_pace17
 mc/bin/htb
 mc/bin/lg
-mc/bin/pmc
 mc/*.zip
 
 addmc/dmc

@@ -9,7 +9,8 @@
 - [FlowCutter](https://github.com/kit-algo/flow-cutter-pace17): Strasser
 - [htd](https://github.com/mabseher/htd): Abseher, Musliu, Woltran
 - [miniC2D](http://reasoning.cs.ucla.edu/minic2d): Oztok, Darwiche
-- [Model-counting competition](https://mccompetition.org): Hecher, Fichte
+- [Model Counting Competition](https://mccompetition.org): Hecher, Fichte
+- [pmc](http://www.cril.univ-artois.fr/KC/pmc.html): Lagniez, Marquis
 - [SlurmQueen](https://github.com/Kasekopf/SlurmQueen): Dudek
 - [Sylvan](https://trolando.github.io/sylvan): van Dijk
 - [Tamaki](https://github.com/TCS-Meiji/PACE2017-TrackA): Tamaki

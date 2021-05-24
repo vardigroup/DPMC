@@ -79,14 +79,14 @@ Usage:
 ### Computing join tree given CNF file
 #### Command
 ```bash
-./htb --cf=../examples/s27_3_2.wpcnf
+./htb --cf=../examples/phi.wpcnf
 ```
 #### Output
 ```
-c argv: ./htb --cf=../examples/s27_3_2.wpcnf
+c argv: ./htb --cf=../examples/phi.wpcnf
 
 c processing command-line options...
-c cnfFilePath                   ../examples/s27_3_2.wpcnf
+c cnfFilePath                   ../examples/phi.wpcnf
 c weightFormat                  WPCNF
 c clustering                    BOUQUET_TREE
 c clusterVarOrder               LEXP
@@ -94,33 +94,28 @@ c inverseClusterVarOrder        0
 c randomSeed                    2020
 
 c processing cnf formula...
-c declaredVarCount              20
-c apparentVarCount              20
-c declaredClauseCount           43
-c apparentClauseCount           43
+c declaredVarCount              6
+c apparentVarCount              6
+c declaredClauseCount           5
+c apparentClauseCount           5
 
 c computing output...
 c ------------------------------------------------------------------
-p jt 20 43 58
-44 43 e
-45 13 39 40 41 42 44 e 20
-46 34 35 36 37 38 e 19
-47 29 30 31 32 33 e 18
-48 22 27 28 45 46 47 e 17
-49 9 10 11 12 14 48 e 12
-50 24 e
-51 1 2 25 26 50 e 16
-52 21 23 49 51 e 15
-53 3 4 5 52 e 8
-54 15 16 17 18 53 e 11
-55 6 7 8 19 20 54 e 13 10 9 14
-56 55 e
-57 56 e 4 1 6 2 5 7 3
-58 57 e
-c joinTreeWidth 11
+p jt 6 5 15
+11 1 e 2 4
+12 11 e
+7 4 e
+8 5 e
+13 7 8 e 3 5
+6 3 e
+9 2 e 6
+10 9 e
+14 6 10 e 1
+15 12 13 14 e
+c joinTreeWidth 2
 c ------------------------------------------------------------------
 
 c ==================================================================
-c seconds                       0.003
+c seconds                       0.001
 c ==================================================================
 ```

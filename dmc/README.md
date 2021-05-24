@@ -88,60 +88,60 @@ Usage:
 ### Computing model count given CNF file and join tree from jt file
 #### Command
 ```bash
-./dmc --cf=../examples/s27_3_2.wpcnf --jf=../examples/s27_3_2.jt.htb --dp=2 --sw=3
+./dmc --cf=../examples/phi.wpcnf --jf=../examples/phi.jt
 ```
 #### Output
 ```
-c argv: ./dmc --cf=../examples/s27_3_2.wpcnf --jf=../examples/s27_3_2.jt.htb --dp=2 --sw=3
+c argv: ./dmc --cf=../examples/phi.wpcnf --jf=../examples/phi.jt
 
 c processing command-line options...
-c cnfFilePath                   ../examples/s27_3_2.wpcnf
-c jtFilePath                    ../examples/s27_3_2.jt.htb
+c cnfFilePath                   ../examples/phi.wpcnf
+c jtFilePath                    ../examples/phi.jt
 c weightFormat                  WPCNF
 c planningStrategy              FIRST_JOIN_TREE
 c jtWaitSeconds                 2.3
 c performanceFactor             0
 c diagramVarOrder               MCS
 c inverseDiagramVarOrder        0
-c diagramPackage                SYLVAN
-c workerCount                   3
+c diagramPackage                CUDD
+c workerCount                   0
 c joinPriority                  SMALLEST_FIRST
 c randomSeed                    2020
 
 c processing cnf formula...
-c declaredVarCount              20
-c apparentVarCount              20
-c declaredClauseCount           43
-c apparentClauseCount           43
+c declaredVarCount              6
+c apparentVarCount              6
+c declaredClauseCount           5
+c apparentClauseCount           5
 
 c procressing join tree...
-c after 0.001000s, finished processing first join tree (width 10 | ending on/before line 37)
-c declaredVarCount              20
-c declaredClauseCount           43
-c declaredNodeCount             58
-c plannerSeconds                0.005
+c after 0.001000s, finished processing first join tree (width 2 | ending on/before line 28)
+c declaredVarCount              6
+c declaredClauseCount           5
+c declaredNodeCount             10
+c plannerSeconds                -inf
 
 c computing output...
 c ------------------------------------------------------------------
-s wmc 0.550265
+s wmc 0.4
 c ------------------------------------------------------------------
 
 c ==================================================================
-c seconds                       0.005
+c seconds                       0.002
 c ==================================================================
 ```
 
-### Computing model count given join tree (from `lg`) and formula (from CNF file)
+### Computing model count given CNF file and join tree from `lg`
 #### Command
 ```bash
-cnf="../examples/s27_3_2.wpcnf" && ../lg/lg.sif "/solvers/htd-master/bin/htd_main -s 1234567 --opt width --iterations 0 --strategy challenge --print-progress --preprocessing full" < $cnf | ./dmc --cf=$cnf --jf=-
 ```
+cnf="../examples/phi.wpcnf" && ../lg/lg.sif "/solvers/flow-cutter-pace17/flow_cutter_pace17 -p 100" < $cnf | ./dmc --cf=$cnf --jf=-
 #### Output
 ```
-c argv: ./dmc --cf=../examples/s27_3_2.wpcnf --jf=-
+c argv: ./dmc --cf=../examples/phi.wpcnf --jf=-
 
 c processing command-line options...
-c cnfFilePath                   ../examples/s27_3_2.wpcnf
+c cnfFilePath                   ../examples/phi.wpcnf
 c jtFilePath                    -
 c weightFormat                  WPCNF
 c planningStrategy              FIRST_JOIN_TREE
@@ -155,33 +155,33 @@ c joinPriority                  SMALLEST_FIRST
 c randomSeed                    2020
 
 c processing cnf formula...
-c declaredVarCount              20
-c apparentVarCount              20
-c declaredClauseCount           43
-c apparentClauseCount           43
+c declaredVarCount              6
+c apparentVarCount              6
+c declaredClauseCount           5
+c apparentClauseCount           5
 
 c procressing join tree...
 c ==================================================================
 c getting join tree from stdin... (end input with 'Enter' then 'Ctrl d')
-c after 0.094000s, finished processing first join tree (width 20 | ending on/before line 8)
-c successfully killed planner process with PID 19525
+c after 0.111000s, finished processing first join tree (width 2 | ending on/before line 11)
+c successfully killed planner process with PID 267281
 c ******************************************************************
 c MY_WARNING: planner should have been killed; killing it now
 c ******************************************************************
-c successfully killed planner process with PID 19525
+c successfully killed planner process with PID 267281
 c getting join tree from stdin: done
 c ==================================================================
-c declaredVarCount              20
-c declaredClauseCount           43
-c declaredNodeCount             45
-c plannerSeconds                0.0202199
+c declaredVarCount              6
+c declaredClauseCount           5
+c declaredNodeCount             10
+c plannerSeconds                0.0111506
 
 c computing output...
 c ------------------------------------------------------------------
-s wmc 0.550265
+s wmc 0.4
 c ------------------------------------------------------------------
 
 c ==================================================================
-c seconds                       0.095
+c seconds                       0.111
 c ==================================================================
 ```

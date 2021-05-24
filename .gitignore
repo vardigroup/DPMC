@@ -18,6 +18,10 @@ experiments/wrapper.py
 
 *.sif
 
+lg/build
+lg/solvers/flow-cutter-pace17/flow_cutter_pace17
+lg/solvers/htd-master/build
+
 ################################################################################
 ## GitHub default: C
 ################################################################################

@@ -21,7 +21,7 @@ Once the container has been built, LG can be run with the following command:
 
 Once LG and FlowCutter has been built, LG can be run with the following command:
 ```bash
-./lg.sif "/solvers/flow-cutter-pace17/flow_cutter_pace17 -s 1234567 -p 100" < ../examples/phi.wpcnf
+./lg.sif "/solvers/flow-cutter-pace17/flow_cutter_pace17 -s 1234567 -p 100" <../examples/phi.wpcnf
 ```
 
 On this command, output is:
@@ -48,8 +48,8 @@ The pid of the tree decomposition solver is given in the first comment line (`c 
 
 LG can also be run using Tamaki or htd as the tree decomposition solver as follows:
 ```bash
-./lg.sif "java -classpath /solvers/TCS-Meiji -Xmx25g -Xms25g -Xss1g tw.heuristic.MainDecomposer -s 1234567 -p 100" < ../examples/phi.wpcnf
-./lg.sif "/solvers/htd-master/bin/htd_main -s 1234567 --opt width --iterations 0 --strategy challenge --print-progress --preprocessing full" < ../examples/phi.wpcnf
+./lg.sif "java -classpath /solvers/TCS-Meiji -Xmx25g -Xms25g -Xss1g tw.heuristic.MainDecomposer -s 1234567 -p 100" <../examples/phi.wpcnf
+./lg.sif "/solvers/htd-master/bin/htd_main -s 1234567 --opt width --iterations 0 --strategy challenge --print-progress --preprocessing full" <../examples/phi.wpcnf
 ```
 Note that "Xmx25g" and "Xms25g" refers to the amount of memory given to the JVM in the tree decomposition solver (in this case, 25GB).
 Upon an error message that begins `OpenJDK 64-Bit Server VM warning: INFO: os::commit_memory`, reduce 25 to a smaller number.

@@ -22,14 +22,14 @@ c There are no weight lines for Exist-vars Y = {z2, z4, z6}.
 
 c Each clause line lists literals and ends with "0".
 
-c Clause 1 contains literals {z1, z2, -z4}:
-1 2 -4 0
+c Clause 1 contains literals {z2, -z4}:
+2 -4 0
 
 c Clause 2:
 1 6 0
 
 c Clause 3:
-3 0
+1 0
 
 c Clause 4:
 3 5 0

@@ -22,6 +22,9 @@ class DimacsParser {
   /**
    * Constructs a parser to parse the provided input stream.
    * If given, output comment lines to the provided output stream.
+   * Note output comment lines will not be parsed in this case.
+   * 
+   * If no comment stream is given, comment lines will be parsed as usual.
    * 
    * Provided streams should outlive the DimacsParser.
    */

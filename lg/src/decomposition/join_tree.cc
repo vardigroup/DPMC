@@ -78,6 +78,30 @@ int create_grade(
     }
   });
 
+  // Handle clauses with no variables
+  std::vector<int> disjoint_components(0);
+  for (size_t i = 0; i < clauses.size(); i++) {
+    if (clauses[i].variables().size() == 0) {
+      if (clauses[i].clause_id() == SIZE_MAX) {
+        disjoint_components.push_back(
+          create_grade(clauses[i],
+                      formula,
+                      tree_decomposition,
+                      result,
+                      starting_node));
+      } else {
+        // Assert: Empty clauses should be virtual clauses incurred by grading
+        std::cerr << "Reduction error: Empty clause" << std::endl;
+        return -1;
+      }
+    }
+  }
+  if (disjoint_components.size() > 0) {
+    // Connect all disjoint components at the root, if they exist
+    disjoint_components.push_back(root);
+    root = result->add_internal(disjoint_components);
+  }
+
   // Ensure that free variables are kept until at least this point
   if (graded_clauses.variables().size() == 0) {
     return root;
@@ -101,6 +125,7 @@ std::optional<JoinTree> JoinTree::graded_from_tree_decomposition(
     return std::nullopt;  // Unable to set root.
   }
   result.compute_projected_variables(formula);
+  result.compute_width(formula);
   return result;
 }
 
@@ -214,6 +239,47 @@ void JoinTree::write(std::ostream *output) const {
     *output << "\n";
     next_id++;
     return next_id-1;
+  });
+
+  // Print out the join tree width
+  *output << "c joinTreeWidth " << width_ << "\n";
+}
+
+void JoinTree::compute_width(const util::Formula &formula) {
+  width_ = 0;
+  visit<std::vector<size_t>>([&] (const JoinTreeNode &node,
+                                  std::vector<std::vector<size_t>> children) {
+    if (children.size() == 0 && node.projected_variables.size() == 0) {
+      // Short-circuit for simple leaf nodes
+      width_ = std::max(width_,
+                        formula.clause_variables()[node.clause_id].size());
+      return formula.clause_variables()[node.clause_id];
+    }
+
+    std::vector<size_t> vars;
+    if (children.size() == 0) {
+      vars.insert(vars.end(),
+                  formula.clause_variables()[node.clause_id].begin(),
+                  formula.clause_variables()[node.clause_id].end());
+    } else {
+      // Combine the variables from all children
+      for (std::vector<size_t> &child : children) {
+        vars.insert(vars.end(), child.begin(), child.end());
+      }
+      // (Remove duplicates in list of variables)
+      std::sort(vars.begin(), vars.end());
+      vars.erase(std::unique(vars.begin(), vars.end()),
+                 vars.end());
+    }
+
+    width_ = std::max(width_, vars.size());
+    // Remove all projected variables
+    vars.erase(set_difference(vars.begin(), vars.end(),
+                              node.projected_variables.begin(),
+                              node.projected_variables.end(),
+                              vars.begin()),
+                vars.end());
+    return vars;
   });
 }
 

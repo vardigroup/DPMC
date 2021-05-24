@@ -75,6 +75,11 @@ class JoinTree {
   void compute_projected_variables(const util::Formula &formula);
 
   /**
+   * Store the width of this project-join tree.
+   */
+  void compute_width(const util::Formula &formula);
+
+  /**
    * Set the root of the join tree.
    */
   bool set_root(size_t root) {
@@ -98,6 +103,7 @@ class JoinTree {
   size_t highest_leaf_id_;
   size_t highest_projected_var_;
   size_t num_nodes_;
+  size_t width_;
   Tree<JoinTreeNode> tree_;
 };
 }  // namespace decomposition

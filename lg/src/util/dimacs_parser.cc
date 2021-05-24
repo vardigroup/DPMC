@@ -26,18 +26,24 @@ namespace util {
     std::string line;
     std::getline(*input_stream_, line);
     std::size_t split = line.find_first_of("-.0123456789");
-    if (split == std::string::npos) return line;
+    if (split == std::string::npos) {
+      split = line.size();
+    } else {
+      // Copy all doubles from the line (beyond the prefix) into out
+      std::stringstream line_stream(line);
+      line_stream.seekg(static_cast<std::streamoff>(split));
+      std::copy(std::istream_iterator<double>(line_stream),
+                std::istream_iterator<double>(),
+                std::back_inserter(*out));
+    }
 
-    // Copy all doubles from the line (beyond the prefix) into out
-    std::stringstream line_stream(line);
-    line_stream.seekg(static_cast<std::streamoff>(split));
-    std::copy(std::istream_iterator<double>(line_stream),
-              std::istream_iterator<double>(),
-              std::back_inserter(*out));
 
     // Remove trailing whitespace from the prefix, and return it
     if (split == 0) return "";
-    while (split > 0 && (line.at(split-1) == ' ' || line.at(split-1) == '\t')) {
+    while (split > 0 && (line.at(split-1) == ' '
+                         || line.at(split-1) == '\t'
+                         || line.at(split-1) == '\n'
+                         || line.at(split-1) == '\r')) {
       split--;
     }
     return line.substr(0, split);
@@ -69,7 +75,8 @@ namespace util {
   void DimacsParser::skipToContent() {
     char next = input_stream_->peek();
     // Ignore comment lines (starting with 'c') and empty lines
-    while (next == 'c' || next == '\n' || next == '\r') {
+    while ((next == 'c' && comment_stream_ != nullptr)
+           || next == '\n' || next == '\r') {
       if (next == 'c' && comment_stream_ != nullptr) {
         std::string line;
         std::getline(*input_stream_, line);

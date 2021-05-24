@@ -19,9 +19,7 @@ From: debian:buster-slim
 
   # FlowCutter
   apt-get -y install g++
-  cd /solvers/flow-cutter-pace17
-  chmod +x ./build.sh
-  ./build.sh
+  make -C /solvers/flow-cutter-pace17
 
   # Htd
   apt-get -y install g++ cmake make

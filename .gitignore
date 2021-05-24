@@ -1,9 +1,9 @@
-mc/bin/*.cnf
-mc/bin/dmc
-mc/bin/flow_cutter_pace17
-mc/bin/htb
-mc/bin/lg
-mc/*.zip
+mcc/bin/*.cnf
+mcc/bin/dmc
+mcc/bin/flow_cutter_pace17
+mcc/bin/htb
+mcc/bin/lg
+mcc/*.zip
 
 addmc/dmc
 addmc/htb

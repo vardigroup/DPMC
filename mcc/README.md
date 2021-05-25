@@ -1,7 +1,7 @@
 # Model Counting Competition MC-2021: DPMC and ProCount
 - This repository implements DPMC (published at CP 2020) and ProCount (published at SAT 2021).
 - DPMC competed in Tracks 1, 2, and 4 (unprojected counting), and ProCount competed in Track 3 (projected counting).
-- The preprocessor [pmc v1.1](./bin/pmc) was [downloaded](http://www.cril.univ-artois.fr/KC/pmc.html) and used on all tracks.
+- The preprocessor [pmc v1.1](./bin/pmc) was [downloaded](http://www.cril.univ-artois.fr/KC/pmc.html) and used in all tracks.
 
 <!-- ####################################################################### -->
 

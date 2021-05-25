@@ -11,8 +11,8 @@ HTB constructs join trees of formulas in conjunctive normal form
 - g++ 9.3
 - gmp 6.2
 - make 4.2
-- already included as git submodules:
-  - [cxxopts 2.2.1](https://github.com/jarro2783/cxxopts/tree/v2.2.1)
+- already included as git submodule:
+  - [cxxopts 2.2](https://github.com/jarro2783/cxxopts)
 
 ### Command
 ```bash

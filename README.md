@@ -25,8 +25,4 @@ DPMC computes weighted model counts of formulas in conjunctive normal form (CNF)
 
 <!-- ####################################################################### -->
 
-## [Experimental evaluation](./experiments)
-
-<!-- ####################################################################### -->
-
 ## [Acknowledgment](./ACKNOWLEDGMENT.md)

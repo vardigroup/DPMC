@@ -61,12 +61,14 @@ ADDSampler::ADDSampler(JoinNode *root_, Cudd mgr_ , Int nTotalVars_, Int nAppare
 		//therefore all code here is written under assumption that index and levels are same for all ddvars
 	}
 	assert(nApparentVars+freeVars.size()==nTotalVars);
+	numAssigned = 0;
 }
 
 void ADDSampler::buildDataStructures(){
 	t = new Asmt(nTotalVars+1); //cnfvarids are indexed from 1.
 	//TODO: Disable auto reordering
 	//Cudd_AutodynDisable(a.dd);
+	//printComment("#nodes in JoinTree:"+to_string(jtRoot->getNodeCount()));
 	printComment("Building aux structures..  ",0,0);
 	createAuxStructures(jtRoot);
 	printComment("Built all aux structures!",0,1,false);
@@ -387,8 +389,9 @@ void ADDSampler::sampleFromADD(JoinNode* jNode){
 			bool tE = parentSample.first.second;
 			Int cnfVarIndex = a.compressedInvPerm[2*caCmprsdLvl];
 			Int ddVarIndex = a.compressedInvPerm[2*caCmprsdLvl+1];
-			t->set(tE,cnfVarIndex); 
+			t->set(tE,cnfVarIndex);
 			assignedVarsCube = tE? assignedVarsCube.Times(mgr.addVar(ddVarIndex)) : assignedVarsCube.Times(mgr.addVar(ddVarIndex).Cmpl());
+			numAssigned++;
 			currNodeSN = chosenAncestor;
 		} else{}
 		//sample skipped nodes/vars, if any
@@ -399,6 +402,7 @@ void ADDSampler::sampleFromADD(JoinNode* jNode){
 			bool bit = rb.generateWeightedRandomBit(litWeights[cnfVarIndex],litWeights[-cnfVarIndex]);
 			t->set(bit,cnfVarIndex); 
 			assignedVarsCube = bit? assignedVarsCube.Times(mgr.addVar(ddVarIndex)) : assignedVarsCube.Times(mgr.addVar(ddVarIndex).Cmpl());
+			numAssigned++;
 		}
 		cnCmprsdLvl = caCmprsdLvl;	
 	}
@@ -419,6 +423,7 @@ void ADDSampler::sampleFromADD(JoinNode* jNode){
 Asmt& ADDSampler::drawSample(){
 	t->clear();
 	assignedVarsCube = mgr.addOne();
+	numAssigned = 0;
 	for(auto fVar : freeVars){
 		bool bit = rb.generateWeightedRandomBit(litWeights[fVar],litWeights[-fVar]);
 		t->set(bit, fVar);
@@ -437,6 +442,7 @@ Asmt& ADDSampler::drawSample(){
 		}
 	}*/
 	//cout<<"Sample drawn successfully!\n";
+	assert(numAssigned==nApparentVars);
 	return *t;
 }
 
@@ -447,7 +453,7 @@ void ADDSampler::drawSample_rec(JoinNode* jNode){
 	//cout<<"starting sampling from add\n";
 	sampleFromADD(jNode);
 	Float checkVal = getAsmtVal(jNode->getNodeDD());
-	if (checkVal==0){
+	if (checkVal == 0.0){
 		cout<<"While checking sample for add reached leaf with value "<<checkVal<<". Exiting..\n";
 		exit(1);
 	} else {
@@ -494,4 +500,9 @@ void ADDSampler::writeAsmtToFile(FILE* ofp){
 		fprintf(ofp,"%d ",t->get(i));
 	}
 	fprintf(ofp,"\n");
+	static Int cnt = 0;
+	if(cnt % 5000 == 0){
+		snFactory->printSizes();
+	}
+	cnt ++;
 }

@@ -489,7 +489,7 @@ JoinTreeReader::JoinTreeReader(
     printComment("Getting join tree from stdin: done");
     printThickLine();
   }
-
+  util::printRow("declaredNodeCount", joinTree->declaredNodeCount);
   if (verbosityLevel >= 1) {
     util::printRow("declaredVarCount", joinTree->declaredVarCount);
     util::printRow("declaredClauseCount", joinTree->declaredClauseCount);

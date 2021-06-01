@@ -34,6 +34,7 @@ class SamplerNodeFactory{
 		std::pair<std::pair<SamplerNode*,bool>,Int> sampleParent(SamplerNode* nodeSN, vector<double_t> weights, RandomBits *rb);
 		std::pair<std::pair<SamplerNode*,bool>,Int> sampleParent(SamplerNode* nodeSN, vector<long double> weights, RandomBits *rb);
 		bool noUsedNodes();
+		void printSizes();
 		
 		SamplerNode sentinel;
 		

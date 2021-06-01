@@ -1,0 +1,169 @@
+To discuss with Moshe
+	speed on example benchmarks, profiling results
+	all benchmarks have large number of nodes in jt.. even if treewidth is small. So number of cofactorings is large. TraceSampling did not suffer as much from this problem.
+	addTimes i.e. cube construction is taking so long.. doesn't make sense.. possibly because of dynamic mem allocation? too many nodes have to be created destroyed too often.. but still cofactor should be more involved. I implemented object pool for the external structure which seems to be fast even though it has layers of abstraction and can be made faster.
+	avoid dynamic mem allocation? implement object pool? don't know how sylvan does it.. need to find out how sylvan works
+	might as well do implicit sampling since speed will matter for paper. Might as well go with Sylvan? i think it has more efficient implementation, actively developed, and parallel options will be useful for sampling in parallel as well.. problem is that im familiar with cudds internals which are much mpre straightforward. Sylvan has a very convoluted code base for someone who doesnt know how it works. think i will need minimal support from somenzi but likely a lot from van dijk. on the other hand sylvan supports gmp which may be necessary as logsumexp may not work very well (see below; will need to test since its just a hunch)
+	AADDs? Why did community move past them? Doesn't seem like they got adequate attention.. need a good library.. papers had demonstrated uses on bayesian inference, mdps etc.. should be useful especially since adds at least in dpmc case are taking up a lot of memory. Importantly, there are results for approximation using AADDs.. could be useful to avoid blowup
+	worth asking tom van dijk for aadds? can think of other generalizations too 
+	waps is broken
+	experiments with things other than cnf?
+	can we frame path doubling for tracesampling as a form of project-join decomp?
+	undergrad for working on clime
+	
+sample bottom up? come up with a simple example on one slide to show moshe if it can't be done
+scaling behavior of aadds
+affine decision diagrams lapis talk
+write summary of what needs to be done for clime so that moshe can ask hedinn
+====================================================================================================
+To ask Vu:
+	how to run experiments on cluster
+		singularity
+		nodes and mem config
+		setting up other solvers
+		scripts
+		benchmarks?
+		representative benchmarks for quick testing?
+	log counting
+		https://github.com/vuphan314/DPMC/commit/db948d2fb422f6e8f4e6264a0d727741aac5da76
+	unweighted counting
+	updates in projected and parallel branches -- merge with those?
+	var order? how is it chosen? best config overall? uses default
+	code optimization in counter.cpp -- add compose calls can be merged into weighted abstract
+	
+
+====================================================================================================
+TODO / To think (immediate to long term)
+====================================================================================================
+	
+	understand sylvan, lifepedia, onenote, see keep
+	
+	manual cofactoring without constructing cube -- cuddCachelookup and cacheinsert seem to be the problems as these functions take two dds as parameters along with the function that was applied to the two dds. That's why i think cube is taken as input for so many functions instead of just a list of integers. Seems like Will have to manually write cachelookup and cacheinsert functions if I want to do that.
+	
+	underflow flags or warnings supported in cpu/compiler/os .. use them instead of manual checking? Overhead?
+	profile dpmc?
+	understand sylvan
+	
+	
+	logsumexp trick may not work for top-down? understand how that prevents underflow. afaik it works when there are lots of small numbers that indvidually added to a big number would cause error to accumulate, but adding them together first makes the error small. but how does it work for cudd (vu's version)? the problem as i see it for top down seems to be that if you're only adding two numbers at a time then you cant add many small numbers at once and error will creep in a lot. Alternatively just use sylvan with gmp
+	
+	i dont think it makes sense to store two wts (corresponding to left and right child) in each add node. The overhead wrt scaling the left and right wts with the intermediate variable weights should not be much especially since sampling a path top down is fast (height of ADD). Since its proportional to height and not size of ADD, i think excess work per sample should not be too mcuh as total height of all ADDs will be at most some constant multiple of number of vars
+
+	blastedcase110 takes roughly 600 secs to sample 100,000 asnmts using dpmc. turning off asserts in SamplerNodeFactory only saves 8 secs or so. Further opts might be possible but not sure how much difference theyll make. Especially considering that waps took 11 secs (including writing to file etc). need to profile dpsampler, but it might be easier to modify cudd to do sampling. That will also save the cost of cofactoring (i think) as we can just subtract the weight of branch not taken. Will be easier to incorporate logcounting as well. Question is whether to just work with sylvan instead of cudd.
+	
+	even 50-10-1-q.cnf which has treewdith 14 takes 10 mins for 100,000 samples for dpmc while waps takes ~8-9 mins. It has nodecount of 830 or so. So the bottleneck is sampling and not add construction. In case of tracesampler, the number of cofactorings required was the same as the length of the trace which was 256 in worst case. Here even for the smallest benchmark, its really large. So sensible option is to do that other sampling technique where you store cumulative weights at each node in order to enable a top down random walk.
+	
+	do some sort of approximation by approximating weights at leaves? especially when you are storing cumulative weights below each node.
+	proj model counting -- use with ind support? optimize tree construction with ind support?
+	
+	in cachet format, weight can be 1 for both literals. this is specified by setting w to -1. WAPS however does not accept -1 as weight. if i enter 0.5 as weight then underflow occurs in dpmc causing weight to become 0. so either get logcounting or fix waps. will need to fix waps regardless, and will need to get logcounting regardless
+	
+	turn checkSamples off after sufficient testing	
+	
+	create backup before pushing pulling
+
+	watch for mem leaks. log counting. check uniformity.
+
+	talk to vu about changes and optimizations done after i forked the repo
+		especially the log counting part
+		merge with latest dpmc
+		possibly keep under regular dpmc repo
+		resolve types: int_fast64_t was used -- wouldnt int_fast32_t make more sense? similarly for Float 
+	
+	how is var ordering chosen in case of treedecomp based planner?
+
+	many samples in one pass? Currently cant think of easy way or direct benefits from hard way
+
+	sample by visiting adds depth-first or breadth-first (or some other)? Currently doing depth first.
+
+	cuddAddExistAbstractRecur in cuddaddabs.c seems to be inefficient at least in the following aspect. when multiplying by 2 for abstracting a var not in f, it does a whole pass of the add instead of just multiplying the power of 2 for all such vars in one go. in general, intermediate results can be combined in one pass instead of doing each part separately
+
+
+	line 87 in counter.cpp can be optimized possibly -- two calls to add.compose can be merged into 1
+	even abstractCube can be optimized on 90? Merge all the abstracts into 1 pass? cudd's function is more optimized i think since it considers the whole cube at once
+
+	profiling? multiple add managers to enable different var orderings?
+	
+	object pool use boost?
+
+	use incidence treewidth instead of graifman treewidth for graph unrolling?
+
+	currently sampling integrated with dpmc-cudd, integrate with dpmc-sylvan
+
+	symbolic treedecomp? get treedecomp of original graph instead of its encoding in case of trace sampling
+	
+	treewidth blowup by tseitin encoding .. any existing thm? can we make one?
+
+
+	general conjunctive counter.. eg pseudoboolean, ilp, perf-mathcing, linear extensions? enc to cnf blows up treewidth? what about aig? need not technically be conjunctive either. moshe suggested bayesian n/ws .. see other related work below
+
+
+	can sampling be top-down instead of bottom up? do markovian sampling on add with each edge labelled with weighted sum of all paths below that edge and start from top? advantages vs disadv of doing this?
+		given an add you'll have to do bottom up computation as a first step before doing top down markovian. so this directly doesnt offer advantages. but can you maintain the edgeweights on the add itself without incurring extra cost in operations like product, exist abstract, cofactor? i think this should be mostly straightforward as the weight at a node can be recursively defined as weighted sum of weights on left and right branch. if all this holds, you'll get top down at no extra cost (except increase in mem requirements)! need to check but it may be possible to avoid actual cofactoring in top down approach (as you can subtract the weight of the not-taken branch?)
+
+
+	Sylvan ask van Dijk for
+		Affine adds
+		support for zdds and the other types of dds (see the library by the japanese guy for ex permutation dds)
+		add total weight variable to each node (make customizing easier?) .. will enable top-down approach
+		gpu support? mpi etc
+		better mem management using object pool, mem address contiguity (for cache performance etc)
+		dynamic var ordering
+
+	eventually combine top down and bottom up approaches? generalize both essentially
+		instead of just component decomposition.. can consider multiple factors like tree-decomp, symmetric component decomp etc
+		finding good heursitics and balancing time spent on finding good plan vs executing current plan (exploration vs exploitation) is key
+	
+	
+====================================================================================================
+Done / thought
+====================================================================================================
+
+	High level outline:
+		cnf formula -- tree decomp -- create adds bottom up -- save intermediate adds before abstracting variables -- pass join tree structure to ADD sampler with annotations of which adds at which node, and which vars to sample at which node -- construct aux structures for each add -- construct sampling structure for each add -- sample
+
+		how to sample:
+			top level add
+				need to sample all exist vars
+			other adds
+				reduce by vars already sampled
+					cudd_cofactor for reducing
+				sample all exist vars
+			
+	need for compressedlevels :
+ 		it is necessary to keep track of compressed-levels for variables appearing in each ADD because when counting num-paths from root to a node, we need to know how many levels were skipped in order to scale the count. It may happen that a level that was skipped belonged to var that didnt appear in the add at all and so should not have been counted. therefore the compressedperm mapping maintains the map between varindices that need to be sampled from a given add and the corresponding levels (numbered sequentially from 0) in that ADD. Note that the actual levels maybe much different and non-contiguous since one manager has one global ordering. all this is done in createauxstructures where we sort according to global levels to get compressedlevels
+ 		note that we dont actually compute support of the add -- we only need to maintain cmprsdlvls for vars that are to be sampled in a given add. In tracesampler this was the s' vars for most adds while for dpmc it is the projectablecnfvars	
+
+	varids,levels in tracesampler vs dpsampler
+			tracesampler used cudds var ordering features and therefore level of each var was different from index, and required functions like cudd_readperm. the mapping between aigvars and ddvars was mostly straightforward (except for varstartindex).
+			dpmc on the other hand does not use cudds permute features. instead, using different predefined static orderings, it manually maintains mapping between cnfvarids and ddvarids. ddvarids are the same as the levels in the dd. so the maps cnfvaridstoddvarids and ddvartocnfvarids maintain the two directions in case of dpmc. therefore for sampling compressedperm maintains map from ddvarids/ddvarlevels to compressed ddvarids/ddvarlevels (since ids and levels are same) and compressedinvperm maintains map from compressed ddvarids/levels to both cnfvarids and ddvarids. (it turned out that mapping from cnfvarids to compressedvarids/levels was not directly required).
+	
+	
+	num vars:
+		in dpmc totalvars includes variables not appearing in the cnf (but exist because of the number indicated in the header p cnf ..). Apparentvars are only the variables that show up in some clause. so the mappings cnfvar<->ddvarids are only defined on apparentvars.
+			
+	weighted sampling
+		weighted sampling in dpmc makes bookkeeping harder as now we are computing weighted root-path-counts for each node. so where in tracesampler skipping levels would just mean multiplying by corresponding power of two, now we have to multiply by sum of the literal weights for each var that was skipped. in tracesampler i felt it was sufficient to maintain just one rootpathcount for each samplernode. then while sampling a parent i visited each parent and got their rootpathcounts and sampled. in dpmc, i am now storing the weighted rootpathcounts coming from each parent (note that this is the parents' rootpathcounts, scaled by the variable weights between the parent and currnode) in each sampler node along with the total rootpathcount (which is just the sum of this array). This obv increases mem requirements but would make sampling faster as it is no longer necessary to fetch each parents count and scale it. I felt this was needed as now there is the additional overhead of scaling the parent count according to var weight (and not just by power of two), so the variable weight map has to be passed around each time.  I have not tested how much of performance improvement or extramemusage it requires. may need to change after testing
+		
+	datatypes
+		in tracesampler i used uint32_t mostly. However, DPMC uses Int=int_fast64_t and Float=long double everywhere. Therefore to avoid issues i changed everything to match DPMC. Another thing I read on internet is that unsigned datatypes are not recommended unless there is really a need for it (saving a bit is not going to help much). This is because unsigned datatypes do not act as type checking (use assert etc instead), and can fail ungracefully when assigned a neg number (think unsigned for loop limit that gets a neg number so wraps around and becomes max_int - 1). So migrating to dpmc's Int and Float made sense. But need to check with Vu if int_fast32_t is better since fast guarantees "at least 32 bits that is fastest on that architecture" -- so it will anyway be 64 when the architecture is built for that.
+	
+	object pool
+		in tracesampler had made object pool for SamplerNodes (implemented in samplernodefactory) since didnt want to have too much dynamic mem allocation/dealloc. In dpmc, i have additionally implemented a separate pool for rootpathcounts (NOT rootpathcounttotal since there is only one of those per node, and will be handled by node's pool implicitly). have implemented my own pool but will probably be better to switch to boost at somepoint.
+	
+	variable grouping precompiling etc
+		if vars to be sampled and those already sampled are interleaved in an add, then need to cofactor already sampled vars. There is no easy way to precompile the sample structure when the vars are interleaved as the counts change depending on the values of the sampled vars, and it made more sense to just cofactor using cudds inbuilt procedure and then to compile the samplestruct dynamically instead of precompiled. in case of tracesampler, i had experimented with grouping variables to be sampled, so that they remain contiguous despite dynamic reordering. in this way, can still precompile. I had experimented a lot with for ex: keeping samplevars at top of add (least mem requirements since only one root but most restrictive), keeping them together but not necessarily at top (multiple dagroots) etc. However, it turned out that these restrictions on dynamic ordering caused the adds to blow up in size quite fast so that even the 1-step add was not computable in many cases. So abandoned the grouping approach and did dynamic construction of samplestruct after cofactoring (which necessitated the object pool). Despite this, could still precompile the logn-th add as it was not cofactored. In case of dpmc, have gone with dynamic sample-struct compilation, since the static variable order are already probably not very efficient to begin with and to add addtional restrictions would just blow up add sizes. Therefore, precompiling only the root add which does not require cofactoring. for rest, computing samplestruct dynamically. there is some code left over in dpsampler that was put in tracesampler to allow for this grouping etc. However, i believe it can be safely ignored as it is not affecting performance 
+	
+	debugging
+			memory leak!! run dmc on blasted_Case100 for 100,000 samples. see mem usage shoot up. solved (object pool for numtypes was not freeing and using rpcs properly in conjunction with samplernodes)	 	
+====================================================================================================
+Related work + potential applications
+====================================================================================================
+	linear extension sampling
+		mark huber O(n^3) expected time perfect sampling algorithm. 
+		FPRAS implies FPAUS.
+	linear extension counting using tree-decomp
+		kusta kangas algorithmica paper also has empirical study
+
+	from kusta kangas paper important point about tree decomp
+		A well known challenge in practical implementation of tree-decomposition based algorithms is that finding an optimal-width tree decomposition may be insufficient for minimizing the computational cost: the running time of the dynamic programming algorithm can be sensitive to the shape of the tree decomposition. Bodlaender and Fomin [9] addressed this issue from a theoretical viewpoint by studying the complexity of finding a tree decomposition that minimizes a sum of costs associated with each node of a tree decomposition. In their f-cost framework the cost of a node is allowed to depend only on the width of the node (i.e., the size of the associated bag; see Sect. 2). Recently, Abseher et al. [1, 2] presented a more general and more practical heuristic approach. Their htd library [1] allows a user to generate a variety of optimal-width tree decompositions and also (locally) optimize a given cost function. Moreover, they proposed and evaluated [2] a method to learn an appropriate cost function, or regression model, from empirical running time data on a collection of “training” instances. The method can be viewed as an instantiation of the method of empirical hardness models [22] for the algorithm selection problem [30].

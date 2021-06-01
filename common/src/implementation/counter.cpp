@@ -259,6 +259,7 @@ Float Counter::writeSamples(const Cnf &cnf, string sampleFile, Int numSamples){
     //printTimeTaken(string("Total"),(cpuTimeTotal()-startTime),1);
 		fclose(ofp);
     printComment("Done Sampling!");
+    //cout<<totalModelCount<<"\n";
     return totalModelCount;
   }
 }

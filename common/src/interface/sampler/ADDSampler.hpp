@@ -67,6 +67,7 @@ class ADDSampler{
 		unordered_map<Int, Int> cnfVarToDdVarMap;
 		vector<Int> ddVarToCnfVarMap;
 		ADD assignedVarsCube;
+		int numAssigned;
 		Cudd mgr;
 		unordered_map<Int, Float> litWeights;
 		Set<Int> freeVars;

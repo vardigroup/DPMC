@@ -19,13 +19,17 @@ void Sampler::SamplerNodeFactory::recycleAllUsedNodes(){
 	freeNodes.insert(freeNodes.end(),usedNodes.begin(),usedNodes.end());
 	freeRPCs.insert(freeRPCs.end(),usedRPCs.begin(),usedRPCs.end());
 	usedNodes.clear();
+	usedRPCs.clear();
+	sentinel.rootPathCounts.clear(); // sentinel rpcs get recycled above. so need to clear inorder to not recycle twice
 }
 SamplerNode* Sampler::SamplerNodeFactory::createSamplerNode(){
 	cout<<"Not implemented createSamplerNode in snFactory!\n";
 	return NULL;
 }
 void Sampler::SamplerNodeFactory::recycleSamplerNode(SamplerNode* node){
+	//assert(usedNodes.erase(node));
 	usedNodes.erase(node);
+	//cout<<"Recycling rpcs in recSamplerNode\n";
 	for(auto rpc: node->rootPathCounts){
 		recycleRPC(rpc);
 	}
@@ -34,6 +38,7 @@ void Sampler::SamplerNodeFactory::recycleSamplerNode(SamplerNode* node){
 }
 
 void Sampler::SamplerNodeFactory::recycleRPC(NumType* rpc){
+	//assert(usedRPCs.erase(rpc));
 	usedRPCs.erase(rpc);
 	freeRPCs.push_back(rpc);
 }
@@ -191,16 +196,19 @@ NumType* Sampler::SamplerNodeFactory::getRPC(){
 	NumType* newRPC;
 	if (freeRPCs.empty()) {
 		newRPC = one->copy();
+		//cout<<"free RPCs empty!\n";
 	} else{
 		newRPC = freeRPCs.front();
 		freeRPCs.pop_front();
 	}
+	//assert(usedRPCs.insert(newRPC).second);
 	usedRPCs.insert(newRPC);
 	return (newRPC);
 }
 
 void Sampler::SamplerNodeFactory::clearSentinel(Int cmprsdLvl){
 	sentinel.parents.clear(); sentinel.thenElse.clear(); 
+	//cout<<"Recycling rpc in clrSentinel\n";
 	for (auto rpc: sentinel.rootPathCounts){
 		recycleRPC(rpc);
 	}
@@ -221,13 +229,13 @@ void Sampler::SamplerNodeFactory::ensureSamplingArraySize(Int minSize){
 std::pair<std::pair<SamplerNode*,bool>,Int> Sampler::SamplerNodeFactory::sampleParent(SamplerNode* nodeSN, vector<double_t> weights, RandomBits *rb){
 	ensureSamplingArraySize(nodeSN->parents.size());
 	runningTotal->set(zero);
-	assert(nodeSN->rootPathCounts.size()==nodeSN->parents.size());
+	//assert(nodeSN->rootPathCounts.size()==nodeSN->parents.size());
 	{ //braces to limit definition of i. i might be used later in loops and don't want double definition
 		Int i = 0;
 		for (auto rpc : nodeSN->rootPathCounts){
 			samplingArray[i]->set(rpc);
 			if(!weights.empty()) samplingArray[i]->multiplyByDoubleSelf(weights.at(i));
-			assert(samplingArray[i]->isPositive());
+			//assert(samplingArray[i]->isPositive());
 			//no need to separately do lvlDiff as the rpcs have incorporated the lvldiff already
 			runningTotal->addSelf(samplingArray[i]);
 			samplingArray[i]->set(runningTotal);
@@ -246,13 +254,13 @@ std::pair<std::pair<SamplerNode*,bool>,Int> Sampler::SamplerNodeFactory::sampleP
 	ensureSamplingArraySize(nodeSN->parents.size());
 	runningTotal->set(zero);
 	//cout<<nodeSN->rootPathCounts.size()<<" "<<nodeSN->parents.size()<<" "<<nodeSN->thenElse.size()<<"\n";
-	assert(nodeSN->rootPathCounts.size()==nodeSN->parents.size());
+	//assert(nodeSN->rootPathCounts.size()==nodeSN->parents.size());
 	{ //braces to limit definition of i. i might be used later in loops and don't want double definition
 		Int i = 0;
 		for (auto rpc : nodeSN->rootPathCounts){
 			samplingArray[i]->set(rpc);
 			if(!weights.empty()) samplingArray[i]->multiplyByLongDoubleSelf(weights.at(i));
-			assert(samplingArray[i]->isPositive());
+			//assert(samplingArray[i]->isPositive());
 			//no need to separately do lvlDiff as the rpcs have incorporated the lvldiff already
 			runningTotal->addSelf(samplingArray[i]);
 			samplingArray[i]->set(runningTotal);
@@ -269,6 +277,11 @@ std::pair<std::pair<SamplerNode*,bool>,Int> Sampler::SamplerNodeFactory::sampleP
 
 bool Sampler::SamplerNodeFactory::noUsedNodes(){
 	return usedNodes.empty();
+}
+
+void Sampler::SamplerNodeFactory::printSizes(){
+	cout<<"SamplerNodes: free "<<freeNodes.size()<<" used "<<usedNodes.size()<<"\n";
+	cout<<"RPCs: free "<<freeRPCs.size()<<" used "<<usedRPCs.size()<<"\n";
 }
 
 Sampler::SamplerNodeFactory::SamplerNodeFactory(SamplerNodeFactory::NUMTYPE SamplerNodeType_): SamplerNodeType(SamplerNodeType_),

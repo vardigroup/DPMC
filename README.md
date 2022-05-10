@@ -23,7 +23,7 @@ ProCount computes weighted projected model counts of formulas in conjunctive nor
 
 <!-- ####################################################################### -->
 
-## [Experimental evaluation](./experiments)
+## [Experimental evaluation](./eval)
 
 <!-- ####################################################################### -->
 

@@ -1,15 +1,15 @@
-# Experiments (Linux)
+# Evaluation (Linux)
 
 <!-- ####################################################################### -->
 
 ## Benchmarks
 
-### Downloading archives to this dir (`experiments`)
+### Downloading archives to this dir (`eval`)
 - [ProCount](https://github.com/vardigroup/DPMC/releases/download/v2.0.0/benchmarksDpmc.zip)
 - [D4P & projMC](https://github.com/vardigroup/DPMC/releases/download/v2.0.0/benchmarksD4.zip)
 - [reSSAT](https://github.com/vardigroup/DPMC/releases/download/v2.0.0/benchmarksSsat.zip)
 
-### Extracting downloaded archives into the same new dir `experiments/benchmarks`
+### Extracting downloaded archives into the same new dir `eval/benchmarks`
 ```bash
 unzip ./benchmarksDpmc.zip
 unzip ./benchmarksD4.zip
@@ -80,8 +80,8 @@ sdimacsFile=benchmarks/bird/sdimacs/blasted_case102.no_w.sdimacs && abc -c "ssat
 <!-- ####################################################################### -->
 
 ## Data
-- Download [archive](https://github.com/vardigroup/DPMC/releases/download/v2.0.0/data.zip) to this dir (`experiments`)
-- Extract downloaded archive into dir `experiments/data`
+- Download [archive](https://github.com/vardigroup/DPMC/releases/download/v2.0.0/data.zip) to this dir (`eval`)
+- Extract downloaded archive into dir `eval/data`
 
 ### ProCount, using planner LG (with tree decomposer FlowCutter) and executor DMC (with heuristic MCS)
 - File `./data/solving/dpmc/lg/flow/mcs/203.out`: line 1 shows the options used with the solver (as a Python dictionary); the remaining lines are stdout

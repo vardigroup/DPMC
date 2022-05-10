@@ -1,7 +1,7 @@
-common/dmc
-common/htb
-common/lib/
-common/obj/
+addmc/dmc
+addmc/htb
+addmc/lib/
+addmc/obj/
 
 dmc/dmc
 htb/htb

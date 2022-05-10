@@ -1,9 +1,9 @@
-dmc:../common/src/implementation/* ../common/src/interface/* ../common/lib.zip ../common/Makefile
-	make --directory=../common clean && \
-	make --directory=../common dmc OPT=-Ofast && \
-	cp ../common/dmc .
+dmc:../addmc/src/implementation/* ../addmc/src/interface/* ../addmc/lib.zip ../addmc/Makefile
+	make --directory=../addmc clean && \
+	make --directory=../addmc dmc OPT=-Ofast && \
+	cp ../addmc/dmc .
 
-dmc.sif:../common/src/implementation/* ../common/src/interface/* ../common/lib.zip ../common/Makefile Singularity
+dmc.sif:../addmc/src/implementation/* ../addmc/src/interface/* ../addmc/lib.zip ../addmc/Makefile Singularity
 	singularity build dmc.sif Singularity
 
 clean:

@@ -1,9 +1,9 @@
-htb:../common/src/implementation/* ../common/src/interface/* ../common/lib.zip ../common/Makefile
-	make --directory=../common clean && \
-	make --directory=../common htb OPT=-Ofast && \
-	cp ../common/htb .
+htb:../addmc/src/implementation/* ../addmc/src/interface/* ../addmc/lib.zip ../addmc/Makefile
+	make --directory=../addmc clean && \
+	make --directory=../addmc htb OPT=-Ofast && \
+	cp ../addmc/htb .
 
-htb.sif:../common/src/implementation/* ../common/src/interface/* ../common/lib.zip ../common/Makefile Singularity
+htb.sif:../addmc/src/implementation/* ../addmc/src/interface/* ../addmc/lib.zip ../addmc/Makefile Singularity
 	singularity build htb.sif Singularity
 
 clean:

@@ -46,13 +46,15 @@ c run with 0.0/0.1/0.2 min balance and node_min_expansion in endless loop with v
 Note that LG is an anytime algorithm, so it prints multiple join trees to STDOUT separated by '='.
 The pid of the tree decomposition solver is given in the first comment line (`c pid`) and can be killed to stop the tree decomposition solver.
 
-LG can also be run using Tamaki or htd as the tree decomposition solver as follows:
+LG can also be run using htd or Tamaki as the tree decomposition solver as follows:
 ```bash
-./lg.sif "java -classpath /solvers/TCS-Meiji -Xmx25g -Xms25g -Xss1g tw.heuristic.MainDecomposer -s 1234567 -p 100" <../examples/phi.wpcnf
 ./lg.sif "/solvers/htd-master/bin/htd_main -s 1234567 --opt width --iterations 0 --strategy challenge --print-progress --preprocessing full" <../examples/phi.wpcnf
 ```
-Note that "Xmx25g" and "Xms25g" refers to the amount of memory given to the JVM in the tree decomposition solver (in this case, 25GB).
-Upon an error message that begins `OpenJDK 64-Bit Server VM warning: INFO: os::commit_memory`, reduce 25 to a smaller number.
+```bash
+./lg.sif "java -classpath /solvers/TCS-Meiji -Xmx4g -Xms4g -Xss1g tw.heuristic.MainDecomposer -s 1234567 -p 100" <../examples/phi.wpcnf
+```
+Note that `Xmx4g` and `Xms4g` refers to the amount of memory given to the JVM in the tree decomposition solver (in this case, 4GB).
+Upon an error message that begins with `OpenJDK 64-Bit Server VM warning: INFO: os::commit_memory`, reduce 4 to a smaller number.
 
 ## Running without Singularity
 

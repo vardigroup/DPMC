@@ -13,7 +13,7 @@ DMC computes exact literal-weighted model counts of formulas in conjunctive norm
 - gmp 6.2
 - make 3.82
 - unzip 6.0
-- already included in `../common/lib.zip`:
+- already included in `../addmc/lib.zip`:
   - [cudd 3.0](https://github.com/ivmai/cudd)
   - [cxxopts 2.2](https://github.com/jarro2783/cxxopts)
   - [sylvan 1.5](https://trolando.github.io/sylvan)

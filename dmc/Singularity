@@ -2,8 +2,8 @@ Bootstrap: docker
 From: ubuntu:20.04
 
 %setup
-  mkdir ${SINGULARITY_ROOTFS}/common
-  cp -t ${SINGULARITY_ROOTFS}/common -r ../common/src ../common/lib.zip ../common/Makefile
+  mkdir ${SINGULARITY_ROOTFS}/addmc
+  cp -t ${SINGULARITY_ROOTFS}/addmc -r ../addmc/src ../addmc/lib.zip ../addmc/Makefile
 
 %post
   apt-get update
@@ -15,10 +15,10 @@ From: ubuntu:20.04
   apt-get -y install make
   apt-get -y install unzip
 
-  make --directory=/common dmc OPT=-Ofast
+  make --directory=/addmc dmc OPT=-Ofast
 
 %help
   This is a container for the execution tool DMC.
 
 %runscript
-  /common/dmc "$@"
+  /addmc/dmc "$@"

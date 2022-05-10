@@ -7,7 +7,7 @@ dmc/dmc
 htb/htb
 
 experiments/.ipynb_checkpoints/
-experiments/benchmarks
+experiments/benchmarks*
 experiments/data.zip
 experiments/data/
 experiments/figures/

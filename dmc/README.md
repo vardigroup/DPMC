@@ -134,8 +134,8 @@ c ==================================================================
 ### Computing model count given CNF file and join tree from `lg`
 #### Command
 ```bash
-```
 cnf="../examples/phi.wpcnf" && ../lg/lg.sif "/solvers/flow-cutter-pace17/flow_cutter_pace17 -p 100" < $cnf | ./dmc --cf=$cnf --jf=-
+```
 #### Output
 ```
 c argv: ./dmc --cf=../examples/phi.wpcnf --jf=-

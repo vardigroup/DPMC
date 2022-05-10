@@ -2,7 +2,7 @@
 HTB constructs join trees of formulas in conjunctive normal form
 - Developer: [Vu Phan](https://vuphan314.github.io)
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ## Installation (Linux)
 
@@ -19,7 +19,7 @@ HTB constructs join trees of formulas in conjunctive normal form
 make htb
 ```
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ## Examples
 

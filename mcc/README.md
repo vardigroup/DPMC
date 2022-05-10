@@ -3,20 +3,20 @@
 - DPMC competed in Tracks 1, 2, and 4 (unprojected counting), and ProCount competed in Track 3 (projected counting).
 - The preprocessor [pmc v1.1](./bin/pmc) was [downloaded](http://www.cril.univ-artois.fr/KC/pmc.html) and used in all tracks.
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ### Downloads
 - [Description](https://github.com/vardigroup/DPMC/releases/download/mc-2021/dpmc.pdf)
 - [Solver](https://github.com/vardigroup/DPMC/releases/download/mc-2021/dpmc.zip)
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ### Building
 ```bash
 make dpmc.zip
 ```
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ## Examples
 The path to a benchmark must be given as the first positional argument `$1` (`stdin` unsupported).

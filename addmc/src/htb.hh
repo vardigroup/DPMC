@@ -6,20 +6,20 @@
 
 #include "../libraries/cxxopts/include/cxxopts.hpp"
 
-#include "logic.hh"
+#include "common.hh"
 
 /* uses ===================================================================== */
 
-using cxxopts::value;
+using util::printRow;
 
 /* consts =================================================================== */
 
 const string CLUSTER_VAR_OPTION = "cv";
 const string CLUSTERING_HEURISTIC_OPTION = "ch";
 
-/* classes ================================================================== */
+/* classes for planning ===================================================== */
 
-class JoinComponent { // for projected model counting
+class JoinComponent { // for projected counting
 public:
   Int varOrderHeuristic = MIN_INT;
   string clusteringHeuristic;
@@ -27,8 +27,8 @@ public:
   Set<Int> keptVars; // F
 
   Set<Int> projectableVars; // Z
-  vector<Set<Int>> projectableVarSets; // Z_1..Z_m is a partition of Z
-  vector<vector<JoinNode*>> nodeClusters; // kappa_0..kappa_m: kappa_0 is nodeClusters.back()
+  vector<Set<Int>> projectableVarSets; // {Z_1, ..., Z_m} is a partition of Z
+  vector<vector<JoinNode*>> nodeClusters; // kappa_0, ..., kappa_m; kappa_0 is nodeClusters.back()
 
   JoinNonterminal* getComponentRoot();
   Set<Int> getNodeVars(const vector<JoinNode*>& nodes) const;
@@ -44,14 +44,14 @@ public:
 
 class JoinRootBuilder {
 public:
-  Set<Int> disjunctiveVars;
-  vector<Set<Int>> disjunctiveVarSets; // clause index |-> vars
+  Set<Int> innerVars;
+  vector<Set<Int>> innerVarSets; // clause index |-> vars
   vector<vector<Int>> clauseGroups; // group |-> clause indices
 
-  void printDisjunctiveVarSets() const;
+  void printInnerVarSets() const;
   void printClauseGroups() const;
 
-  void setDisjunctiveVarSets(); // also sets disjunctiveVars
+  void setInnerVarSets(); // also sets innerVars
   void setClauseGroups();
 
   JoinNonterminal* buildRoot(Int varOrderHeuristic, string clusteringHeuristic) const;
@@ -63,7 +63,7 @@ class Planner { // abstract
 public:
   JoinNonterminal* joinRoot = nullptr;
 
-  bool usingTreeClustering; // as opposed to list clustering
+  bool treeClustering; // as opposed to list clustering
   Int clusterVarOrderHeuristic;
 
   void printJoinTree() const;
@@ -72,18 +72,18 @@ public:
   virtual void setJoinTree() = 0;
 };
 
-class BucketPlanner : public Planner { // bucket elimination
+class BucketElimPlanner : public Planner {
 public:
   void setJoinTree() override;
 
-  BucketPlanner(bool usingTreeClustering, Int clusterVarOrderHeuristic);
+  BucketElimPlanner(bool treeClustering, Int clusterVarOrderHeuristic);
 };
 
-class BouquetPlanner : public Planner { // Bouquet's Method
+class BouquetMethodPlanner : public Planner { // Bouquet's Method
 public:
   void setJoinTree() override;
 
-  BouquetPlanner(bool usingTreeClustering, Int clusterVarOrderHeuristic);
+  BouquetMethodPlanner(bool treeClustering, Int clusterVarOrderHeuristic);
 };
 
 class OptionDict {
@@ -92,6 +92,7 @@ public:
   Int clusterVarOrderHeuristic;
   string clusteringHeuristic;
 
+  static string helpClusterVarOrderHeuristic();
   static string helpClusteringHeuristic();
   void runCommand() const;
 

@@ -17,11 +17,9 @@ sudo make lg.sif
 
 ### Running
 
-Once the container has been built, LG can be run with the following command:
-
-Once LG and FlowCutter has been built, LG can be run with the following command:
+LG can be run using FlowCutter as the tree decomposition solver as follows:
 ```bash
-./lg.sif "/solvers/flow-cutter-pace17/flow_cutter_pace17 -s 1234567 -p 100" <../examples/s27_3_2.wpcnf
+./lg.sif "/solvers/flow-cutter-pace17/flow_cutter_pace17 -s 1234567 -p 100" <../examples/s27_3_2.cnf
 ```
 
 On this command, output is:
@@ -74,14 +72,14 @@ c run with 0.0/0.1/0.2 min balance and node_min_expansion in endless loop with v
 Note that LG is an anytime algorithm, so it prints multiple join trees to STDOUT separated by '='.
 The pid of the tree decomposition solver is given in the first comment line (`c pid`) and can be killed to stop the tree decomposition solver.
 
-LG can also be run using Tamaki or htd as the tree decomposition solver as follows:
+LG can also be run using htd or Tamaki as the tree decomposition solver as follows:
 ```bash
-./lg.sif "/solvers/htd-master/bin/htd_main -s 1234567 --opt width --iterations 0 --strategy challenge --print-progress --preprocessing full" <../examples/s27_3_2.wpcnf
+./lg.sif "/solvers/htd-master/bin/htd_main -s 1234567 --opt width --iterations 0 --strategy challenge --print-progress --preprocessing full" <../examples/s27_3_2.cnf
 ```
 ```bash
-./lg.sif "java -classpath /solvers/TCS-Meiji -Xmx4g -Xms4g -Xss1g tw.heuristic.MainDecomposer -s 1234567 -p 100" <../examples/s27_3_2.wpcnf
+./lg.sif "java -Xms4g -Xmx4g -Xss1g -classpath /solvers/TCS-Meiji tw.heuristic.MainDecomposer -s 1234567 -p 100" <../examples/s27_3_2.cnf
 ```
-Note that `Xmx4g` and `Xms4g` refers to the amount of memory given to the JVM in the tree decomposition solver (in this case, 4GB).
+Note that `-Xms4g` and `-Xmx4g` refer to the amount of memory given to the JVM in the tree decomposition solver (in this case, 4GB).
 Upon an error message that begins with `OpenJDK 64-Bit Server VM warning: INFO: os::commit_memory`, reduce 4 to a smaller number.
 
 ## Running without Singularity

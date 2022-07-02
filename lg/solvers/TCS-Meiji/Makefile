@@ -6,5 +6,5 @@ exact:
 heuristic:
 	javac tw/heuristic/*.java
 
-clean: 
+clean:
 	rm tw/*/*.class

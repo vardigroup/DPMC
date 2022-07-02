@@ -1,18 +1,18 @@
 # HTB (heuristic tree builder)
-HTB constructs join trees of formulas in conjunctive normal form
-- Developer: [Vu Phan](https://vuphan314.github.io)
+HTB constructs (graded) join trees for XOR-CNF formulas.
 
 --------------------------------------------------------------------------------
 
 ## Installation (Linux)
 
 ### Prerequisites
+#### External libraries
 - boost 1.66
-- g++ 9.3
+- g++ 11.2
 - gmp 6.2
 - make 4.2
-- already included as git submodule:
-  - [cxxopts 2.2](https://github.com/jarro2783/cxxopts)
+#### [Included libraries](../addmc/libraries/)
+- [cxxopts 2.2](https://github.com/jarro2783/cxxopts)
 
 ### Command
 ```bash
@@ -23,7 +23,7 @@ make htb
 
 ## Examples
 
-### Showing command-line options
+### Showing options
 #### Command
 ```bash
 ./htb
@@ -34,35 +34,29 @@ Heuristic Tree Builder
 Usage:
   htb [OPTION...]
 
-      --cf arg  cnf file path; string (REQUIRED)
-      --pc arg  projected counting: 0, 1; int (default: 0)
+      --cf arg  CNF file path; string (required)
+      --pc arg  projected counting (graded join tree): 0, 1; int (default: 0)
       --rs arg  random seed; int (default: 0)
-      --cv arg  cluster var order: 0/RANDOM, 1/DECLARED, 2/MOST_CLAUSES, 3/MINFILL, 4/MCS, 5/LEXP,
-                6/LEXM (negative for inverse order); int (default: 5)
-      --ch arg  clustering heuristic: bel/BUCKET_ELIM_LIST, bet/BUCKET_ELIM_TREE,
-                bml/BOUQUET_METHOD_LIST, bmt/BOUQUET_METHOD_TREE; string (default: bmt)
-      --vc arg  verbose cnf: 0, 1, 2; int (default: 0)
-      --vs arg  verbose solving: 0, 1, 2; int (default: 1)
+      --cv arg  cluster var order: 0/RANDOM, 1/DECLARATION, 2/MOST_CLAUSES, 3/MIN_FILL, 4/MCS, 5/LEX_P, 6/LEX_M
+                (negatives for inverse orders); int (default: 5)
+      --ch arg  clustering heuristic: bel/BUCKET_ELIM_LIST, bet/BUCKET_ELIM_TREE, bml/BOUQUET_METHOD_LIST,
+                bmt/BOUQUET_METHOD_TREE; string (default: bmt)
+      --vc arg  verbose CNF processing: 0, 1, 2, 3; int (default: 0)
+      --vs arg  verbose solving: 0, 1, 2; int (default: 0)
+  -h            help
 ```
 
-### Computing graded join tree (for projected counting) given cnf file
+### Finding graded join tree (for projected counting) given CNF formula from file
 #### Command
 ```bash
-./htb --cf=../examples/s27_3_2.wpcnf --pc=1
+./htb --cf=../examples/s27_3_2.cnf --pc=1
 ```
 #### Output
 ```
 c htb process:
-c pid 271337
+c pid 133981
 
-c processing command-line options...
-c cnfFile                     ../examples/s27_3_2.wpcnf
-c projectedCounting           1
-c randomSeed                  0
-c clusterVarOrder             LEXP
-c clusteringHeuristic         BOUQUET_METHOD_TREE
-
-c processing cnf formula...
+c processing CNF formula...
 
 c computing output...
 c ------------------------------------------------------------------
@@ -84,6 +78,6 @@ p jt 20 43 59
 58 57 e 4 5 2 3 1 6 7
 59 58 e
 c ------------------------------------------------------------------
-c joinTreeWidth               11
-c seconds                     0.01
+c joinTreeWidth                 11
+c seconds                       0.002
 ```

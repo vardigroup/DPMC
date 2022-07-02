@@ -1,3 +1,3 @@
 # Examples
-- [Weighted projected CNF formula](./phi.wpcnf)
-- [Project-join tree](./phi.jt)
+- [weighted projected CNF formula](./phi.cnf)
+- [graded join tree](./phi.jt)

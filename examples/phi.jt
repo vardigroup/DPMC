@@ -1,6 +1,7 @@
 c Each comment line starts with "c".
+c This file represents a graded join tree for the projected CNF formula `./phi.cnf`.
 
-c The problem line for join trees of CNF formulas is "p jt $vars $clauses $nodes".
+c The problem line for join trees for CNF formulas is "p jt $vars $clauses $nodes".
 c A 10-node join tree of a CNF formula with 6 variables and 5 clauses:
 p jt 6 5 10
 
@@ -26,3 +27,6 @@ c Internal node n9 has children {n4, n5} and eliminates variables {z3, z5}:
 
 c Internal node n10 (root) has children {n8, n9} and eliminates no variable:
 10 8 9 e
+
+c This join tree is graded with grades I_X = {n8, n9, n10} and I_Y = {n6, n7}.
+c Recall from file `./phi.cnf` that X = {z1, z3, z5} and Y = {z2, z4, z6}.

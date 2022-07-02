@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 
 import argparse
+import functools
 import math
 import os
 import subprocess
 import time
 
-import functools
 print = functools.partial(print, flush=True)
 
 MC = 'mc'
 WMC = 'wmc'
 PMC = 'pmc'
+PWMC = 'pwmc'
 
 UI = 'ui'
 TU = 'tu'
@@ -33,11 +34,11 @@ def getBinPath(*paths):
 def addArgs(argParser):
     argParser.add_argument(
         'cnf',
-        help='path to benchmark (stdin unsupported)',
+        help='path to benchmark file (stdin unsupported)',
     )
     argParser.add_argument(
         '--task',
-        choices=(MC, WMC, PMC),
+        choices=(MC, WMC, PMC, PWMC),
         help='track',
         default=MC,
     )
@@ -50,7 +51,7 @@ def addArgs(argParser):
     )
     argParser.add_argument(
         '--width',
-        help='max width of project-join tree [0 for HTB]',
+        help='max width of tree decomposition',
         default=100,
         type=int,
     )
@@ -63,7 +64,7 @@ def addArgs(argParser):
     )
     argParser.add_argument(
         '--vs',
-        choices=(0, 1, 2),
+        choices=(0, 1, 2, 3),
         help='verborse solving',
         default=0,
         type=int,
@@ -92,14 +93,14 @@ def addTuArgs(argParser):
     argParser.add_argument(
         '--maxrss',
         help='[Taurus only] RAM cap in GB',
-        default=4.,
+        default=4.0,
         type=float,
     )
 
 def printPreprocessorSolution(count, task, mp): # UNSAT or MC only
     print(f's {"" if count else "UN"}SATISFIABLE')
     print(f'c s type {task}')
-    print(f'c s log10-estimate {math.log(count, 10) if count else -math.inf}')
+    print(f'c s log10-estimate {math.log10(count) if count else -math.inf}')
     print(f'c s exact {"arb int" if mp else "double prec-sci"} {count}')
 
 def preprocessCnf(megs, cnf, outDirPath, task, mp, vs):
@@ -128,7 +129,7 @@ def preprocessCnf(megs, cnf, outDirPath, task, mp, vs):
             '-orGate',
             '-affine',
         ]
-    else: # WMC or PMC
+    else: # WMC, PMC, PWMC
         with open(cnf) as inFile:
             for line in open(cnf):
                 if line.startswith('c p'):
@@ -163,7 +164,7 @@ def preprocessCnf(megs, cnf, outDirPath, task, mp, vs):
                         printPreprocessorSolution(count, task, mp)
                         print('\nc exiting after preprocessor solved benchmark')
                         exit(0)
-                    else: # SAT and (WMC or PMC)
+                    else: # SAT and (WMC or PMC or PWMC)
                         print(f'c ignored preprocessed solution {count} due to task {task}')
                         return cnf
 
@@ -174,40 +175,27 @@ def preprocessCnf(megs, cnf, outDirPath, task, mp, vs):
     return outFilePath
 
 def planJt(cnfPath, width, task, vs):
-    if width > 0: # LG
-        cmd = [
-            getBinPath('lg'),
-            f'"{getBinPath("flow_cutter_pace17")} -p {width}"',
-            f'<{cnfPath}',
-        ]
+    lgArg = f'{getBinPath("flow_cutter_pace17")} -p {width}'
+    cmd = [
+        getBinPath('lg'),
+        f'"{lgArg}"',
+        f'<{cnfPath}',
+    ]
 
-        if not vs:
-            cmd.append('2>/dev/null')
+    if not vs:
+        cmd.append('2>/dev/null')
 
-        printCallLine(cmd + ['\\'])
+    printCallLine(cmd + ['\\'])
 
-        return subprocess.Popen(
-            cat(cmd),
-            shell=True,
-            stdout=subprocess.PIPE,
-        )
-    else: # HTB
-        cmd = [
-            getBinPath('htb'),
-            f'--cf={cnfPath}',
-            f'--pc={int(task == PMC)}',
-            f'--vs={vs}',
-        ]
-
-        printCallLine(cmd + ['\\'])
-
-        return subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-        )
+    return subprocess.Popen(
+        cat(cmd),
+        shell=True,
+        stdout=subprocess.PIPE,
+    )
 
 def main():
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    formatter = lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog, max_help_position=30)
+    parser = argparse.ArgumentParser(formatter_class=formatter)
     addArgs(parser)
     addUiArgs(parser)
     addTuArgs(parser)
@@ -241,8 +229,8 @@ def main():
     dmcCmd = [
         getBinPath('dmc'),
         f'--cf={cnfPath}',
-        f'--wc={int(args.task == WMC)}',
-        f'--pc={int(args.task == PMC)}',
+        f'--wc={int(args.task in {WMC, PWMC})}',
+        f'--pc={int(args.task in {PMC, PWMC})}',
         f'--dp={"s" if args.mp else "c"}',
         f'--mm={megs}',
         f'--mp={args.mp}',

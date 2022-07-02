@@ -2,15 +2,17 @@
 
 /* inclusions =============================================================== */
 
+#include "../libraries/cxxopts/include/cxxopts.hpp"
+
 #include "../libraries/cudd/cplusplus/cuddObj.hh"
 #include "../libraries/cudd/cudd/cuddInt.h"
 
 #include "../libraries/sylvan/src/sylvan_gmp.h"
 #include "../libraries/sylvan/src/sylvan_obj.hpp"
 
-#include "../libraries/cxxopts/include/cxxopts.hpp"
+#include "../libraries/cryptominisat/build/include/cryptominisat5/cryptominisat.h"
 
-#include "logic.hh"
+#include "common.hh"
 
 /* uses ===================================================================== */
 
@@ -22,16 +24,31 @@ using sylvan::mtbdd_fprintdot_nc;
 using sylvan::mtbdd_getdouble;
 using sylvan::mtbdd_getvalue;
 using sylvan::mtbdd_gmp;
+using sylvan::mtbdd_leafcount_more;
 using sylvan::mtbdd_makenode;
 using sylvan::Mtbdd;
+using sylvan::MTBDD;
 
-using cxxopts::value;
+using CMSat::Lit;
+using CMSat::lbool; // generally uint8_t; typically {l_True, l_False, l_Undef}
+using CMSat::l_True;
+using CMSat::l_False;
+
+using util::printRow;
 
 /* consts =================================================================== */
 
-const Float MEGA = 1e6; // same as countAntom (1 MB = 1e6 B)
+const Float MEGA = 1e6l; // same as countAntom (1 MB = 1e6 B)
 
 const string WEIGHTED_COUNTING_OPTION = "wc";
+const string EXIST_RANDOM_OPTION = "er";
+const string LOG_COUNTING_OPTION = "lc";
+const string LOG_BOUND_OPTION = "lb";
+const string THRESHOLD_MODEL_OPTION = "tm";
+const string SAT_SOLVER_PRUNING = "sp";
+const string MAXIMIZER_FORMAT_OPTION = "mf";
+const string MAXIMIZER_VERIFICATION_OPTION = "mv";
+const string SUBSTITUTION_MAXIMIZATION_OPTION = "sm";
 const string PLANNER_WAIT_OPTION = "pw";
 const string THREAD_COUNT_OPTION = "tc";
 const string THREAD_SLICE_COUNT_OPTION = "ts";
@@ -42,18 +59,23 @@ const string MAX_MEM_OPTION = "mm";
 const string TABLE_RATIO_OPTION = "tr";
 const string INIT_RATIO_OPTION = "ir";
 const string MULTIPLE_PRECISION_OPTION = "mp";
-const string LOG_COUNTING_OPTION = "lc";
 const string JOIN_PRIORITY_OPTION = "jp";
 const string VERBOSE_JOIN_TREE_OPTION = "vj";
 const string VERBOSE_PROFILING_OPTION = "vp";
 
-const string FIRST_JOIN_TREE = "f";
-const string TIMED_JOIN_TREES = "t";
-const map<string, string> PLANNING_STRATEGIES = {
-  {FIRST_JOIN_TREE, "FIRST_JOIN_TREE"},
-  {TIMED_JOIN_TREES, "TIMED_JOIN_TREES"}
+/* maximizer formats: */
+const Int NEITHER_FORMAT = 0;
+const Int SHORT_FORMAT = 1;
+const Int LONG_FORMAT = 2;
+const Int DUAL_FORMAT = 3;
+const map<Int, string> MAXIMIZER_FORMATS = {
+  {NEITHER_FORMAT, "NEITHER"},
+  {SHORT_FORMAT, "SHORT"},
+  {LONG_FORMAT, "LONG"},
+  {DUAL_FORMAT, "DUAL"}
 };
 
+/* join priorities: */
 const string ARBITRARY_PAIR = "a";
 const string BIGGEST_PAIR = "b";
 const string SMALLEST_PAIR = "s";
@@ -65,17 +87,24 @@ const map<string, string> JOIN_PRIORITIES = {
 
 /* global vars ============================================================== */
 
-extern Int dotFileIndex;
-
-extern string planningStrategy;
+extern bool existRandom;
 extern string ddPackage;
+extern bool logCounting;
+extern Float logBound;
+extern string thresholdModel;
+extern bool satSolverPruning;
+extern Int maximizerFormat;
+extern bool maximizerVerification;
+extern bool substitutionMaximization;
 extern Int threadCount;
 extern Int threadSliceCount; // may be lower or higher than actual number of slices per thread
 extern Float memSensitivity; // in MB (1e6 B)
 extern Float maxMem; // in MB (1e6 B)
 extern string joinPriority;
 extern Int verboseJoinTree; // 1: parsed join tree, 2: raw join tree too
-extern Int verboseProfiling; // 1: sorted stats for cnf vars, 2: unsorted stats for join nodes too
+extern Int verboseProfiling; // 1: sorted stats for CNF vars, 2: unsorted stats for join nodes too
+
+extern Int dotFileIndex;
 
 /* classes for processing join trees ======================================== */
 
@@ -89,7 +118,7 @@ public:
   Map<Int, JoinNonterminal*> joinNonterminals; // 0-indexing
 
   Int width = MIN_INT; // width of latest join tree
-  Float plannerDuration = -INF; // cumulative time for all join trees, in seconds
+  Float plannerDuration = 0; // cumulative time for all join trees, in seconds
 
   JoinNode* getJoinNode(Int nodeIndex) const; // 0-indexing
   JoinNonterminal* getJoinRoot() const;
@@ -98,84 +127,103 @@ public:
   JoinTree(Int declaredVarCount, Int declaredClauseCount, Int declaredNodeCount);
 };
 
-class JoinTreeProcessor { // processes input join tree
+class JoinTreeProcessor {
 public:
   static Int plannerPid;
+  static JoinTree* joinTree;
+  static JoinTree* backupJoinTree;
 
-  JoinTree* joinTree = nullptr;
   Int lineIndex = 0;
   Int problemLineIndex = MIN_INT;
-
-  const JoinNonterminal* getJoinTreeRoot() const;
-  static void killPlanner(); // sends SIGKILL
-};
-
-class JoinTreeParser : public JoinTreeProcessor { // first join tree
-public:
-  void finishParsingJoinTree(); // after "c seconds {float1}" or end of stream
-  void parseInputStream();
-
-  JoinTreeParser();
-};
-
-class JoinTreeReader : public JoinTreeProcessor { // timed join trees
-public:
-  JoinTree* backupJoinTree = nullptr;
   Int joinTreeEndLineIndex = MIN_INT;
 
+  static void killPlanner(); // sends SIGKILL
+
   /* timer: */
-  static void handleSigalrm(int signal); // kills planner after receiving SIGALRM
+  static void handleSigAlrm(int signal); // kills planner after receiving SIGALRM
   static bool hasDisarmedTimer();
   static void setTimer(Float seconds); // arms or disarms timer
   static void armTimer(Float seconds); // schedules SIGALRM
   static void disarmTimer(); // in case stdin ends before timer expires
 
-  void finishReadingJoinTree(); // after "c seconds {float1}" or end of stream
+  const JoinNonterminal* getJoinTreeRoot() const;
+
+  void processCommentLine(const vector<string>& words);
+  void processProblemLine(const vector<string>& words);
+  void processNonterminalLine(const vector<string>& words);
+
+  void finishReadingJoinTree();
   void readInputStream();
 
-  JoinTreeReader(Float plannerWaitDuration);
+  JoinTreeProcessor(Float plannerWaitDuration);
 };
 
-/* classes for decision diagrams ============================================ */
+/* classes for execution ==================================================== */
+
+class SatSolver {
+public:
+  CMSat::SATSolver cmsSolver;
+
+  bool checkSat(bool exceptionThrowing); // may throw UnsatSolverException
+  Assignment getModel(); // also bans returned model for future solving
+  Lit getLit(Int cnfVar, bool val);
+  SatSolver(const Cnf& cnf);
+};
 
 class Dd { // wrapper for CUDD and Sylvan
 public:
+  static size_t maxDdLeafCount;
+  static size_t maxDdNodeCount;
+
+  static size_t prunedDdCount;
+  static Float pruningDuration;
+
   ADD cuadd; // CUDD
   Mtbdd mtbdd; // Sylvan
 
-  Dd(const ADD& cuadd); // CUDD
-  Dd(const Mtbdd& mtbdd); // SYLVAN
+  size_t getLeafCount() const;
+  size_t getNodeCount() const;
+
+  Dd(const ADD& cuadd);
+  Dd(const Mtbdd& mtbdd);
   Dd(const Dd& dd);
 
-  static const Cudd* newMgr(Float mem, Int threadIndex); // CUDD
-  static Dd getConstDd(const Number& n, const Cudd* mgr);
-  static Dd getZeroDd(const Cudd* mgr);
-  static Dd getOneDd(const Cudd* mgr);
+  Number extractConst() const; // does not read logCounting
+  static Dd getConstDd(const Number& n, const Cudd* mgr); // reads logCounting
+  static Dd getZeroDd(const Cudd* mgr); // returns minus infinity if logCounting
+  static Dd getOneDd(const Cudd* mgr); // returns zero if logCounting
   static Dd getVarDd(Int ddVar, bool val, const Cudd* mgr);
-  size_t countNodes() const;
+  static const Cudd* newMgr(Float mem, Int threadIndex = 0); // CUDD
+  bool operator!=(const Dd& rightDd) const;
   bool operator<(const Dd& rightDd) const; // *this < rightDd (top of priotity queue is rightmost element)
-  Number extractConst() const;
   Dd getComposition(Int ddVar, bool val, const Cudd* mgr) const; // restricts *this to ddVar=val
-  Dd getProduct(const Dd& dd) const;
-  Dd getSum(const Dd& dd) const;
+  Dd getProduct(const Dd& dd) const; // reads logCounting
+  Dd getSum(const Dd& dd) const; // reads logCounting
   Dd getMax(const Dd& dd) const; // real max (not 0-1 max)
+  Dd getXor(const Dd& dd) const; // must be 0-1 DDs
   Set<Int> getSupport() const;
+  Dd getBoolDiff(const Dd& rightDd) const; // returns 0-1 DD for *this >= rightDd
+  bool evalAssignment(vector<int>& ddVarAssignment) const;
   Dd getAbstraction(
     Int ddVar,
     const vector<Int>& ddVarToCnfVarMap,
     const Map<Int, Number>& literalWeights,
     const Assignment& assignment,
-    bool additive, // ? getSum : getMax
+    bool additiveFlag, // ? getSum : getMax
+    vector<pair<Int, Dd>>& maximizationStack,
     const Cudd* mgr
   ) const;
-  void writeDotFile(const Cudd* mgr, string dotFileDir = "./") const;
-  static void writeInfoFile(const Cudd* mgr, string filePath);
+  Dd getPrunedDd(Float lowerBound, const Cudd* mgr) const;
+  void writeDotFile(const Cudd* mgr, const string& dotFileDir = "./") const;
+  static void writeInfoFile(const Cudd* mgr, const string& filePath);
 };
 
 class Executor {
 public:
-  static Map<Int, Float> varDurations; // cnfVar |-> total execution time in seconds
-  static Map<Int, size_t> varDdSizes; // cnfVar |-> max ADD size
+  static vector<pair<Int, Dd>> maximizationStack; // pair<DD var, derivative sign>
+
+  static Map<Int, Float> varDurations; // CNF var |-> total execution time in seconds
+  static Map<Int, size_t> varDdSizes; // CNF var |-> max DD size
 
   static void updateVarDurations(const JoinNode* joinNode, TimePoint startPoint);
   static void updateVarDdSizes(const JoinNode* joinNode, const Dd& dd);
@@ -189,14 +237,14 @@ public:
     const Cudd* mgr,
     const Assignment& assignment
   );
-  static Dd solveSubtree(
+  static Dd solveSubtree( // recursively computes valuation of join tree node
     const JoinNode* joinNode,
     const Map<Int, Int>& cnfVarToDdVarMap,
     const vector<Int>& ddVarToCnfVarMap,
     const Cudd* mgr = nullptr,
     const Assignment& assignment = Assignment()
   );
-  static void solveThreadSlices( // sequentially solves all slices in 1 thread
+  static void solveThreadSlices( // sequentially solves all slices in one thread
     const JoinNonterminal* joinRoot,
     const Map<Int, Int>& cnfVarToDdVarMap,
     const vector<Int>& ddVarToCnfVarMap,
@@ -217,16 +265,45 @@ public:
     Int sliceVarOrderHeuristic
   );
 
-  static Number adjustSolution(const Number &apparentSolution); // takes into account hidden vars
+  static void setLogBound(
+    const JoinNonterminal* joinRoot,
+    const Map<Int, Int>& cnfVarToDdVarMap,
+    const vector<Int>& ddVarToCnfVarMap
+  );
 
-  static void printSatRow(const Number& solution, bool surelyUnsat, size_t keyWidth); // "s {satisfiability}"
+  static Number adjustSolutionToHiddenVar(const Number &apparentSolution, Int cnfVar, bool additiveFlag);
+  static Number getAdjustedSolution(const Number &apparentSolution);
+
+  static void printSatRow(const Number& solution, bool unsatFlag, size_t keyWidth); // "s {satisfiability}"
   static void printTypeRow(size_t keyWidth); // "c s type {track}"
-  static void printEstRow(const Number& solution, size_t keyWidth); // "c s log10-estimate {log(count)}"
-  static void printArbRow(const Number& solution, bool frac, size_t keyWidth); // "c s exact arb {notation} {count}"
-  static void printDoubleRow(const Number& solution, size_t keyWidth); // "c s exact double prec-sci {count}"
-  static void printSolutionRows(const Number& solution, bool surelyUnsat = false, size_t keyWidth = 0);
+  static void printEstRow(const Number& solution, size_t keyWidth); // "c s log10-estimate {log(sol)}"
+  static void printArbRow(const Number& solution, bool frac, size_t keyWidth); // "c s exact arb {notation} {sol}"
+  static void printDoubleRow(const Number& solution, size_t keyWidth); // "c s exact double prec-sci {sol}"
+  static Number printAdjustedSolutionRows(const Number& solution, bool unsatFlag = false, size_t keyWidth = 0); // returns adjusted solution
+
+  static string getShortModel(const Assignment& model, Int declaredVarCount);
+  static string getLongModel(const Assignment& model, Int declaredVarCount);
+  static void printShortMaximizer(const Assignment& maximizer, Int declaredVarCount);
+  static void printLongMaximizer(const Assignment& maximizer, Int declaredVarCount);
+  static Assignment printMaximizerRows(const vector<Int>& ddVarToCnfVarMap, Int declaredVarCount); // returns maximizer
+  static Number verifyMaximizer( // returns solution of residual formula
+    const JoinNonterminal* joinRoot,
+    const Map<Int, Int>& cnfVarToDdVarMap,
+    const vector<Int>& ddVarToCnfVarMap,
+    const Assignment& maximizer
+  );
 
   Executor(const JoinNonterminal* joinRoot, Int ddVarOrderHeuristic, Int sliceVarOrderHeuristic);
+};
+
+class OptionRequirement {
+public:
+  string name;
+  string value;
+  string comparator;
+
+  OptionRequirement(const string& name, const string& value, const string& comparator = "=");
+  string getRequirement() const;
 };
 
 class OptionDict {
@@ -238,7 +315,18 @@ public:
   Int tableRatio; // log2(unique_table / cache_table)
   Int initRatio; // log2(max_size / init_size)
 
+  static string requireOptions(const vector<OptionRequirement>& requirements);
+  static string requireOption(const string& name, const string& value, const string& comparator = "=");
+  static string requireDdPackage(const string& ddPackageArg);
+
   static string helpDdPackage();
+  static string helpLogBound();
+  static string helpThresholdModel();
+  static string helpSatSolverPruning();
+  static string helpMaximizerFormat();
+  static string helpSubstitutionMaximization();
+  static string helpDiagramVarOrderHeuristic();
+  static string helpSliceVarOrderHeuristic();
   static string helpJoinPriority();
 
   void runCommand() const;

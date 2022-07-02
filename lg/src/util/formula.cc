@@ -68,7 +68,7 @@ namespace util {
             result.relevant_vars_.push_back(entry);
           }
         }
-      } else if (prefix == "") {
+      } else if (prefix == "" || prefix == "x") { // "x" indicates XOR constraint
         // [x] [y] ... [z] 0 indicates a clause with literals (x, y, ..., z)
         if (entries.size() == 0 || entries.back() != 0) {
           std::cerr << "Parse error: Empty clause detected" << std::endl;
@@ -98,8 +98,8 @@ namespace util {
 
     // Verify that we have parsed the correct number of clauses
     if (num_clauses_to_parse != 0) {
-      std::cerr << "Parse warning: Expected " << num_clauses_to_parse;
-      std::cerr << " more clauses" << std::endl;
+      std::cout << "c Parse warning: Expected " << num_clauses_to_parse;
+      std::cout << " more clauses" << std::endl;
       // return std::nullopt; // warning, not error
     }
 

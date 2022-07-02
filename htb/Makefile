@@ -1,6 +1,8 @@
 htb: ../addmc/src/*
+	make -C ../addmc clean-htb
 	make -C ../addmc htb opt=-Ofast link=-static
-	ln -sf ../addmc/htb .
+	rm -f htb
+	cp ../addmc/htb .
 
 .PHONY: clean
 

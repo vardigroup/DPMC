@@ -23,7 +23,7 @@ class Formula {
   /**
    * Adds a CNF clause to the formula containing the provided literals.
    *
-   * Returns true if all literals are valid (either an identifier returned 
+   * Returns true if all literals are valid (either an identifier returned
    * by add_variable or the negation of an identifier), and false otherwise.
    */
   bool add_clause(std::vector<int> literals);

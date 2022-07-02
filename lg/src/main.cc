@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
       // Read a single tree decomposition from the solver.
       auto td = decomposition::TreeDecomposition::parse_one(&solver_output);
       if (!td.has_value()) {
-        std::cerr << "Tree decomposition stream ended." << std::endl;
+        std::cout << "c Tree decomposition stream ended." << std::endl;
         solver.terminate();
         return -1;
       }

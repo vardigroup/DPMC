@@ -1,9 +1,12 @@
-dmc.sif: ../addmc/src/*
-	singularity build dmc.sif Singularity
+dmc: ../addmc/src/* ../addmc/Makefile
+	make -C ../addmc clean-dmc
+	make -C ../addmc dmc opt=-Ofast link=-static
+	rm -f dmc
+	cp ../addmc/dmc .
 
-dmc: ../addmc/src/*
-	make -C ../addmc dmc opt=-Ofast
-	ln -sf ../addmc/dmc .
+dmc.sif: Singularity ../addmc/src/* ../addmc/Makefile
+	make -C ../addmc clean-libraries
+	singularity build -F dmc.sif Singularity
 
 .PHONY: clean
 

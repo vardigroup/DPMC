@@ -26,7 +26,7 @@ dist-clean: clean
 	rm -f *~ ./build/.depend
 
 $(appname).sif: Singularity $(srcfiles) $(headers)
-	singularity build $(appname).sif Singularity
+	singularity build -F $(appname).sif Singularity
 
 ifneq ($(MAKECMDGOALS), clean)
 ifneq ($(MAKECMDGOALS), $(appname).sif)

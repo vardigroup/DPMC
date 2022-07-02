@@ -1,24 +1,24 @@
-#include "logic.hh"
+#include "common.hh"
 
 /* global vars ============================================================== */
-
-TimePoint toolStartPoint;
 
 bool weightedCounting;
 bool projectedCounting;
 Int randomSeed;
 bool multiplePrecision;
-bool logCounting;
 Int verboseCnf;
 Int verboseSolving;
+
+TimePoint toolStartPoint;
 
 /* namespaces =============================================================== */
 
 /* namespace util =========================================================== */
 
-string util::useDdPackage(string ddPackageArg) {
-  assert(DD_PACKAGES.contains(ddPackageArg));
-  return " [with " + DD_PACKAGE_OPTION + "_arg = " + ddPackageArg + "]";
+vector<Int> util::getSortedNums(const Set<Int>& nums) {
+  vector<Int> v(nums.begin(), nums.end());
+  sort(v.begin(), v.end());
+  return v;
 }
 
 map<Int, string> util::getVarOrderHeuristics() {
@@ -27,26 +27,19 @@ map<Int, string> util::getVarOrderHeuristics() {
   return m;
 }
 
-string util::helpVarOrderHeuristic(string prefix) {
-  map<Int, string> heuristics = CNF_VAR_ORDER_HEURISTICS;
-  string s = prefix + " var order";
-
-  if (prefix == "slice") {
-    s += useDdPackage(CUDD);
-    heuristics = getVarOrderHeuristics();
-  }
-  else {
-    assert(prefix == "diagram" || prefix == "cluster");
-  }
-
-  s += ": ";
+string util::helpVarOrderHeuristic(const map<Int, string>& heuristics) {
+  string s = ": ";
   for (auto it = heuristics.begin(); it != heuristics.end(); it++) {
     s += to_string(it->first) + "/" + it->second;
     if (next(it) != heuristics.end()) {
       s += ", ";
     }
   }
-  return s + " (negative for inverse order); int";
+  return s + " (negatives for inverse orders); int";
+}
+
+string util::helpVerboseCnfProcessing() {
+  return "verbose CNF processing: 0, 1, 2, 3; int";
 }
 
 string util::helpVerboseSolving() {
@@ -58,52 +51,45 @@ TimePoint util::getTimePoint() {
 }
 
 Float util::getDuration(TimePoint start) {
-  return std::chrono::duration_cast<std::chrono::milliseconds>(getTimePoint() - start).count() / 1e3;
+  return std::chrono::duration_cast<std::chrono::milliseconds>(getTimePoint() - start).count() / 1e3l;
 }
 
-vector<string> util::splitInputLine(string line) {
+vector<string> util::splitInputLine(const string& line) {
   std::istringstream inStringStream(line);
   vector<string> words;
   copy(istream_iterator<string>(inStringStream), istream_iterator<string>(), back_inserter(words));
   return words;
 }
 
-void util::printInputLine(string line, Int lineIndex) {
+void util::printInputLine(const string& line, Int lineIndex) {
   cout << "c line " << right << setw(5) << lineIndex << ":" << (line.empty() ? "" : " " + line) << "\n";
 }
 
-void util::printRowKey(string key, size_t keyWidth) {
+void util::printRowKey(const string& key, size_t keyWidth) {
+  string prefix = key;
   if (key != "s") {
-    key = "c " + key;
+    prefix = "c " + prefix;
   }
 
-  keyWidth = max(keyWidth, key.size() + 1);
-
-  cout << left << setw(keyWidth) << key;
-}
-
-void util::printPreciseFloat(Float f) {
-  Int p = cout.precision();
-  // cout.precision(std::numeric_limits<Float>::max_digits10);
-  cout << f;
-  cout.precision(p);
-}
-
-void util::printPreciseFloatRow(string key, Float f, size_t keyWidth) {
-  printRowKey(key, keyWidth);
-  printPreciseFloat(f);
-  cout << "\n";
+  keyWidth = max(keyWidth, prefix.size() + 1);
+  cout << left << setw(keyWidth) << prefix;
 }
 
 /* classes for exceptions =================================================== */
 
 /* class EmptyClauseException =============================================== */
 
-EmptyClauseException::EmptyClauseException(Int lineIndex, string line) {
+EmptyClauseException::EmptyClauseException(Int lineIndex, const string& line) {
   cout << WARNING << "empty clause | line " << lineIndex << ": " << line << "\n";
 }
 
-/* classes for cnf formulas ================================================= */
+/* class EmptyClauseException =============================================== */
+
+UnsatSolverException::UnsatSolverException() {
+  cout << WARNING << "unsatisfiable CNF, according to SAT solver\n";
+}
+
+/* classes for CNF formulas ================================================= */
 
 /* class Number ============================================================= */
 
@@ -119,45 +105,40 @@ Number::Number(Float f) {
 
 Number::Number(const Number& n) {
   if (multiplePrecision) {
-    quotient = n.quotient;
+    *this = Number(n.quotient);
   }
   else {
-    fraction = n.fraction;
+    *this = Number(n.fraction);
   }
 }
 
-Number::Number(string s) {
-  Int divPos = s.find('/');
+Number::Number(const string& repr) {
+  Int divPos = repr.find('/');
   if (multiplePrecision) {
-    if (divPos != string::npos) { // `s` is "{int1}/{int2}"
-      *this = Number(mpq_class(s));
+    if (divPos != string::npos) { // repr is <int>/<int>
+      *this = Number(mpq_class(repr));
     }
-    else { // `s` is "{float1}"
-      *this = Number(mpq_class(mpf_class(s)));
+    else { // repr is <float>
+      *this = Number(mpq_class(mpf_class(repr)));
     }
   }
   else {
-    if (divPos != string::npos) {
-      Float numerator = stold(s.substr(0, divPos));
-      Float denominator = stold(s.substr(divPos + 1));
+    if (divPos != string::npos) { // repr is <int>/<int>
+      Float numerator = stold(repr.substr(0, divPos));
+      Float denominator = stold(repr.substr(divPos + 1));
       *this = Number(numerator / denominator);
     }
-    else {
-      *this = Number(stold(s));
+    else { // repr is <float>
+      *this = Number(stold(repr));
     }
   }
 }
 
-Float Number::getLogSumExp(const Number& n) const {
-  assert(logCounting);
-  if (fraction == -INF) {
-    return n.fraction;
+Number Number::getAbsolute() const {
+  if (multiplePrecision) {
+    return Number(abs(quotient));
   }
-  else if (n.fraction == -INF) {
-    return fraction;
-  }
-  Float m = max(fraction, n.fraction);
-  return log10l(exp10l(fraction - m) + exp10l(n.fraction - m)) + m; // base-10 Cudd_addLogSumExp
+  return Number(fabsl(fraction));
 }
 
 Float Number::getLog10() const {
@@ -172,6 +153,18 @@ Float Number::getLog10() const {
     return lgF;
   }
   return log10l(fraction);
+}
+
+Float Number::getLogSumExp(const Number& n) const {
+  assert(!multiplePrecision);
+  if (fraction == -INF) {
+    return n.fraction;
+  }
+  if (n.fraction == -INF) {
+    return fraction;
+  }
+  Float m = max(fraction, n.fraction);
+  return log10l(exp10l(fraction - m) + exp10l(n.fraction - m)) + m; // base-10 Cudd_addLogSumExp
 }
 
 bool Number::operator==(const Number& n) const {
@@ -196,11 +189,15 @@ bool Number::operator<=(const Number& n) const {
   return *this < n || *this == n;
 }
 
-bool Number::operator>=(const Number& n) const {
+bool Number::operator>(const Number& n) const {
   if (multiplePrecision) {
-    return quotient >= n.quotient;
+    return quotient > n.quotient;
   }
-  return fraction >= n.fraction;
+  return fraction > n.fraction;
+}
+
+bool Number::operator>=(const Number& n) const {
+  return *this > n || *this == n;
 }
 
 Number Number::operator*(const Number& n) const {
@@ -293,27 +290,27 @@ void Graph::fillInEdges(Int v) {
   }
 }
 
-Int Graph::countFillInEdges(Int v) const {
-  Int count = 0;
+Int Graph::getFillInEdgeCount(Int v) const {
+  Int edgeCount = 0;
   const Set<Int>& neighbors = adjacencyMap.at(v);
   for (auto neighbor1 = neighbors.begin(); neighbor1 != neighbors.end(); neighbor1++) {
     for (auto neighbor2 = next(neighbor1); neighbor2 != neighbors.end(); neighbor2++) {
       if (!isNeighbor(*neighbor1, *neighbor2)) {
-        count++;
+        edgeCount++;
       }
     }
   }
-  return count;
+  return edgeCount;
 }
 
-Int Graph::getMinfillVertex() const {
+Int Graph::getMinFillVertex() const {
   Int vertex = MIN_INT;
   Int fillInEdgeCount = MAX_INT;
 
   for (Int v : vertices) {
-    Int count = countFillInEdges(v);
-    if (count < fillInEdgeCount) {
-      fillInEdgeCount = count;
+    Int edgeCount = getFillInEdgeCount(v);
+    if (edgeCount < fillInEdgeCount) {
+      fillInEdgeCount = edgeCount;
       vertex = v;
     }
   }
@@ -338,7 +335,21 @@ bool Label::hasSmallerLabel(const pair<Int, Label>& a, const pair <Int, Label>& 
 
 /* class Clause ============================================================= */
 
+Clause::Clause(bool xorFlag) {
+  this->xorFlag = xorFlag;
+}
+
+void Clause::insertLiteral(Int literal) {
+  if (xorFlag && contains(literal)) {
+    erase(literal);
+  }
+  else {
+    insert(literal);
+  }
+}
+
 void Clause::printClause() const {
+  cout << (xorFlag ? " x" : "  ");
   for (auto it = begin(); it != end(); it++) {
     cout << " " << right << setw(5) << *it;
   }
@@ -355,30 +366,44 @@ Set<Int> Clause::getClauseVars() const {
 
 /* class Cnf ================================================================ */
 
-void Cnf::printClauses() const {
-  cout << "c cnf formula:\n";
-  for (Int i = 0; i < clauses.size(); i++) {
-    cout << "c  clause " << right << setw(5) << i + 1 << ":";
-    clauses.at(i).printClause();
+Set<Int> Cnf::getInnerVars() const {
+  Set<Int> innerVars;
+  for (Int var = 1; var <= declaredVarCount; var++) {
+    if (!outerVars.contains(var)) {
+      innerVars.insert(var);
+    }
   }
+  return innerVars;
+}
+
+Map<Int, Number> Cnf::getUnprunableWeights() const {
+  Map<Int, Number> unprunableWeights;
+  for (const auto& [literal, weight] : literalWeights) {
+    if (weight > Number("1")) {
+      unprunableWeights[literal] = weight;
+    }
+  }
+  return unprunableWeights;
+}
+
+void Cnf::printLiteralWeight(Int literal, const Number& weight) {
+  cout << "c  weight " << right << setw(5) << literal << ": " << weight << "\n";
 }
 
 void Cnf::printLiteralWeights() const {
   cout << "c literal weights:\n";
   for (Int var = 1; var <= declaredVarCount; var++) {
-    cout << "c  weight " << right << setw(5) << var << ": " << literalWeights.at(var) << "\n";
-    cout << "c  weight " << right << setw(5) << -var << ": " << literalWeights.at(-var) << "\n";
+    printLiteralWeight(var, literalWeights.at(var));
+    printLiteralWeight(-var, literalWeights.at(-var));
   }
 }
 
-Set<Int> Cnf::getDisjunctiveVars() const {
-  Set<Int> disjunctiveVars;
-  for (Int var = 1; var <= declaredVarCount; var++) {
-    if (!additiveVars.contains(var)) {
-      disjunctiveVars.insert(var);
-    }
+void Cnf::printClauses() const {
+  cout << "c CNF formula:\n";
+  for (Int i = 0; i < clauses.size(); i++) {
+    cout << "c  clause " << right << setw(5) << i + 1 << ":";
+    clauses.at(i).printClause();
   }
-  return disjunctiveVars;
 }
 
 void Cnf::addClause(const Clause& clause) {
@@ -391,7 +416,7 @@ void Cnf::addClause(const Clause& clause) {
       it->second.insert(clauseIndex);
     }
     else {
-      varToClauses[var] = Set<Int>{clauseIndex};
+      varToClauses[var] = {clauseIndex};
     }
   }
 }
@@ -424,7 +449,7 @@ vector<Int> Cnf::getRandomVarOrder() const {
   return varOrder;
 }
 
-vector<Int> Cnf::getDeclaredVarOrder() const {
+vector<Int> Cnf::getDeclarationVarOrder() const {
   vector<Int> varOrder;
   for (Int var = 1; var <= declaredVarCount; var++) {
     if (apparentVars.contains(var)) {
@@ -436,23 +461,23 @@ vector<Int> Cnf::getDeclaredVarOrder() const {
 
 vector<Int> Cnf::getMostClausesVarOrder() const {
   multimap<Int, Int, greater<Int>> m; // clause count |-> var
-  for (const pair<Int, Set<Int>>& varAndSet : varToClauses) {
-    m.insert({varAndSet.second.size(), varAndSet.first});
+  for (const auto& [var, clauseIndices] : varToClauses) {
+    m.insert({clauseIndices.size(), var});
   }
 
   vector<Int> varOrder;
-  for (pair<Int, Int> sizeAndVar : m) {
-    varOrder.push_back(sizeAndVar.second);
+  for (const auto& [clauseCount, var] : m) {
+    varOrder.push_back(var);
   }
   return varOrder;
 }
 
-vector<Int> Cnf::getMinfillVarOrder() const {
+vector<Int> Cnf::getMinFillVarOrder() const {
   vector<Int> varOrder;
 
   Graph graph = getPrimalGraph();
   while (!graph.vertices.empty()) {
-    Int vertex = graph.getMinfillVertex();
+    Int vertex = graph.getMinFillVertex();
     graph.fillInEdges(vertex);
     graph.removeVertex(vertex);
     varOrder.push_back(vertex);
@@ -503,7 +528,7 @@ vector<Int> Cnf::getMcsVarOrder() const {
   return varOrder;
 }
 
-vector<Int> Cnf::getLexpVarOrder() const {
+vector<Int> Cnf::getLexPVarOrder() const {
   Map<Int, Label> unnumberedVertices;
   for (Int vertex : apparentVars) {
     unnumberedVertices[vertex] = Label();
@@ -525,7 +550,7 @@ vector<Int> Cnf::getLexpVarOrder() const {
   return numberedVertices;
 }
 
-vector<Int> Cnf::getLexmVarOrder() const {
+vector<Int> Cnf::getLexMVarOrder() const {
   Map<Int, Label> unnumberedVertices;
   for (Int vertex : apparentVars) {
     unnumberedVertices[vertex] = Label();
@@ -550,7 +575,7 @@ vector<Int> Cnf::getLexmVarOrder() const {
         }
       }
 
-      /* removes each non-w unnumbered vertex whose label is not less than w's labels */
+      /* removes each non-w unnumbered vertex whose label is at least w's labels */
       for (const pair<Int, Label>& kv : unnumberedVertices) {
         Int unnumberedVertex = kv.first;
         const Label& label = kv.second;
@@ -570,27 +595,27 @@ vector<Int> Cnf::getLexmVarOrder() const {
 vector<Int> Cnf::getCnfVarOrder(Int cnfVarOrderHeuristic) const {
   vector<Int> varOrder;
   switch (abs(cnfVarOrderHeuristic)) {
-    case RANDOM:
+    case RANDOM_HEURISTIC:
       varOrder = getRandomVarOrder();
       break;
-    case DECLARED:
-      varOrder = getDeclaredVarOrder();
+    case DECLARATION_HEURISTIC:
+      varOrder = getDeclarationVarOrder();
       break;
-    case MOST_CLAUSES:
+    case MOST_CLAUSES_HEURISTIC:
       varOrder = getMostClausesVarOrder();
       break;
-    case MINFILL:
-      varOrder = getMinfillVarOrder();
+    case MIN_FILL_HEURISTIC:
+      varOrder = getMinFillVarOrder();
       break;
-    case MCS:
+    case MCS_HEURISTIC:
       varOrder = getMcsVarOrder();
       break;
-    case LEXP:
-      varOrder = getLexpVarOrder();
+    case LEX_P_HEURISTIC:
+      varOrder = getLexPVarOrder();
       break;
     default:
-      assert(abs(cnfVarOrderHeuristic) == LEXM);
-      varOrder = getLexmVarOrder();
+      assert(abs(cnfVarOrderHeuristic) == LEX_M_HEURISTIC);
+      varOrder = getLexMVarOrder();
   }
 
   if (cnfVarOrderHeuristic < 0) {
@@ -600,10 +625,66 @@ vector<Int> Cnf::getCnfVarOrder(Int cnfVarOrderHeuristic) const {
   return varOrder;
 }
 
-Cnf::Cnf() {}
+bool Cnf::isMc21ShowLine(const vector<string> &words) const {
+  return words.size() >= 4 && words.front() == "c" && words.at(1) == "p" && words.at(2) == "show";
+}
 
-Cnf::Cnf(string filePath) {
-  cout << "c processing cnf formula...\n";
+bool Cnf::isMc21WeightLine(const vector<string> &words) const {
+  bool b = words.size() >= 3 && words.front() == "c" && words.at(1) == "p" && words.at(2) == "weight";
+  switch (words.size()) {
+    case 5:
+      return b;
+    case 6:
+      return b && words.back() == "0";
+    default:
+      return false;
+  }
+}
+
+void Cnf::completeLiteralWeights() {
+  if (weightedCounting) {
+    for (Int var = 1; var <= declaredVarCount; var++) {
+      if (!literalWeights.contains(var) && !literalWeights.contains(-var)) {
+        literalWeights[var] = Number("1");
+        literalWeights[-var] = Number("1");
+      }
+      else if (!literalWeights.contains(var)) {
+        assert(literalWeights.at(-var) < Number("1"));
+        literalWeights[var] = Number("1") - literalWeights.at(-var);
+      }
+      else if (!literalWeights.contains(-var)) {
+        assert(literalWeights.at(var) < Number("1"));
+        literalWeights[-var] = Number("1") - literalWeights.at(var);
+      }
+    }
+  }
+  else {
+    for (Int var = 1; var <= declaredVarCount; var++) {
+      literalWeights[var] = Number("1");
+      literalWeights[-var] = Number("1");
+    }
+  }
+}
+
+void Cnf::printStats() const {
+  Float clauseSizeSum = 0;
+  Int clauseSizeMax = MIN_INT;
+  Int clauseSizeMin = MAX_INT;
+
+  for (const Clause& clause : clauses) {
+    Int clauseSize = clause.size();
+    clauseSizeSum += clauseSize;
+    clauseSizeMax = max(clauseSizeMax, clauseSize);
+    clauseSizeMin = min(clauseSizeMin, clauseSize);
+  }
+
+  util::printRow("clauseSizeMean", clauseSizeSum / clauses.size());
+  util::printRow("clauseSizeMax", clauseSizeMax);
+  util::printRow("clauseSizeMin", clauseSizeMin);
+}
+
+void Cnf::readCnfFile(const string& filePath) {
+  cout << "c processing CNF formula...\n";
 
   std::ifstream inputFileStream(filePath);
   if (!inputFileStream.is_open()) {
@@ -611,7 +692,6 @@ Cnf::Cnf(string filePath) {
   }
 
   Int declaredClauseCount = MIN_INT;
-  Int processedClauseCount = 0;
 
   Int lineIndex = 0;
   Int problemLineIndex = MIN_INT;
@@ -621,7 +701,7 @@ Cnf::Cnf(string filePath) {
     lineIndex++;
     std::istringstream inStringStream(line);
 
-    if (verboseCnf >= RAW_INPUT) {
+    if (verboseCnf >= 3) {
       util::printInputLine(line, lineIndex);
     }
 
@@ -629,71 +709,87 @@ Cnf::Cnf(string filePath) {
     if (words.empty()) {
       continue;
     }
-    else if (words.front() == "p") { // problem line
+    string& frontWord = words.front();
+    if (Set<string>{"s", "INDETERMINATE"}.contains(frontWord)) { // preprocessor pmc
+      throw MyError("unexpected output from preprocessor pmc | line ", lineIndex, ": ", line);
+    }
+    else if (frontWord == "p") { // problem line
       if (problemLineIndex != MIN_INT) {
         throw MyError("multiple problem lines: ", problemLineIndex, " and ", lineIndex);
       }
+
       problemLineIndex = lineIndex;
 
-      if (words.size() < 4) {
-        throw MyError("problem line ", lineIndex, " has ", words.size(), " words (should be at least 4)");
+      if (words.size() != 4) {
+        throw MyError("problem line ", lineIndex, " has ", words.size(), " words (should be 4)");
       }
 
       declaredVarCount = stoll(words.at(2));
       declaredClauseCount = stoll(words.at(3));
     }
-    else if (Set<string>{"w", "vp", "c"}.contains(words.front())) { // possibly weight line or show line
-      if (weightedCounting && (words.front() == "w" || (words.size() > 4 && words.at(1) == "p" && words.at(2) == "weight"))) { // weight line optionally ends with "0"
+    else if (frontWord == "c") { // possibly show or weight line
+      if (projectedCounting && isMc21ShowLine(words)) {
         if (problemLineIndex == MIN_INT) {
-          throw MyError("no problem line before weighted literal | line ", lineIndex, ": ", line);
+          throw MyError("no problem line before outer vars | line ", lineIndex, ": ", line);
         }
 
-        Int literal = stoll(words.at(words.front() == "w" ? 1 : 3));
-
-        if (abs(literal) > declaredVarCount) {
-          throw MyError("literal '", literal, "' inconsistent with declared var count '", declaredVarCount, "' | line ", lineIndex);
-        }
-
-        Number weight(words.at(words.front() == "w" ? 2: 4));
-        if (weight < Number()) {
-          throw MyError("weight must be non-negative | line ", lineIndex);
-        }
-        literalWeights[literal] = weight;
-      }
-      else if (projectedCounting && (words.front() == "vp" || (words.size() > 3 && words.at(1) == "p" && words.at(2) == "show"))) { // show line optionally ends with "0"
-        if (problemLineIndex == MIN_INT) {
-          throw MyError("no problem line before projected var | line ", lineIndex, ": ", line);
-        }
-
-        for (Int i = (words.front() == "vp" ? 1 : 3); i < words.size(); i++) {
+        for (Int i = 3; i < words.size(); i++) {
           Int num = stoll(words.at(i));
           if (num == 0) {
             if (i != words.size() - 1) {
-              throw MyError("additive vars terminated prematurely by '0' | line ", lineIndex);
+              throw MyError("outer vars terminated prematurely by '0' | line ", lineIndex);
             }
           }
           else if (num < 0 || num > declaredVarCount) {
             throw MyError("var '", num, "' inconsistent with declared var count '", declaredVarCount, "' | line ", lineIndex);
           }
           else {
-            additiveVars.insert(num);
+            outerVars.insert(num);
           }
         }
       }
+      else if (weightedCounting && isMc21WeightLine(words)) {
+        if (problemLineIndex == MIN_INT) {
+          throw MyError("no problem line before literal weight | line ", lineIndex, ": ", line);
+        }
+
+        Int literal = stoll(words.at(3));
+        assert(literal != 0);
+
+        if (abs(literal) > declaredVarCount) {
+          throw MyError("literal '", literal, "' inconsistent with declared var count '", declaredVarCount, "' | line ", lineIndex);
+        }
+
+        Number weight(words.at(4));
+        if (weight <= Number()) {
+          throw MyError("weight must be positive | line ", lineIndex);
+        }
+        literalWeights[literal] = weight;
+      }
     }
-    else if (Set<string>{"s", "INDETERMINATE"}.contains(words.front())) { // preprocessor pmc
-      throw MyError("unexpected output from preprocessor pmc | line ", lineIndex, ": ", line);
-    }
-    else if (!words.front().starts_with("c")) { // clause line
+    else if (!frontWord.starts_with("c")) { // clause line
       if (problemLineIndex == MIN_INT) {
         throw MyError("no problem line before clause | line ", lineIndex);
       }
 
-      Clause clause;
+      bool xorFlag = false;
+      if (frontWord.starts_with("x")) {
+        xorFlag = true;
+        xorClauseCount++;
+
+        if (frontWord == "x") {
+          words.erase(words.begin());
+        }
+        else {
+          frontWord.erase(frontWord.begin());
+        }
+      }
+      Clause clause(xorFlag);
+
       for (Int i = 0; i < words.size(); i++) {
         Int num = stoll(words.at(i));
 
-        if (num > declaredVarCount || num < -declaredVarCount) {
+        if (abs(num) > declaredVarCount) {
           throw MyError("literal '", num, "' inconsistent with declared var count '", declaredVarCount, "' | line ", lineIndex);
         }
 
@@ -707,81 +803,62 @@ Cnf::Cnf(string filePath) {
           }
 
           addClause(clause);
-          processedClauseCount++;
         }
         else { // literal
           if (i == words.size() - 1) {
             throw MyError("missing end-of-clause indicator '0' | line ", lineIndex);
           }
-          clause.insert(num);
+          clause.insertLiteral(num);
         }
       }
     }
   }
 
   if (problemLineIndex == MIN_INT) {
-    throw MyError("no problem line before cnf file ends on line ", lineIndex);
+    throw MyError("no problem line before CNF file ends on line ", lineIndex);
   }
 
   setApparentVars();
 
   if (!projectedCounting) {
     for (Int var = 1; var <= declaredVarCount; var++) {
-      additiveVars.insert(var);
+      outerVars.insert(var);
     }
   }
 
-  if (!weightedCounting) { // populates literalWeights with 1s
-    for (Int var = 1; var <= declaredVarCount; var++) {
-      literalWeights[var] = Number("1");
-      literalWeights[-var] = Number("1");
-    }
-  }
-  else { // completes literalWeights
-    for (Int var = 1; var <= declaredVarCount; var++) {
-      if (!literalWeights.contains(var) && !literalWeights.contains(-var)) {
-        literalWeights[var] = Number("1");
-        literalWeights[-var] = Number("1");
-      }
-      else if (!literalWeights.contains(var)) {
-        if (logCounting) {
-          assert(literalWeights.at(-var) <= Number("1"));
-        }
-        literalWeights[var] = Number("1") - literalWeights.at(-var);
-      }
-      else if (!literalWeights.contains(-var)) {
-        if (logCounting) {
-          assert(literalWeights.at(var) <= Number("1"));
-        }
-        literalWeights[-var] = Number("1") - literalWeights.at(var);
-      }
-    }
-  }
+  completeLiteralWeights();
 
-  if (verboseCnf >= PARSED_INPUT) {
+  if (verboseCnf >= 1) {
     util::printRow("declaredVarCount", declaredVarCount);
     util::printRow("apparentVarCount", apparentVars.size());
 
     util::printRow("declaredClauseCount", declaredClauseCount);
-    util::printRow("apparentClauseCount", processedClauseCount);
+    util::printRow("apparentClauseCount", clauses.size());
+    util::printRow("xorClauseCount", xorClauseCount);
 
-    if (projectedCounting) {
-      cout << "c additive vars: { ";
-      for (Int var : std::set<Int>(additiveVars.begin(), additiveVars.end())) {
-        cout << var << " ";
+    printStats();
+
+    if (verboseCnf >= 2) {
+      if (projectedCounting) {
+        cout << "c outer vars: { ";
+        for (Int var : util::getSortedNums(outerVars)) {
+          cout << var << " ";
+        }
+        cout << "}\n";
       }
-      cout << "}\n";
-    }
 
-    if (weightedCounting) {
-      printLiteralWeights();
-    }
+      if (weightedCounting) {
+        printLiteralWeights();
+      }
 
-    printClauses();
+      printClauses();
+    }
   }
 
   cout << "\n";
 }
+
+Cnf::Cnf() {}
 
 /* classes for join trees =================================================== */
 
@@ -793,6 +870,19 @@ Assignment::Assignment(Int var, bool val) {
   insert({var, val});
 }
 
+Assignment::Assignment(const string& bitString) {
+  for (Int i = 0; i < bitString.size(); i++) {
+    char bit = bitString.at(i);
+    assert(bit == '0' or bit == '1');
+    insert({i + 1, bit == '1'});
+  }
+}
+
+bool Assignment::getValue(Int var) const {
+  auto it = find(var);
+  return (it != end()) ? it->second : true;
+}
+
 void Assignment::printAssignment() const {
   for (auto it = begin(); it != end(); it++) {
     cout << right << setw(5) << (it->second ? it->first : -it->first);
@@ -802,7 +892,7 @@ void Assignment::printAssignment() const {
   }
 }
 
-vector<Assignment> Assignment::extendAssignments(const vector<Assignment>& assignments, Int var) {
+vector<Assignment> Assignment::getExtendedAssignments(const vector<Assignment>& assignments, Int var) {
   vector<Assignment> extendedAssignments;
   if (assignments.empty()) {
     extendedAssignments.push_back(Assignment(var, false));
@@ -862,7 +952,7 @@ Int JoinNode::chooseClusterIndex(Int clusterIndex, const vector<Set<Int>>& proje
     return projectableVarSets.size(); // special cluster
   }
 
-  if (clusteringHeuristic == BUCKET_LIST || clusteringHeuristic == BOUQUET_LIST) {
+  if (clusteringHeuristic == BUCKET_ELIM_LIST || clusteringHeuristic == BOUQUET_METHOD_LIST) {
     return clusterIndex + 1;
   }
   for (Int target = clusterIndex + 1; target < projectableVarSets.size(); target++) {
@@ -876,7 +966,7 @@ Int JoinNode::chooseClusterIndex(Int clusterIndex, const vector<Set<Int>>& proje
 Int JoinNode::getNodeRank(const vector<Int>& restrictedVarOrder, string clusteringHeuristic) {
   Set<Int> postProjectionVars = getPostProjectionVars();
 
-  if (clusteringHeuristic == BUCKET_LIST || clusteringHeuristic == BUCKET_TREE) { // min var rank
+  if (clusteringHeuristic == BUCKET_ELIM_LIST || clusteringHeuristic == BUCKET_ELIM_TREE) { // min var rank
     Int rank = MAX_INT;
     for (Int varRank = 0; varRank < restrictedVarOrder.size(); varRank++) {
       if (postProjectionVars.contains(restrictedVarOrder.at(varRank))) {
@@ -922,14 +1012,14 @@ JoinTerminal::JoinTerminal() {
 
 /* class JoinNonterminal ===================================================== */
 
-void JoinNonterminal::printNode(string startWord) const {
+void JoinNonterminal::printNode(const string& startWord) const {
   cout << startWord << nodeIndex + 1 << " ";
 
   for (const JoinNode* child : children) {
     cout << child->nodeIndex + 1 << " ";
   }
 
-  cout << VAR_ELIM_WORD;
+  cout << ELIM_VARS_WORD;
   for (Int var : projectionVars) {
     cout << " " << var;
   }
@@ -937,7 +1027,7 @@ void JoinNonterminal::printNode(string startWord) const {
   cout << "\n";
 }
 
-void JoinNonterminal::printSubtree(string startWord) const {
+void JoinNonterminal::printSubtree(const string& startWord) const {
   for (const JoinNode* child : children) {
     if (!child->isTerminal()) {
       static_cast<const JoinNonterminal*>(child)->printSubtree(startWord);
@@ -976,11 +1066,11 @@ vector<Int> JoinNonterminal::getBiggestNodeVarOrder() const {
   size_t prevSize = 0;
 
   if (verboseSolving >= 2) {
-    cout << THIN_LINE;
+    cout << DASH_LINE;
   }
 
   vector<Int> varOrder;
-  for (auto [varSize, var] : sizedVars) {
+  for (const auto& [varSize, var] : sizedVars) {
     varOrder.push_back(var);
 
     if (verboseSolving >= 2) {
@@ -998,7 +1088,7 @@ vector<Int> JoinNonterminal::getBiggestNodeVarOrder() const {
   }
 
   if (verboseSolving >= 2) {
-    cout << "\n" << THIN_LINE;
+    cout << "\n" << DASH_LINE;
   }
 
   return varOrder;
@@ -1029,11 +1119,11 @@ vector<Int> JoinNonterminal::getVarOrder(Int varOrderHeuristic) const {
   }
 
   vector<Int> varOrder;
-  if (abs(varOrderHeuristic) == BIGGEST_NODE) {
+  if (abs(varOrderHeuristic) == BIGGEST_NODE_HEURISTIC) {
     varOrder = getBiggestNodeVarOrder();
   }
   else {
-    assert(abs(varOrderHeuristic) == HIGHEST_NODE);
+    assert(abs(varOrderHeuristic) == HIGHEST_NODE_HEURISTIC);
     varOrder = getHighestNodeVarOrder();
   }
 
@@ -1044,9 +1134,9 @@ vector<Int> JoinNonterminal::getVarOrder(Int varOrderHeuristic) const {
   return varOrder;
 }
 
-vector<Assignment> JoinNonterminal::getAdditiveAssignments(Int varOrderHeuristic, Int sliceVarCount) const {
+vector<Assignment> JoinNonterminal::getOuterAssignments(Int varOrderHeuristic, Int sliceVarCount) const {
   if (sliceVarCount <= 0) {
-    return vector<Assignment>{Assignment()};
+    return {Assignment()};
   }
 
   TimePoint sliceVarOrderStartPoint = util::getTimePoint();
@@ -1059,13 +1149,13 @@ vector<Assignment> JoinNonterminal::getAdditiveAssignments(Int varOrderHeuristic
   vector<Assignment> assignments;
 
   if (verboseSolving >= 2) {
-    cout << "c slice var order: {";
+    cout << "c slice var order heuristic: {";
   }
 
   for (Int i = 0, assignedVars = 0; i < varOrder.size() && assignedVars < sliceVarCount; i++) {
     Int var = varOrder.at(i);
-    if (cnf.additiveVars.contains(var)) {
-      assignments = Assignment::extendAssignments(assignments, var);
+    if (cnf.outerVars.contains(var)) {
+      assignments = Assignment::getExtendedAssignments(assignments, var);
       assignedVars++;
       if (verboseSolving >= 2) {
         cout << " " << var;

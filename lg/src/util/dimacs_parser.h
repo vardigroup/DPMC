@@ -23,9 +23,9 @@ class DimacsParser {
    * Constructs a parser to parse the provided input stream.
    * If given, output comment lines to the provided output stream.
    * Note output comment lines will not be parsed in this case.
-   * 
+   *
    * If no comment stream is given, comment lines will be parsed as usual.
-   * 
+   *
    * Provided streams should outlive the DimacsParser.
    */
   explicit DimacsParser(std::istream *stream);
@@ -38,7 +38,7 @@ class DimacsParser {
 
   /**
    * Consumes and parses the next (non-empty, non-comment) line of the stream.
-   * 
+   *
    * The string prefix is returned and each double is added to out.
    */
   std::string parseLine(std::vector<double> *out);
@@ -46,7 +46,7 @@ class DimacsParser {
   /**
    * Parses the next (non-empty, non-comment) line of the stream, expecting the
    * given prefix.
-   * 
+   *
    * Returns false (and consumes nothing) if the given prefix is missing.
    * Otherwise returns true, consumes the next line, and each double is added
    * to out.

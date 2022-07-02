@@ -1,0 +1,14 @@
+p cnf 4 4
+c p show 1 2
+c p weight -1 0.1
+c p weight  1 0.9
+c p weight -2 0.1
+c p weight  2 0.9
+-1  2 0
+ 1 -2 0
+-3  4 0
+ 3 -4 0
+c   mc 4
+c  wmc 1.64
+c  pmc 2
+c pwmc 0.82

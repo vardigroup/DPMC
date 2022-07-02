@@ -1,6 +1,6 @@
 #include "htb.hh"
 
-/* classes ================================================================== */
+/* classes for planning ===================================================== */
 
 /* class JoinComponent ====================================================== */
 
@@ -63,36 +63,36 @@ JoinComponent::JoinComponent(Int varOrderHeuristic, string clusteringHeuristic, 
 
 /* class JoinRootBuilder ==================================================== */
 
-void JoinRootBuilder::printDisjunctiveVarSets() const {
-  cout << "c disjunctiveVars: { ";
-  for (Int var : disjunctiveVars) {
+void JoinRootBuilder::printInnerVarSets() const {
+  cout << "c inner vars: { ";
+  for (Int var : util::getSortedNums(innerVars)) {
     cout << var << " ";
   }
   cout << "}\n";
 
-  for (Int clauseIndex = 0; clauseIndex < disjunctiveVarSets.size(); clauseIndex++) {
-    cout << "c disjunctiveVarSet for clause " << clauseIndex << ":";
-    for (Int v : disjunctiveVarSets.at(clauseIndex)) {
+  for (Int clauseIndex = 0; clauseIndex < innerVarSets.size(); clauseIndex++) {
+    cout << "c inner vars of clause " << clauseIndex + 1 << ": {";
+    for (Int v : util::getSortedNums(innerVarSets.at(clauseIndex))) {
       cout << " " << v;
     }
-    cout << "\n";
+    cout << " }\n";
   }
 }
 
 void JoinRootBuilder::printClauseGroups() const {
   for (Int i = 0; i < clauseGroups.size(); i++) {
-    cout << "c clause group " << i << " contains these clause indices:";
+    cout << "c clause group " << i + 1 << " contains these clause indices: {";
     for (Int clauseIndex : clauseGroups.at(i)) {
-      cout << " " << clauseIndex;
+      cout << " " << clauseIndex + 1;
     }
-    cout << "\n";
+    cout << " }\n";
   }
 }
 
-void JoinRootBuilder::setDisjunctiveVarSets() {
-  disjunctiveVars = JoinNode::cnf.getDisjunctiveVars();
+void JoinRootBuilder::setInnerVarSets() {
+  innerVars = JoinNode::cnf.getInnerVars();
   for (const Clause& clause : JoinNode::cnf.clauses) {
-    disjunctiveVarSets.push_back(util::getIntersection(clause.getClauseVars(), disjunctiveVars));
+    innerVarSets.push_back(util::getIntersection(clause.getClauseVars(), innerVars));
   }
 }
 
@@ -102,13 +102,13 @@ void JoinRootBuilder::setClauseGroups() {
   vector<Int> parent(boostSize);
   boost::disjoint_sets<Int*, Int*> varBlocks(&rank.front(), &parent.front());
 
-  for (Int var : disjunctiveVars) {
+  for (Int var : innerVars) {
     varBlocks.make_set(var);
   }
 
-  for (Int i = 0; i < disjunctiveVarSets.size(); i++) {
+  for (Int i = 0; i < innerVarSets.size(); i++) {
     Int element = MIN_INT;
-    for (Int var : disjunctiveVarSets.at(i)) {
+    for (Int var : innerVarSets.at(i)) {
       if (element != MIN_INT) {
         varBlocks.union_set(var, element);
       }
@@ -118,27 +118,27 @@ void JoinRootBuilder::setClauseGroups() {
 
   Map<Int, vector<Int>> clauseMap; // representative var |-> clause indices
 
-  for (Int clauseIndex = 0; clauseIndex < disjunctiveVarSets.size(); clauseIndex++) {
-    const Set<Int>& disjunctiveVarSet = disjunctiveVarSets.at(clauseIndex);
-    if (disjunctiveVarSet.empty()) { // clause with no disjunctive var
-      clauseGroups.push_back(vector<Int>{clauseIndex});
+  for (Int clauseIndex = 0; clauseIndex < innerVarSets.size(); clauseIndex++) {
+    const Set<Int>& innerVarSet = innerVarSets.at(clauseIndex);
+    if (innerVarSet.empty()) { // clause with no inner var
+      clauseGroups.push_back({clauseIndex});
     }
-    else { // clause with disjunctive var is put first in clauseMap then in clauseGroups
-      Int var = *disjunctiveVarSet.begin(); // arbitrary member
+    else { // clause with inner var is put first in `clauseMap` then in `clauseGroups`
+      Int var = *innerVarSet.begin(); // arbitrary member
       Int representative = varBlocks.find_set(var);
       if (clauseMap.contains(representative)) {
         clauseMap.at(representative).push_back(clauseIndex);
       }
       else {
-        clauseMap[representative] = vector<Int>{clauseIndex};
+        clauseMap[representative] = {clauseIndex};
       }
     }
   }
 
-  for (const pair<Int, vector<Int>>& kv : clauseMap) { // adds to clauseGroups clauses with disjunctive vars
+  for (const pair<Int, vector<Int>>& kv : clauseMap) { // adds to `clauseGroups` clauses with inner vars
     if (verboseSolving >= 2) {
       for (Int clauseIndex : kv.second) {
-        cout << "c var " << kv.first << " represents clause " << clauseIndex << "\n";
+        cout << "c var " << kv.first << " represents clause " << clauseIndex + 1 << "\n";
       }
     }
     clauseGroups.push_back(kv.second);
@@ -163,42 +163,42 @@ JoinNonterminal* JoinRootBuilder::buildRoot(Int varOrderHeuristic, string cluste
   vector<JoinNode*> nonterminals;
   for (Int i = 0; i < leafBlocks.size(); i++) {
     if (verboseSolving >= 2) {
-      cout << "c building disjunctive component " << i << "\n";
+      cout << "c building inner component " << i + 1 << ": started\n";
     }
-    JoinComponent disjunctiveComponent(varOrderHeuristic, clusteringHeuristic, leafBlocks.at(i), JoinNode::cnf.additiveVars);
-    JoinNonterminal* disjunctiveRoot = disjunctiveComponent.getComponentRoot();
-    nonterminals.push_back(disjunctiveRoot);
+    JoinComponent innerComponent(varOrderHeuristic, clusteringHeuristic, leafBlocks.at(i), JoinNode::cnf.outerVars);
+    JoinNonterminal* innerRoot = innerComponent.getComponentRoot();
+    nonterminals.push_back(innerRoot);
     if (verboseSolving >= 2) {
-      cout << "c building disjunctive component " << i << ": done\n";
+      cout << "c building inner component " << i + 1 << ": ended\n";
     }
   }
 
   if (verboseSolving >= 2) {
-    cout << "c building additive component\n";
+    cout << "c building outer component: started\n";
   }
-  JoinComponent additiveComponent(varOrderHeuristic, clusteringHeuristic, nonterminals, Set<Int>());
-  JoinNonterminal* additiveRoot = additiveComponent.getComponentRoot();
+  JoinComponent outerComponent(varOrderHeuristic, clusteringHeuristic, nonterminals, Set<Int>());
+  JoinNonterminal* outerRoot = outerComponent.getComponentRoot();
   if (verboseSolving >= 2) {
-    cout << "c building additive component: done\n";
+    cout << "c building outer component: ended\n";
   }
 
-  return additiveRoot;
+  return outerRoot;
 }
 
 JoinRootBuilder::JoinRootBuilder() {
-  setDisjunctiveVarSets();
+  setInnerVarSets();
   setClauseGroups();
 
   if (verboseSolving >= 2) {
     printClauseGroups();
-    printDisjunctiveVarSets();
+    printInnerVarSets();
   }
 }
 
 /* class Planner ============================================================ */
 
 void Planner::printJoinTree() const {
-  cout << "p " << JT_WORD << " " << JoinNode::cnf.declaredVarCount << " " << joinRoot->terminalCount << " " << joinRoot->nodeCount << "\n";
+  cout << "p " << JOIN_TREE_WORD << " " << JoinNode::cnf.declaredVarCount << " " << joinRoot->terminalCount << " " << joinRoot->nodeCount << "\n";
   joinRoot->printSubtree();
 }
 
@@ -207,36 +207,40 @@ void Planner::outputJoinTree() {
 
   setJoinTree();
 
-  cout << THIN_LINE;
+  cout << DASH_LINE;
   printJoinTree();
-  cout << THIN_LINE;
+  cout << DASH_LINE;
 
-  util::printRow("joinTreeWidth", joinRoot->getWidth());
+  printRow("joinTreeWidth", joinRoot->getWidth());
 }
 
-/* class BucketPlanner ====================================================== */
+/* class BucketElimPlanner ================================================== */
 
-void BucketPlanner::setJoinTree() {
-  joinRoot = JoinRootBuilder().buildRoot(clusterVarOrderHeuristic, usingTreeClustering ? BUCKET_TREE : BUCKET_LIST);
+void BucketElimPlanner::setJoinTree() {
+  joinRoot = JoinRootBuilder().buildRoot(clusterVarOrderHeuristic, treeClustering ? BUCKET_ELIM_TREE : BUCKET_ELIM_LIST);
 }
 
-BucketPlanner::BucketPlanner(bool usingTreeClustering, Int clusterVarOrderHeuristic) {
-  this->usingTreeClustering = usingTreeClustering;
+BucketElimPlanner::BucketElimPlanner(bool treeClustering, Int clusterVarOrderHeuristic) {
+  this->treeClustering = treeClustering;
   this->clusterVarOrderHeuristic = clusterVarOrderHeuristic;
 }
 
-/* class BouquetPlanner ===================================================== */
+/* class BouquetMethodPlanner =============================================== */
 
-void BouquetPlanner::setJoinTree() {
-  joinRoot = JoinRootBuilder().buildRoot(clusterVarOrderHeuristic, usingTreeClustering ? BOUQUET_TREE : BOUQUET_LIST);
+void BouquetMethodPlanner::setJoinTree() {
+  joinRoot = JoinRootBuilder().buildRoot(clusterVarOrderHeuristic, treeClustering ? BOUQUET_METHOD_TREE : BOUQUET_METHOD_LIST);
 }
 
-BouquetPlanner::BouquetPlanner(bool usingTreeClustering, Int clusterVarOrderHeuristic) {
-  this->usingTreeClustering = usingTreeClustering;
+BouquetMethodPlanner::BouquetMethodPlanner(bool treeClustering, Int clusterVarOrderHeuristic) {
+  this->treeClustering = treeClustering;
   this->clusterVarOrderHeuristic = clusterVarOrderHeuristic;
 }
 
 /* class OptionDict ========================================================= */
+
+string OptionDict::helpClusterVarOrderHeuristic() {
+  return "cluster var order" + util::helpVarOrderHeuristic(CNF_VAR_ORDER_HEURISTICS);
+}
 
 string OptionDict::helpClusteringHeuristic() {
   string s = "clustering heuristic: ";
@@ -252,33 +256,32 @@ string OptionDict::helpClusteringHeuristic() {
 void OptionDict::runCommand() const {
   if (verboseSolving >= 1) {
     cout << "c processing command-line options...\n";
-
-    util::printRow("cnfFile", cnfFilePath);
-    util::printRow("projectedCounting", projectedCounting);
-    util::printRow("randomSeed", randomSeed);
-    util::printRow("clusterVarOrder", (clusterVarOrderHeuristic < 0 ? "INVERSE_" : "") + CNF_VAR_ORDER_HEURISTICS.at(abs(clusterVarOrderHeuristic)));
-    util::printRow("clusteringHeuristic", CLUSTERING_HEURISTICS.at(clusteringHeuristic));
+    printRow("cnfFile", cnfFilePath);
+    printRow("projectedCounting", projectedCounting);
+    printRow("randomSeed", randomSeed);
+    printRow("clusterVarOrderHeuristic", (clusterVarOrderHeuristic < 0 ? "INVERSE_" : "") + CNF_VAR_ORDER_HEURISTICS.at(abs(clusterVarOrderHeuristic)));
+    printRow("clusteringHeuristic", CLUSTERING_HEURISTICS.at(clusteringHeuristic));
     cout << "\n";
   }
 
   try {
-    JoinNode::cnf = Cnf(cnfFilePath);
-    if (clusteringHeuristic == BUCKET_LIST) {
-      BucketPlanner bucketPlanner(false, clusterVarOrderHeuristic);
-      bucketPlanner.outputJoinTree();
+    JoinNode::cnf.readCnfFile(cnfFilePath);
+    if (clusteringHeuristic == BUCKET_ELIM_LIST) {
+      BucketElimPlanner bucketElimPlanner(false, clusterVarOrderHeuristic);
+      bucketElimPlanner.outputJoinTree();
     }
-    else if (clusteringHeuristic == BUCKET_TREE) {
-      BucketPlanner bucketPlanner(true, clusterVarOrderHeuristic);
-      bucketPlanner.outputJoinTree();
+    else if (clusteringHeuristic == BUCKET_ELIM_TREE) {
+      BucketElimPlanner bucketElimPlanner(true, clusterVarOrderHeuristic);
+      bucketElimPlanner.outputJoinTree();
     }
-    else if (clusteringHeuristic == BOUQUET_LIST) {
-      BouquetPlanner bouquetPlanner(false, clusterVarOrderHeuristic);
-      bouquetPlanner.outputJoinTree();
+    else if (clusteringHeuristic == BOUQUET_METHOD_LIST) {
+      BouquetMethodPlanner bouquetMethodPlanner(false, clusterVarOrderHeuristic);
+      bouquetMethodPlanner.outputJoinTree();
     }
     else {
-      assert(clusteringHeuristic == BOUQUET_TREE);
-      BouquetPlanner bouquetPlanner(true, clusterVarOrderHeuristic);
-      bouquetPlanner.outputJoinTree();
+      assert(clusteringHeuristic == BOUQUET_METHOD_TREE);
+      BouquetMethodPlanner bouquetMethodPlanner(true, clusterVarOrderHeuristic);
+      bouquetMethodPlanner.outputJoinTree();
     }
   }
   catch (EmptyClauseException) {}
@@ -286,18 +289,25 @@ void OptionDict::runCommand() const {
 
 OptionDict::OptionDict(int argc, char** argv) {
   cxxopts::Options options("htb", "Heuristic Tree Builder");
-  options.set_width(105);
+  options.set_width(118);
+
+  using cxxopts::value;
   options.add_options()
-    (CNF_FILE_OPTION, "cnf file path; string (REQUIRED)", value<string>())
-    (PROJECTED_COUNTING_OPTION, "projected counting: 0, 1; int", value<Int>()->default_value("0"))
+    (CNF_FILE_OPTION, "CNF file path; string (required)", value<string>())
+    (PROJECTED_COUNTING_OPTION, "projected counting (graded join tree): 0, 1; int", value<Int>()->default_value("0"))
     (RANDOM_SEED_OPTION, "random seed; int", value<Int>()->default_value("0"))
-    (CLUSTER_VAR_OPTION, util::helpVarOrderHeuristic("cluster"), value<Int>()->default_value(to_string(LEXP)))
-    (CLUSTERING_HEURISTIC_OPTION, helpClusteringHeuristic(), value<string>()->default_value(BOUQUET_TREE))
-    (VERBOSE_CNF_OPTION, "verbose cnf: 0, " + INPUT_VERBOSITIES, value<Int>()->default_value("0"))
-    (VERBOSE_SOLVING_OPTION, util::helpVerboseSolving(), value<Int>()->default_value("1"))
+    (CLUSTER_VAR_OPTION, helpClusterVarOrderHeuristic(), value<Int>()->default_value(to_string(LEX_P_HEURISTIC)))
+    (CLUSTERING_HEURISTIC_OPTION, helpClusteringHeuristic(), value<string>()->default_value(BOUQUET_METHOD_TREE))
+    (VERBOSE_CNF_OPTION, util::helpVerboseCnfProcessing(), value<Int>()->default_value("0"))
+    (VERBOSE_SOLVING_OPTION, util::helpVerboseSolving(), value<Int>()->default_value("0"))
+    (HELP_OPTION, "help")
   ;
+
   cxxopts::ParseResult result = options.parse(argc, argv);
-  if (result.count(CNF_FILE_OPTION)) {
+  if (result.count(HELP_OPTION) || !result.count(CNF_FILE_OPTION)) {
+    cout << options.help();
+  }
+  else {
     cout << "c htb process:\n";
     cout << "c pid " << getpid() << "\n\n";
 
@@ -314,14 +324,12 @@ OptionDict::OptionDict(int argc, char** argv) {
     assert(CLUSTERING_HEURISTICS.contains(clusteringHeuristic));
 
     verboseCnf = result[VERBOSE_CNF_OPTION].as<Int>(); // global var
+
     verboseSolving = result[VERBOSE_SOLVING_OPTION].as<Int>(); // global var
 
     toolStartPoint = util::getTimePoint(); // global var
     runCommand();
-    util::printRow("seconds", util::getDuration(toolStartPoint));
-  }
-  else {
-    cout << options.help();
+    printRow("seconds", util::getDuration(toolStartPoint));
   }
 }
 

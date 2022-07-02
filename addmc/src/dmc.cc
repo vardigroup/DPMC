@@ -2,17 +2,24 @@
 
 /* global vars ============================================================== */
 
-Int dotFileIndex = 1;
-
-string planningStrategy;
+bool existRandom;
+string ddPackage;
+bool logCounting;
+Float logBound;
+string thresholdModel;
+bool satSolverPruning;
+Int maximizerFormat;
+bool maximizerVerification;
+bool substitutionMaximization;
 Int threadCount;
 Int threadSliceCount;
-string ddPackage;
 Float memSensitivity;
 Float maxMem;
 string joinPriority;
 Int verboseJoinTree;
 Int verboseProfiling;
+
+Int dotFileIndex = 1;
 
 /* classes for processing join trees ======================================== */
 
@@ -30,7 +37,7 @@ JoinNonterminal* JoinTree::getJoinRoot() const {
 }
 
 void JoinTree::printTree() const {
-  cout << "c p " << JT_WORD << " " << declaredVarCount << " " << declaredClauseCount << " " << declaredNodeCount << "\n";
+  cout << "c p " << JOIN_TREE_WORD << " " << declaredVarCount << " " << declaredClauseCount << " " << declaredNodeCount << "\n";
   getJoinRoot()->printSubtree("c ");
 }
 
@@ -43,10 +50,8 @@ JoinTree::JoinTree(Int declaredVarCount, Int declaredClauseCount, Int declaredNo
 /* class JoinTreeProcessor ================================================== */
 
 Int JoinTreeProcessor::plannerPid = MIN_INT;
-
-const JoinNonterminal* JoinTreeProcessor::getJoinTreeRoot() const {
-  return joinTree->getJoinRoot();
-}
+JoinTree* JoinTreeProcessor::joinTree = nullptr;
+JoinTree* JoinTreeProcessor::backupJoinTree = nullptr;
 
 void JoinTreeProcessor::killPlanner() {
   if (plannerPid == MIN_INT) {
@@ -60,159 +65,31 @@ void JoinTreeProcessor::killPlanner() {
   }
 }
 
-/* class JoinTreeParser ===================================================== */
-
-void JoinTreeParser::finishParsingJoinTree() {
-  if (joinTree == nullptr) {
-    throw MyError("no join tree before line ", lineIndex);
-  }
-
-  Int nonterminalCount = joinTree->joinNonterminals.size();
-  Int expectedNonterminalCount = joinTree->declaredNodeCount - joinTree->declaredClauseCount;
-  if (nonterminalCount < expectedNonterminalCount) {
-    throw MyError("missing internal nodes (", nonterminalCount, " found, ", expectedNonterminalCount, " expected) before join tree ends on line ", lineIndex);
-  }
-
-  if (joinTree->width == MIN_INT) {
-    joinTree->width = joinTree->getJoinRoot()->getWidth();
-  }
-
-  cout << "c processed join tree ending on line " << lineIndex << "\n";
-  util::printRow("joinTreeWidth", joinTree->width);
-  util::printRow("plannerSeconds", joinTree->plannerDuration);
-
-  if (verboseJoinTree >= PARSED_INPUT) {
-    cout << THIN_LINE;
-    joinTree->printTree();
-    cout << THIN_LINE;
-  }
-}
-
-void JoinTreeParser::parseInputStream() {
-  string line;
-  while (getline(std::cin, line)) {
-    lineIndex++;
-    if (verboseJoinTree >= RAW_INPUT) {
-      util::printInputLine(line, lineIndex);
-    }
-
-    vector<string> words = util::splitInputLine(line);
-    if (words.empty() || words.front() == "{'':") { // SlurmQueen `echo` line
-      continue;
-    }
-    else if (words.front() == "p") {
-      if (problemLineIndex != MIN_INT) {
-        throw MyError("multiple problem lines: ", problemLineIndex, " and ", lineIndex);
-      }
-
-      problemLineIndex = lineIndex;
-      if (words.size() != 5) {
-        throw MyError("problem line ", lineIndex, " has ", words.size(), " words (should be 5)");
-      }
-
-      string jtWord = words.at(1);
-      if (jtWord != JT_WORD) {
-        throw MyError("expected '", JT_WORD, "', found '", jtWord, "' | line ", lineIndex);
-      }
-
-      Int declaredVarCount = stoll(words.at(2));
-      Int declaredClauseCount = stoll(words.at(3));
-      Int declaredNodeCount = stoll(words.at(4));
-      joinTree = new JoinTree(declaredVarCount, declaredClauseCount, declaredNodeCount);
-      for (Int terminalIndex = 0; terminalIndex < declaredClauseCount; terminalIndex++) {
-        joinTree->joinTerminals[terminalIndex] = new JoinTerminal();
-      }
-    }
-    else if (words.front() == "c") {
-      if (words.size() == 3) {
-        string key = words.at(1);
-        string val = words.at(2);
-        if (key == "pid") {
-          plannerPid = stoll(val);
-        }
-        else if (key == "joinTreeWidth") {
-          joinTree->width = stoll(val);
-        }
-        else if (key == "seconds") {
-          if (joinTree != nullptr) {
-            joinTree->plannerDuration = stold(val);
-            break;
-          }
-        }
-      }
-    }
-    else { // internal-node line
-      if (problemLineIndex == MIN_INT) {
-        throw MyError("no problem line before internal node | line ", lineIndex);
-      }
-
-      Int parentIndex = stoll(words.front()) - 1; // 0-indexing
-      if (parentIndex < joinTree->declaredClauseCount || parentIndex >= joinTree->declaredNodeCount) {
-        throw MyError("wrong internal-node index | line ", lineIndex);
-      }
-
-      vector<JoinNode*> children;
-      Set<Int> projectionVars;
-      bool parsingElimVars = false;
-      for (Int i = 1; i < words.size(); i++) {
-        string word = words.at(i);
-        if (word == VAR_ELIM_WORD) {
-          parsingElimVars = true;
-        }
-        else {
-          Int num = stoll(word);
-          if (parsingElimVars) {
-            if (num <= 0 || num > joinTree->declaredVarCount) {
-              throw MyError("var '", num, "' inconsistent with declared var count '", joinTree->declaredVarCount, "' | line ", lineIndex);
-            }
-            projectionVars.insert(num);
-          }
-          else {
-            Int childIndex = num - 1; // 0-indexing
-            if (childIndex < 0 || childIndex >= parentIndex) {
-              throw MyError("child '", word, "' wrong | line ", lineIndex);
-            }
-            children.push_back(joinTree->getJoinNode(childIndex));
-          }
-        }
-      }
-      joinTree->joinNonterminals[parentIndex] = new JoinNonterminal(children, projectionVars, parentIndex);
-    }
-  }
-}
-
-JoinTreeParser::JoinTreeParser() {
-  cout << "c procressing join tree...\n";
-  cout << "c getting join tree from stdin (end input with 'enter' then 'ctrl d')\n";
-  parseInputStream();
-  finishParsingJoinTree();
-
-  if (plannerPid != MIN_INT) {
-    killPlanner();
-  }
-
-  cout << "c getting join tree from stdin: done\n";
-}
-
-/* class JoinTreeReader ===================================================== */
-
-void JoinTreeReader::handleSigalrm(int signal) {
+void JoinTreeProcessor::handleSigAlrm(int signal) {
   assert(signal == SIGALRM);
   cout << "c received SIGALRM after " << util::getDuration(toolStartPoint) << "s\n";
-  killPlanner();
+
+  if (joinTree == nullptr && backupJoinTree == nullptr) {
+    cout << "c found no join tree yet; will wait for first join tree then kill planner\n";
+  }
+  else {
+    cout << "c found join tree; killing planner\n";
+    killPlanner();
+  }
 }
 
-bool JoinTreeReader::hasDisarmedTimer() {
+bool JoinTreeProcessor::hasDisarmedTimer() {
   struct itimerval curr_value;
   getitimer(ITIMER_REAL, &curr_value);
 
   return curr_value.it_value.tv_sec == 0 && curr_value.it_value.tv_usec == 0 && curr_value.it_interval.tv_sec == 0 && curr_value.it_interval.tv_usec == 0;
 }
 
-void JoinTreeReader::setTimer(Float seconds) {
+void JoinTreeProcessor::setTimer(Float seconds) {
   assert(seconds >= 0);
+
   Int secs = seconds;
-  Int usecs = (seconds - secs) * 1e6;
+  Int usecs = (seconds - secs) * 1000000;
 
   struct itimerval new_value;
   new_value.it_value.tv_sec = secs;
@@ -223,43 +100,116 @@ void JoinTreeReader::setTimer(Float seconds) {
   setitimer(ITIMER_REAL, &new_value, nullptr);
 }
 
-void JoinTreeReader::armTimer(Float seconds) {
-  assert(seconds > 0);
-  signal(SIGALRM, handleSigalrm);
+void JoinTreeProcessor::armTimer(Float seconds) {
+  assert(seconds >= 0);
+  signal(SIGALRM, handleSigAlrm);
   setTimer(seconds);
 }
 
-void JoinTreeReader::disarmTimer() {
+void JoinTreeProcessor::disarmTimer() {
   setTimer(0);
   cout << "c disarmed timer\n";
 }
 
-void JoinTreeReader::finishReadingJoinTree() {
-  if (joinTree == nullptr) {
-    throw MyError("no join tree before line ", lineIndex);
+const JoinNonterminal* JoinTreeProcessor::getJoinTreeRoot() const {
+  return joinTree->getJoinRoot();
+}
+
+void JoinTreeProcessor::processCommentLine(const vector<string>& words) {
+  if (words.size() == 3) {
+    string key = words.at(1);
+    string val = words.at(2);
+    if (key == "pid") {
+      plannerPid = stoll(val);
+    }
+    else if (key == "joinTreeWidth") {
+      if (joinTree != nullptr) {
+        joinTree->width = stoll(val);
+      }
+    }
+    else if (key == "seconds") {
+      if (joinTree != nullptr) {
+        joinTree->plannerDuration = stold(val);
+      }
+    }
+  }
+}
+
+void JoinTreeProcessor::processProblemLine(const vector<string>& words) {
+  if (problemLineIndex != MIN_INT) {
+    throw MyError("multiple problem lines: ", problemLineIndex, " and ", lineIndex);
+  }
+  problemLineIndex = lineIndex;
+
+  if (words.size() != 5) {
+    throw MyError("problem line ", lineIndex, " has ", words.size(), " words (should be 5)");
   }
 
+  string jtWord = words.at(1);
+  if (jtWord != JOIN_TREE_WORD) {
+    throw MyError("expected '", JOIN_TREE_WORD, "'; found '", jtWord, "' | line ", lineIndex);
+  }
+
+  Int declaredVarCount = stoll(words.at(2));
+  Int declaredClauseCount = stoll(words.at(3));
+  Int declaredNodeCount = stoll(words.at(4));
+
+  joinTree = new JoinTree(declaredVarCount, declaredClauseCount, declaredNodeCount);
+
+  for (Int terminalIndex = 0; terminalIndex < declaredClauseCount; terminalIndex++) {
+    joinTree->joinTerminals[terminalIndex] = new JoinTerminal();
+  }
+}
+
+void JoinTreeProcessor::processNonterminalLine(const vector<string>& words) {
+  if (problemLineIndex == MIN_INT) {
+    string message = "no problem line before internal node | line " + to_string(lineIndex);
+    if (joinTreeEndLineIndex != MIN_INT) {
+      message += " (previous join tree ends on line " + to_string(joinTreeEndLineIndex) + ")";
+    }
+    throw MyError(message);
+  }
+
+  Int parentIndex = stoll(words.front()) - 1; // 0-indexing
+  if (parentIndex < joinTree->declaredClauseCount || parentIndex >= joinTree->declaredNodeCount) {
+    throw MyError("wrong internal-node index | line ", lineIndex);
+  }
+
+  vector<JoinNode*> children;
+  Set<Int> projectionVars;
+  bool parsingElimVars = false;
+  for (Int i = 1; i < words.size(); i++) {
+    string word = words.at(i);
+    if (word == ELIM_VARS_WORD) {
+      parsingElimVars = true;
+    }
+    else {
+      Int num = stoll(word);
+      if (parsingElimVars) {
+        Int declaredVarCount = joinTree->declaredVarCount;
+        if (num <= 0 || num > declaredVarCount) {
+          throw MyError("var '", num, "' inconsistent with declared var count '", declaredVarCount, "' | line ", lineIndex);
+        }
+        projectionVars.insert(num);
+      }
+      else {
+        Int childIndex = num - 1; // 0-indexing
+        if (childIndex < 0 || childIndex >= parentIndex) {
+          throw MyError("child '", word, "' wrong | line ", lineIndex);
+        }
+        children.push_back(joinTree->getJoinNode(childIndex));
+      }
+    }
+  }
+  joinTree->joinNonterminals[parentIndex] = new JoinNonterminal(children, projectionVars, parentIndex);
+}
+
+void JoinTreeProcessor::finishReadingJoinTree() {
   Int nonterminalCount = joinTree->joinNonterminals.size();
   Int expectedNonterminalCount = joinTree->declaredNodeCount - joinTree->declaredClauseCount;
 
   if (nonterminalCount < expectedNonterminalCount) {
-    cout << WARNING << "missing internal nodes (" << nonterminalCount << " found, " << expectedNonterminalCount << " expected) before current join tree ends on line " << lineIndex << "\n";
-
-    if (joinTreeEndLineIndex == MIN_INT) {
-      throw MyError("no backup join tree");
-    }
-
-    cout << WARNING << "restoring backup join tree ending on line " << joinTreeEndLineIndex << "\n";
-
-    if (verboseJoinTree >= PARSED_INPUT) {
-      cout << THIN_LINE;
-      cout << "c restored backup join tree:\n";
-      backupJoinTree->printTree();
-      cout << THIN_LINE;
-    }
-
-    joinTree = backupJoinTree;
-    JoinNode::restoreStaticFields();
+    cout << WARNING << "missing internal nodes (" << expectedNonterminalCount << " expected, " << nonterminalCount << " found) before current join tree ends on line " << lineIndex << "\n";
   }
   else {
     if (joinTree->width == MIN_INT) {
@@ -267,177 +217,212 @@ void JoinTreeReader::finishReadingJoinTree() {
     }
 
     cout << "c processed join tree ending on line " << lineIndex << "\n";
-    util::printRow("joinTreeWidth", joinTree->width);
-    util::printRow("plannerSeconds", joinTree->plannerDuration);
+    printRow("joinTreeWidth", joinTree->width);
+    printRow("plannerSeconds", joinTree->plannerDuration);
 
-    if (verboseJoinTree >= PARSED_INPUT) {
-      cout << THIN_LINE;
+    if (verboseJoinTree >= 1) {
+      cout << DASH_LINE;
       joinTree->printTree();
-      cout << THIN_LINE;
+      cout << DASH_LINE;
     }
+
+    joinTreeEndLineIndex = lineIndex;
+    backupJoinTree = joinTree;
+    JoinNode::resetStaticFields();
   }
 
-  joinTreeEndLineIndex = lineIndex;
   problemLineIndex = MIN_INT;
+  joinTree = nullptr;
 }
 
-void JoinTreeReader::readInputStream() {
+void JoinTreeProcessor::readInputStream() {
   string line;
-  while (getline(std::cin, line) && !hasDisarmedTimer()) {
+  while (getline(std::cin, line)) {
     lineIndex++;
-    if (verboseJoinTree >= RAW_INPUT) {
+
+    if (verboseJoinTree >= 2) {
       util::printInputLine(line, lineIndex);
     }
 
     vector<string> words = util::splitInputLine(line);
-    if (words.empty() || words.front() == "{'':" || words.front() == "=") {
-      continue;
-    }
-    else if (words.front() == "p") {
-      if (problemLineIndex != MIN_INT) {
-        throw MyError("multiple problem lines: ", problemLineIndex, " and ", lineIndex);
+    if (words.empty()) {}
+    else if (words.front() == "=") { // LG's tree separator "="
+      if (joinTree != nullptr) {
+        finishReadingJoinTree();
       }
-
-      problemLineIndex = lineIndex;
-      if (words.size() != 5) {
-        throw MyError("problem line ", lineIndex, " has ", words.size(), " words (should be 5)");
-      }
-
-      string jtWord = words.at(1);
-      if (jtWord != JT_WORD) {
-        throw MyError("expected '", JT_WORD, "', found '", jtWord, "' | line ", lineIndex);
-      }
-
-      Int declaredVarCount = stoll(words.at(2));
-      Int declaredClauseCount = stoll(words.at(3));
-      Int declaredNodeCount = stoll(words.at(4));
-      backupJoinTree = joinTree;
-      joinTree = new JoinTree(declaredVarCount, declaredClauseCount, declaredNodeCount);
-      JoinNode::resetStaticFields();
-      for (Int terminalIndex = 0; terminalIndex < declaredClauseCount; terminalIndex++) {
-        joinTree->joinTerminals[terminalIndex] = new JoinTerminal();
+      if (hasDisarmedTimer()) { // timer expires before first join tree ends
+        break;
       }
     }
-    else if (words.front() == "c") {
-      if (words.size() == 3) {
-        string key = words.at(1);
-        string val = words.at(2);
-        if (key == "pid") {
-          plannerPid = stoll(val);
-        }
-        else if (key == "joinTreeWidth") {
-          joinTree->width = stoll(val);
-        }
-        else if (key == "seconds") {
-          if (joinTree != nullptr) {
-            joinTree->plannerDuration = stold(val);
-            finishReadingJoinTree();
-          }
-        }
-      }
+    else if (words.front() == "c") { // possibly special comment line
+      processCommentLine(words);
     }
-    else { // internal-node line
-      if (problemLineIndex == MIN_INT) {
-        string message = "no problem line before internal node | line " + to_string(lineIndex);
-        if (joinTreeEndLineIndex != MIN_INT) {
-          message += " (previous join tree ends on line " + to_string(joinTreeEndLineIndex) + ")";
-        }
-        throw MyError(message);
-      }
-
-      Int parentIndex = stoll(words.front()) - 1; // 0-indexing
-      if (parentIndex < joinTree->declaredClauseCount || parentIndex >= joinTree->declaredNodeCount) {
-        throw MyError("wrong internal-node index | line ", lineIndex);
-      }
-
-      vector<JoinNode*> children;
-      Set<Int> projectionVars;
-      bool readingElimVars = false;
-      for (Int i = 1; i < words.size(); i++) {
-        string word = words.at(i);
-        if (word == VAR_ELIM_WORD) {
-          readingElimVars = true;
-        }
-        else {
-          Int num = stoll(word);
-          if (readingElimVars) {
-            Int declaredVarCount = joinTree->declaredVarCount;
-            if (num <= 0 || num > declaredVarCount) {
-              throw MyError("var '", num, "' inconsistent with declared var count '", declaredVarCount, "' | line ", lineIndex);
-            }
-            projectionVars.insert(num);
-          }
-          else {
-            Int childIndex = num - 1; // 0-indexing
-            if (childIndex < 0 || childIndex >= parentIndex) {
-              throw MyError("child '", word, "' wrong | line ", lineIndex);
-            }
-            children.push_back(joinTree->getJoinNode(childIndex));
-          }
-        }
-      }
-      joinTree->joinNonterminals[parentIndex] = new JoinNonterminal(children, projectionVars, parentIndex);
+    else if (words.front() == "p") { // problem line
+      processProblemLine(words);
+    }
+    else { // nonterminal-node line
+      processNonterminalLine(words);
     }
   }
-  if (!hasDisarmedTimer()) {
+
+  if (joinTree != nullptr) {
+    finishReadingJoinTree();
+  }
+
+  if (!hasDisarmedTimer()) { // stdin ends before timer expires
+    cout << "c stdin ends before timer expires; disarming timer\n";
     disarmTimer();
   }
 }
 
-JoinTreeReader::JoinTreeReader(Float plannerWaitDuration) {
-  cout << "\n";
-  cout << "c procressing join tree...\n";
+JoinTreeProcessor::JoinTreeProcessor(Float plannerWaitDuration) {
+  cout << "c processing join tree...\n";
+
   armTimer(plannerWaitDuration);
   cout << "c getting join tree from stdin with " << plannerWaitDuration << "s timer (end input with 'enter' then 'ctrl d')\n";
+
   readInputStream();
+
+  if (joinTree == nullptr) {
+    if (backupJoinTree == nullptr) {
+      throw MyError("no join tree before line ", lineIndex);
+    }
+    joinTree = backupJoinTree;
+    JoinNode::restoreStaticFields();
+  }
+
   cout << "c getting join tree from stdin: done\n";
+
+  if (plannerPid != MIN_INT) { // timer expires before first join tree ends
+    killPlanner();
+  }
 }
 
-/* classes for decision diagrams ============================================ */
+/* classes for execution ==================================================== */
+
+/* class SatSolver ========================================================== */
+
+bool SatSolver::checkSat(bool exceptionThrowing) {
+  lbool satisfiability = cmsSolver.solve();
+  if (satisfiability == l_False) {
+    if (exceptionThrowing) {
+      throw UnsatSolverException();
+    }
+    return false;
+  }
+  assert(satisfiability == l_True);
+  return true;
+}
+
+Assignment SatSolver::getModel() {
+  vector<Lit> banLits;
+  Assignment model;
+  vector<lbool> lbools = cmsSolver.get_model();
+  for (Int i = 0; i < lbools.size(); i++) {
+    Int cnfVar = i + 1;
+    bool val = true;
+    lbool b = lbools.at(i);
+    if (b != CMSat::l_Undef) {
+      assert(b == l_True || b == l_False);
+      val = b == l_True;
+      banLits.push_back(getLit(cnfVar, !val));
+    }
+    cmsSolver.add_clause(banLits);
+    model[cnfVar] = val;
+  }
+  return model;
+}
+
+Lit SatSolver::getLit(Int cnfVar, bool val) {
+  assert(cnfVar > 0);
+  return Lit(cnfVar - 1, !val);
+}
+
+SatSolver::SatSolver(const Cnf& cnf) {
+  cmsSolver.new_vars(cnf.declaredVarCount);
+  for (const Clause& clause : cnf.clauses) {
+    if (clause.xorFlag) {
+      vector<unsigned> vars;
+      bool rhs = true;
+      for (Int literal : clause) {
+        vars.push_back(abs(literal) - 1);
+        if (literal < 0) {
+          rhs = !rhs;
+        }
+      }
+      cmsSolver.add_xor_clause(vars, rhs);
+    }
+    else {
+      vector<Lit> lits;
+      for (Int literal : clause) {
+        lits.push_back(getLit(abs(literal), literal > 0));
+      }
+      cmsSolver.add_clause(lits);
+    }
+  }
+}
 
 /* class Dd ================================================================= */
 
+size_t Dd::maxDdLeafCount;
+size_t Dd::maxDdNodeCount;
+
+size_t Dd::prunedDdCount;
+Float Dd::pruningDuration;
+
+size_t Dd::getLeafCount() const {
+  if (ddPackage == CUDD_PACKAGE) {
+    return cuadd.CountLeaves();
+  }
+  MTBDD d = mtbdd.GetMTBDD();
+  return mtbdd_leafcount(d);
+}
+
+size_t Dd::getNodeCount() const {
+  if (ddPackage == CUDD_PACKAGE) {
+    return cuadd.nodeCount();
+  }
+  return mtbdd.NodeCount();
+}
+
 Dd::Dd(const ADD& cuadd) {
-  assert(ddPackage == CUDD);
+  assert(ddPackage == CUDD_PACKAGE);
   this->cuadd = cuadd;
 }
 
 Dd::Dd(const Mtbdd& mtbdd) {
-  assert(ddPackage == SYLVAN);
+  assert(ddPackage == SYLVAN_PACKAGE);
   this->mtbdd = mtbdd;
 }
 
 Dd::Dd(const Dd& dd) {
-  if (ddPackage == CUDD) {
-    this->cuadd = dd.cuadd;
+  if (ddPackage == CUDD_PACKAGE) {
+    *this = Dd(dd.cuadd);
   }
   else {
-    this->mtbdd = dd.mtbdd;
+    *this = Dd(dd.mtbdd);
   }
+
+  maxDdLeafCount = max(maxDdLeafCount, getLeafCount());
+  maxDdNodeCount = max(maxDdNodeCount, getNodeCount());
 }
 
-const Cudd* Dd::newMgr(Float mem, Int threadIndex) {
-  assert(ddPackage == CUDD);
-  Cudd* mgr = new Cudd(
-    0, // init num of BDD vars
-    0, // init num of ZDD vars
-    CUDD_UNIQUE_SLOTS, // init num of unique-table slots; cudd.h: #define CUDD_UNIQUE_SLOTS 256
-    CUDD_CACHE_SLOTS, // init num of cache-table slots; cudd.h: #define CUDD_CACHE_SLOTS 262144
-    mem * MEGA // maxMemory
-  );
-  mgr->getManager()->threadIndex = threadIndex;
-  mgr->getManager()->peakMemIncSensitivity = memSensitivity * MEGA; // makes CUDD print "c cuddMegabytes_{threadIndex + 1} {memused / 1e6}"
-  if (verboseSolving >= 1 && threadIndex == 0) {
-    // util::printRow("hardMaxMemMegabytes", mgr->ReadMaxMemory() / MEGA); // for unique table and cache table combined (unlimited by default)
-    // util::printRow("softMaxMemMegabytes", mgr->getManager()->maxmem / MEGA); // cuddInt.c: maxmem = maxMemory / 10 * 9
-    // util::printRow("hardMaxCacheMegabytes", mgr->ReadMaxCacheHard() * sizeof(DdCache) / MEGA); // cuddInt.h: #define DD_MAX_CACHE_FRACTION 3
-    // writeInfoFile(mgr, "info.txt");
+Number Dd::extractConst() const {
+  if (ddPackage == CUDD_PACKAGE) {
+    ADD minTerminal = cuadd.FindMin();
+    assert(minTerminal == cuadd.FindMax());
+    return Number(cuddV(minTerminal.getNode()));
   }
-  return mgr;
+  assert(mtbdd.isLeaf());
+  if (multiplePrecision) {
+    uint64_t val = mtbdd_getvalue(mtbdd.GetMTBDD());
+    return Number(mpq_class(reinterpret_cast<mpq_ptr>(val)));
+  }
+  return Number(mtbdd_getdouble(mtbdd.GetMTBDD()));
 }
 
 Dd Dd::getConstDd(const Number& n, const Cudd* mgr) {
-  if (ddPackage == CUDD) {
+  if (ddPackage == CUDD_PACKAGE) {
     return logCounting ? Dd(mgr->constant(n.getLog10())) : Dd(mgr->constant(n.fraction));
   }
   if (multiplePrecision) {
@@ -460,47 +445,54 @@ Dd Dd::getOneDd(const Cudd* mgr) {
 }
 
 Dd Dd::getVarDd(Int ddVar, bool val, const Cudd* mgr) {
-  if (ddPackage == CUDD) {
+  if (ddPackage == CUDD_PACKAGE) {
     if (logCounting) {
       return Dd(mgr->addLogVar(ddVar, val));
     }
-    return val ? Dd(mgr->addVar(ddVar)) : Dd((mgr->addVar(ddVar)).Cmpl());
+    ADD d = mgr->addVar(ddVar);
+    return val ? Dd(d) : Dd(d.Cmpl());
   }
-  if (val) {
-    return Dd(mtbdd_makenode(ddVar, getZeroDd(mgr).mtbdd.GetMTBDD(), getOneDd(mgr).mtbdd.GetMTBDD())); // (var, lo, hi)
-  }
-  return Dd(mtbdd_makenode(ddVar, getOneDd(mgr).mtbdd.GetMTBDD(), getZeroDd(mgr).mtbdd.GetMTBDD()));
+  MTBDD d0 = getZeroDd(mgr).mtbdd.GetMTBDD();
+  MTBDD d1= getOneDd(mgr).mtbdd.GetMTBDD();
+  return val ? Dd(mtbdd_makenode(ddVar, d0, d1)) : Dd(mtbdd_makenode(ddVar, d1, d0));
 }
 
-size_t Dd::countNodes() const {
-  if (ddPackage == CUDD) {
-    return cuadd.nodeCount();
+const Cudd* Dd::newMgr(Float mem, Int threadIndex) {
+  assert(ddPackage == CUDD_PACKAGE);
+  Cudd* mgr = new Cudd(
+    0, // init num of BDD vars
+    0, // init num of ZDD vars
+    CUDD_UNIQUE_SLOTS, // init num of unique-table slots; cudd.h: #define CUDD_UNIQUE_SLOTS 256
+    CUDD_CACHE_SLOTS, // init num of cache-table slots; cudd.h: #define CUDD_CACHE_SLOTS 262144
+    mem * MEGA // maxMemory
+  );
+  mgr->getManager()->threadIndex = threadIndex;
+  mgr->getManager()->peakMemIncSensitivity = memSensitivity * MEGA; // makes CUDD print "c cuddMegabytes_{threadIndex + 1} {memused / 1e6}"
+  if (verboseSolving >= 4 && threadIndex == 0) {
+    printRow("hardMaxMemMegabytes", mgr->ReadMaxMemory() / MEGA); // for unique table and cache table combined (unlimited by default)
+    printRow("softMaxMemMegabytes", mgr->getManager()->maxmem / MEGA); // cuddInt.c: maxmem = maxMemory / 10 * 9
+    printRow("hardMaxCacheMegabytes", mgr->ReadMaxCacheHard() * sizeof(DdCache) / MEGA); // cuddInt.h: #define DD_MAX_CACHE_FRACTION 3
+    writeInfoFile(mgr, "cudd.txt");
   }
-  return mtbdd.NodeCount();
+  return mgr;
+}
+
+bool Dd::operator!=(const Dd& rightDd) const {
+  if (ddPackage == CUDD_PACKAGE) {
+    return cuadd != rightDd.cuadd;
+  }
+  return mtbdd != rightDd.mtbdd;
 }
 
 bool Dd::operator<(const Dd& rightDd) const {
   if (joinPriority == SMALLEST_PAIR) { // top = rightmost = smallest
-    return countNodes() > rightDd.countNodes();
+    return getNodeCount() > rightDd.getNodeCount();
   }
-  return countNodes() < rightDd.countNodes();
-}
-
-Number Dd::extractConst() const {
-  if (ddPackage == CUDD) {
-    ADD minTerminal = cuadd.FindMin();
-    assert(minTerminal == cuadd.FindMax());
-    return Number(cuddV(minTerminal.getNode()));
-  }
-  assert(mtbdd.isLeaf());
-  if (multiplePrecision) {
-    return Number(mpq_class((mpq_ptr)mtbdd_getvalue(mtbdd.GetMTBDD())));
-  }
-  return Number(mtbdd_getdouble(mtbdd.GetMTBDD()));
+  return getNodeCount() < rightDd.getNodeCount();
 }
 
 Dd Dd::getComposition(Int ddVar, bool val, const Cudd* mgr) const {
-  if (ddPackage == CUDD) {
+  if (ddPackage == CUDD_PACKAGE) {
     if (util::isFound(ddVar, cuadd.SupportIndices())) {
       return Dd(cuadd.Compose(val ? mgr->addOne() : mgr->addZero(), ddVar));
     }
@@ -512,7 +504,7 @@ Dd Dd::getComposition(Int ddVar, bool val, const Cudd* mgr) const {
 }
 
 Dd Dd::getProduct(const Dd& dd) const {
-  if (ddPackage == CUDD) {
+  if (ddPackage == CUDD_PACKAGE) {
     return logCounting ? Dd(cuadd + dd.cuadd) : Dd(cuadd * dd.cuadd);
   }
   if (multiplePrecision) {
@@ -523,7 +515,7 @@ Dd Dd::getProduct(const Dd& dd) const {
 }
 
 Dd Dd::getSum(const Dd& dd) const {
-  if (ddPackage == CUDD) {
+  if (ddPackage == CUDD_PACKAGE) {
     return logCounting ? Dd(cuadd.LogSumExp(dd.cuadd)) : Dd(cuadd + dd.cuadd);
   }
   if (multiplePrecision) {
@@ -534,7 +526,7 @@ Dd Dd::getSum(const Dd& dd) const {
 }
 
 Dd Dd::getMax(const Dd& dd) const {
-  if (ddPackage == CUDD) {
+  if (ddPackage == CUDD_PACKAGE) {
     return Dd(cuadd.Maximum(dd.cuadd));
   }
   if (multiplePrecision) {
@@ -544,9 +536,14 @@ Dd Dd::getMax(const Dd& dd) const {
   return Dd(mtbdd.Max(dd.mtbdd));
 }
 
+Dd Dd::getXor(const Dd& dd) const {
+  assert(ddPackage == CUDD_PACKAGE);
+  return logCounting ? Dd(cuadd.LogXor(dd.cuadd)) : Dd(cuadd.Xor(dd.cuadd));
+}
+
 Set<Int> Dd::getSupport() const {
   Set<Int> support;
-  if (ddPackage == CUDD) {
+  if (ddPackage == CUDD_PACKAGE) {
     for (Int ddVar : cuadd.SupportIndices()) {
       support.insert(ddVar);
     }
@@ -561,7 +558,18 @@ Set<Int> Dd::getSupport() const {
   return support;
 }
 
-Dd Dd::getAbstraction(Int ddVar, const vector<Int>& ddVarToCnfVarMap, const Map<Int, Number>& literalWeights, const Assignment& assignment, bool additive, const Cudd* mgr) const {
+Dd Dd::getBoolDiff(const Dd& rightDd) const {
+  assert(ddPackage == CUDD_PACKAGE);
+  return Dd((cuadd - rightDd.cuadd).BddThreshold(0).Add());
+}
+
+bool Dd::evalAssignment(vector<int>& ddVarAssignment) const {
+  assert(ddPackage == CUDD_PACKAGE);
+  Number n = Dd(cuadd.Eval(&ddVarAssignment.front())).extractConst();
+  return n == Number(1);
+}
+
+Dd Dd::getAbstraction(Int ddVar, const vector<Int>& ddVarToCnfVarMap, const Map<Int, Number>& literalWeights, const Assignment& assignment, bool additiveFlag, vector<pair<Int, Dd>>& maximizationStack, const Cudd* mgr) const {
   Int cnfVar = ddVarToCnfVarMap.at(ddVar);
   Dd positiveWeight = getConstDd(literalWeights.at(cnfVar), mgr);
   Dd negativeWeight = getConstDd(literalWeights.at(-cnfVar), mgr);
@@ -571,16 +579,43 @@ Dd Dd::getAbstraction(Int ddVar, const vector<Int>& ddVarToCnfVarMap, const Map<
     Dd weight = it->second ? positiveWeight : negativeWeight;
     return getProduct(weight);
   }
-  Dd term0 = getComposition(ddVar, false, mgr).getProduct(negativeWeight);
-  Dd term1 = getComposition(ddVar, true, mgr).getProduct(positiveWeight);
-  return additive ? term0.getSum(term1) : term0.getMax(term1);
+
+  Dd highTerm = getComposition(ddVar, true, mgr).getProduct(positiveWeight);
+  Dd lowTerm = getComposition(ddVar, false, mgr).getProduct(negativeWeight);
+
+  if (maximizerFormat && !additiveFlag) {
+    Dd dsgn = highTerm.getBoolDiff(lowTerm); // derivative sign
+    maximizationStack.push_back({ddVar, dsgn});
+    if (substitutionMaximization) {
+      return Dd(cuadd.Compose(dsgn.cuadd, ddVar));
+    }
+  }
+
+  return additiveFlag ? highTerm.getSum(lowTerm) : highTerm.getMax(lowTerm);
 }
 
-void Dd::writeDotFile(const Cudd* mgr, string dotFileDir) const {
+Dd Dd::getPrunedDd(Float lowerBound, const Cudd* mgr) const {
+  assert(logCounting);
+
+  TimePoint pruningStartPoint = util::getTimePoint();
+
+  ADD bound = mgr->constant(lowerBound);
+  ADD prunedDd = cuadd.LogThreshold(bound);
+
+  pruningDuration += util::getDuration(pruningStartPoint);
+
+  if (prunedDd != cuadd) {
+    prunedDdCount++;
+  }
+
+  return Dd(prunedDd);
+}
+
+void Dd::writeDotFile(const Cudd* mgr, const string& dotFileDir) const {
   string filePath = dotFileDir + "dd" + to_string(dotFileIndex++) + ".dot";
   FILE* file = fopen(filePath.c_str(), "wb"); // writes to binary file
 
-  if (ddPackage == CUDD) { // davidkebo.com/cudd#cudd6
+  if (ddPackage == CUDD_PACKAGE) { // davidkebo.com/cudd#cudd6
     DdNode** ddNodeArray = static_cast<DdNode**>(malloc(sizeof(DdNode*)));
     ddNodeArray[0] = cuadd.getNode();
     Cudd_DumpDot(mgr->getManager(), 1, ddNodeArray, NULL, NULL, file);
@@ -591,18 +626,20 @@ void Dd::writeDotFile(const Cudd* mgr, string dotFileDir) const {
   }
 
   fclose(file);
-  cout << "c overwrote file " << filePath << "\n";
+  cout << "c wrote decision diagram to file " << filePath << "\n";
 }
 
-void Dd::writeInfoFile(const Cudd* mgr, string filePath) {
-  assert(ddPackage == CUDD);
+void Dd::writeInfoFile(const Cudd* mgr, const string& filePath) {
+  assert(ddPackage == CUDD_PACKAGE);
   FILE* file = fopen(filePath.c_str(), "w");
   Cudd_PrintInfo(mgr->getManager(), file);
   fclose(file);
-  cout << "c overwrote file " << filePath << "\n";
+  cout << "c wrote CUDD info to file " << filePath << "\n";
 }
 
 /* class Executor =========================================================== */
+
+vector<pair<Int, Dd>> Executor::maximizationStack;
 
 Map<Int, Float> Executor::varDurations;
 Map<Int, size_t> Executor::varDdSizes;
@@ -612,7 +649,7 @@ void Executor::updateVarDurations(const JoinNode* joinNode, TimePoint startPoint
     Float duration = util::getDuration(startPoint);
     if (duration > 0) {
       if (verboseProfiling >= 2) {
-        util::printRow("joinNodeSeconds_" + to_string(joinNode->nodeIndex + 1), duration);
+        printRow("solvingSeconds_joinNode" + to_string(joinNode->nodeIndex + 1), duration);
       }
 
       for (Int var : joinNode->preProjectionVars) {
@@ -629,10 +666,10 @@ void Executor::updateVarDurations(const JoinNode* joinNode, TimePoint startPoint
 
 void Executor::updateVarDdSizes(const JoinNode* joinNode, const Dd& dd) {
   if (verboseProfiling >= 1) {
-    size_t ddSize = dd.countNodes();
+    size_t ddSize = dd.getNodeCount();
 
     if (verboseProfiling >= 2) {
-      util::printRow("joinNodeDiagramSize_" + to_string(joinNode->nodeIndex + 1), ddSize);
+      printRow("diagramNodes_joinNode" + to_string(joinNode->nodeIndex + 1), ddSize);
     }
 
     for (Int var : joinNode->preProjectionVars) {
@@ -649,14 +686,14 @@ void Executor::updateVarDdSizes(const JoinNode* joinNode, const Dd& dd) {
 void Executor::printVarDurations() {
   multimap<Float, Int, greater<Float>> timedVars = util::flipMap(varDurations); // duration |-> var
   for (pair<Float, Int> timedVar : timedVars) {
-    util::printRow("varTotalSeconds_" + to_string(timedVar.second), timedVar.first);
+    printRow("totalSeconds_var" + to_string(timedVar.second), timedVar.first);
   }
 }
 
 void Executor::printVarDdSizes() {
-  multimap<size_t, Int, greater<size_t>> sizedVars = util::flipMap(varDdSizes); // dd size |-> var
+  multimap<size_t, Int, greater<size_t>> sizedVars = util::flipMap(varDdSizes); // DD size |-> var
   for (pair<size_t, Int> sizedVar : sizedVars) {
-    util::printRow("varMaxDiagramSize_" + to_string(sizedVar.second), sizedVar.first);
+    printRow("maxDiagramNodes_var" + to_string(sizedVar.second), sizedVar.first);
   }
 }
 
@@ -666,15 +703,20 @@ Dd Executor::getClauseDd(const Map<Int, Int>& cnfVarToDdVarMap, const Clause& cl
     bool val = literal > 0;
     Int cnfVar = abs(literal);
     auto it = assignment.find(cnfVar);
-    if (it != assignment.end()) { // slices clause on literal
-      if (it->second == val) { // returns satisfied clause
-        return Dd::getOneDd(mgr);
+    if (it != assignment.end()) { // literal has assigned value
+      if (it->second == val) {
+        if (clause.xorFlag) { // flips polarity
+          clauseDd = clauseDd.getXor(Dd::getOneDd(mgr));
+        }
+        else { // returns satisfied disjunctive clause
+          return Dd::getOneDd(mgr);
+        }
       } // excludes unsatisfied literal from clause otherwise
     }
-    else {
+    else { // literal is unassigned
       Int ddVar = cnfVarToDdVarMap.at(cnfVar);
       Dd literalDd = Dd::getVarDd(ddVar, val, mgr);
-      clauseDd = clauseDd.getMax(literalDd);
+      clauseDd = clause.xorFlag ? clauseDd.getXor(literalDd) : clauseDd.getMax(literalDd);
     }
   }
   return clauseDd;
@@ -700,7 +742,7 @@ Dd Executor::solveSubtree(const JoinNode* joinNode, const Map<Int, Int>& cnfVarT
   TimePoint nonterminalStartPoint = util::getTimePoint();
   Dd dd = Dd::getOneDd(mgr);
 
-  if (joinPriority == ARBITRARY_PAIR) { // arbitrarily multiplies child ADDs
+  if (joinPriority == ARBITRARY_PAIR) { // arbitrarily multiplies child decision diagrams
     for (Dd childDd : childDdList) {
       dd = dd.getProduct(childDd);
     }
@@ -711,7 +753,7 @@ Dd Executor::solveSubtree(const JoinNode* joinNode, const Map<Int, Int>& cnfVarT
       childDdQueue.push(childDd);
     }
     assert(!childDdQueue.empty());
-    while (childDdQueue.size() > 1) {
+    while (childDdQueue.size() >= 2) {
       Dd dd1 = childDdQueue.top();
       childDdQueue.pop();
       Dd dd2 = childDdQueue.top();
@@ -724,7 +766,29 @@ Dd Executor::solveSubtree(const JoinNode* joinNode, const Map<Int, Int>& cnfVarT
 
   for (Int cnfVar : joinNode->projectionVars) {
     Int ddVar = cnfVarToDdVarMap.at(cnfVar);
-    dd = dd.getAbstraction(ddVar, ddVarToCnfVarMap, JoinNode::cnf.literalWeights, assignment, JoinNode::cnf.additiveVars.contains(cnfVar), mgr);
+
+    bool additiveFlag = JoinNode::cnf.outerVars.contains(cnfVar);
+    if (existRandom) {
+      additiveFlag = !additiveFlag;
+    }
+
+    dd = dd.getAbstraction(ddVar, ddVarToCnfVarMap, JoinNode::cnf.literalWeights, assignment, additiveFlag, maximizationStack, mgr);
+
+    if (logBound > -INF) {
+      if (JoinNode::cnf.literalWeights.at(cnfVar) != Number(1) || JoinNode::cnf.literalWeights.at(-cnfVar) != Number(1)) {
+        Dd prunedDd = dd.getPrunedDd(logBound, mgr);
+        if (prunedDd != dd) {
+          if (verboseSolving >= 3) {
+            cout << "c writing pre-pruning decision diagram...\n";
+            dd.writeDotFile(mgr);
+
+            cout << "c writing post-pruning decision diagram...\n";
+            prunedDd.writeDotFile(mgr);
+          }
+          dd = prunedDd;
+        }
+      }
+    }
   }
 
   updateVarDurations(joinNode, nonterminalStartPoint);
@@ -743,26 +807,31 @@ void Executor::solveThreadSlices(const JoinNonterminal* joinRoot, const Map<Int,
     const std::lock_guard<mutex> g(solutionMutex);
 
     if (verboseSolving >= 1) {
-      cout << "c thread " << right << setw(4) << threadIndex + 1 << "/" << threadAssignmentLists.size() << " | assignment " << setw(4) << threadAssignmentIndex + 1 << "/" << threadAssignments.size() << ": { ";
+      cout << "c thread " << right << setw(4) << threadIndex + 1 << "/" << threadAssignmentLists.size();
+      cout << " | assignment " << setw(4) << threadAssignmentIndex + 1 << "/" << threadAssignments.size();
+
+      cout << ": { ";
       threadAssignments.at(threadAssignmentIndex).printAssignment();
       cout << " }\n";
 
-      cout << "c thread " << right << setw(4) << threadIndex + 1 << "/" << threadAssignmentLists.size() << " | assignment " << setw(4) << threadAssignmentIndex + 1 << "/" << threadAssignments.size() << " | seconds " << left << setw(10) << util::getDuration(sliceStartPoint) << " | mc " << setw(15);
-      if (logCounting) {
-        cout << exp10l(partialSolution.fraction) << " | log10(mc) " << partialSolution.fraction << "\n";
-      }
-      else {
-        cout << partialSolution << "\n";
-      }
+      cout << "c thread " << right << setw(4) << threadIndex + 1 << "/" << threadAssignmentLists.size();
+      cout << " | assignment " << setw(4) << threadAssignmentIndex + 1 << "/" << threadAssignments.size();
+      cout << " | seconds " << std::fixed << setw(10) << util::getDuration(sliceStartPoint);
+      cout << " | solution " << setw(15) << partialSolution << "\n";
     }
 
-    totalSolution = logCounting ? Number(totalSolution.getLogSumExp(partialSolution)) : totalSolution + partialSolution;
+    if (existRandom) {
+      totalSolution = max(totalSolution, partialSolution);
+    }
+    else {
+      totalSolution = logCounting ? Number(totalSolution.getLogSumExp(partialSolution)) : totalSolution + partialSolution;
+    }
   }
 }
 
 vector<vector<Assignment>> Executor::getThreadAssignmentLists(const JoinNonterminal* joinRoot, Int sliceVarOrderHeuristic) {
   size_t sliceVarCount = ceill(log2l(threadCount * threadSliceCount));
-  sliceVarCount = min(sliceVarCount, JoinNode::cnf.additiveVars.size());
+  sliceVarCount = min(sliceVarCount, JoinNode::cnf.outerVars.size());
 
   Int remainingSliceCount = exp2l(sliceVarCount);
   Int remainingThreadCount = threadCount;
@@ -783,7 +852,7 @@ vector<vector<Assignment>> Executor::getThreadAssignmentLists(const JoinNontermi
     cout << "}\n";
   }
 
-  vector<Assignment> assignments = joinRoot->getAdditiveAssignments(sliceVarOrderHeuristic, sliceVarCount);
+  vector<Assignment> assignments = joinRoot->getOuterAssignments(sliceVarOrderHeuristic, sliceVarCount);
   vector<vector<Assignment>> threadAssignmentLists;
   vector<Assignment> threadAssignmentList;
   for (Int assignmentIndex = 0, threadListIndex = 0; assignmentIndex < assignments.size() && threadListIndex < threadSliceCounts.size(); assignmentIndex++) {
@@ -812,7 +881,7 @@ vector<vector<Assignment>> Executor::getThreadAssignmentLists(const JoinNontermi
 }
 
 Number Executor::solveCnf(const JoinNonterminal* joinRoot, const Map<Int, Int>& cnfVarToDdVarMap, const vector<Int>& ddVarToCnfVarMap, Int sliceVarOrderHeuristic) {
-  if (ddPackage == SYLVAN) {
+  if (ddPackage == SYLVAN_PACKAGE) {
     return solveSubtree(
       static_cast<const JoinNode*>(joinRoot),
       cnfVarToDdVarMap,
@@ -821,12 +890,12 @@ Number Executor::solveCnf(const JoinNonterminal* joinRoot, const Map<Int, Int>& 
   }
 
   vector<vector<Assignment>> threadAssignmentLists = getThreadAssignmentLists(joinRoot, sliceVarOrderHeuristic);
-  util::printRow("sliceWidth", joinRoot->getWidth(threadAssignmentLists.front().front())); // any assignment would work
+  printRow("sliceWidth", joinRoot->getWidth(threadAssignmentLists.front().front())); // any assignment would work
   Number totalSolution = logCounting ? Number(-INF) : Number();
   mutex solutionMutex;
 
   Float threadMem = maxMem / threadAssignmentLists.size();
-  util::printRow("threadMaxMemMegabytes", threadMem);
+  printRow("threadMaxMemMegabytes", threadMem);
 
   vector<thread> threads;
 
@@ -861,39 +930,79 @@ Number Executor::solveCnf(const JoinNonterminal* joinRoot, const Map<Int, Int>& 
   return totalSolution;
 }
 
-Number Executor::adjustSolution(const Number &apparentSolution) {
+void Executor::setLogBound(const JoinNonterminal* joinRoot, const Map<Int, Int>& cnfVarToDdVarMap, const vector<Int>& ddVarToCnfVarMap) {
+  if (logBound > -INF) {} // LOG_BOUND_OPTION
+  else if (!thresholdModel.empty()) { // THRESHOLD_MODEL_OPTION
+    logBound = solveSubtree(
+      joinRoot,
+      cnfVarToDdVarMap,
+      ddVarToCnfVarMap,
+      Dd::newMgr(maxMem),
+      Assignment(thresholdModel)
+    ).extractConst().fraction;
+    printRow("logBound", logBound);
+  }
+  else if (satSolverPruning) { // SAT_SOLVER_PRUNING
+    SatSolver satSolver(joinRoot->cnf);
+    satSolver.checkSat(true);
+    Assignment model = satSolver.getModel();
+    logBound = solveSubtree(
+      joinRoot,
+      cnfVarToDdVarMap,
+      ddVarToCnfVarMap,
+      Dd::newMgr(maxMem),
+      model
+    ).extractConst().fraction;
+    printRow("logBound", logBound);
+    cout << "c " << getShortModel(model, joinRoot->cnf.declaredVarCount) << "\n";
+  }
+}
+
+Number Executor::adjustSolutionToHiddenVar(const Number &apparentSolution, Int cnfVar, bool additiveFlag) {
+  if (JoinNode::cnf.apparentVars.contains(cnfVar)) {
+    return apparentSolution;
+  }
+
+  const Number& positiveWeight = JoinNode::cnf.literalWeights.at(cnfVar);
+  const Number& negativeWeight = JoinNode::cnf.literalWeights.at(-cnfVar);
+  if (additiveFlag) {
+    return logCounting ? (apparentSolution + (positiveWeight + negativeWeight).getLog10()) : (apparentSolution * (positiveWeight + negativeWeight));
+  }
+  else {
+    return logCounting ? (apparentSolution + max(positiveWeight, negativeWeight).getLog10()) : (apparentSolution * max(positiveWeight, negativeWeight)); // weights are positive
+  }
+}
+
+Number Executor::getAdjustedSolution(const Number &apparentSolution) {
   Number n = apparentSolution;
 
-  for (Int var = 1; var <= JoinNode::cnf.declaredVarCount; var++) { // processes hidden existential vars
-    if (!JoinNode::cnf.apparentVars.contains(var) && !JoinNode::cnf.additiveVars.contains(var)) {
-      const Number& positiveWeight = JoinNode::cnf.literalWeights.at(var);
-      const Number& negativeWeight = JoinNode::cnf.literalWeights.at(-var);
-      n = logCounting ? n + max(positiveWeight, negativeWeight).getLog10(): n * max(positiveWeight, negativeWeight); // max: non-negative weights
+  for (Int var = 1; var <= JoinNode::cnf.declaredVarCount; var++) { // processes inner vars
+    if (!JoinNode::cnf.outerVars.contains(var)) {
+      n = adjustSolutionToHiddenVar(n, var, existRandom);
     }
   }
 
-  for (Int var : JoinNode::cnf.additiveVars) { // processes hidden additive vars
-    if (!JoinNode::cnf.apparentVars.contains(var)) {
-      const Number& positiveWeight = JoinNode::cnf.literalWeights.at(var);
-      const Number& negativeWeight = JoinNode::cnf.literalWeights.at(-var);
-      n = logCounting ? n + (positiveWeight + negativeWeight).getLog10() : n * (positiveWeight + negativeWeight);
-    }
+  for (Int var : JoinNode::cnf.outerVars) {
+    n = adjustSolutionToHiddenVar(n, var, !existRandom);
   }
 
   return n;
 }
 
-void Executor::printSatRow(const Number& solution, bool surelyUnsat, size_t keyWidth) {
+void Executor::printSatRow(const Number& solution, bool unsatFlag, size_t keyWidth) {
   const string SAT_WORD = "SATISFIABLE";
   const string UNSAT_WORD = "UN" + SAT_WORD;
 
   string satisfiability = "UNKNOWN";
 
-  if (surelyUnsat) { // empty clause
+  if (unsatFlag) {
     satisfiability = UNSAT_WORD;
   }
+  else if (satSolverPruning) {
+    satisfiability = SAT_WORD; // otherwise, UnsatSolverException would have been thrown earlier
+  }
   else if (logCounting) {
-    if (solution.fraction == -INF) {
+    if (solution == Number(-INF)) {
       if (!weightedCounting) {
         satisfiability = UNSAT_WORD;
       }
@@ -904,7 +1013,7 @@ void Executor::printSatRow(const Number& solution, bool surelyUnsat, size_t keyW
   }
   else {
     if (solution == Number()) {
-      if (!weightedCounting) {
+      if (!weightedCounting || multiplePrecision) {
         satisfiability = UNSAT_WORD;
       }
     }
@@ -913,15 +1022,15 @@ void Executor::printSatRow(const Number& solution, bool surelyUnsat, size_t keyW
     }
   }
 
-  util::printRow("s", satisfiability, keyWidth);
+  printRow("s", satisfiability, keyWidth);
 }
 
 void Executor::printTypeRow(size_t keyWidth) {
-  util::printRow("s type", projectedCounting ? "pmc" : (weightedCounting ? "wmc" : "mc"), keyWidth);
+  printRow("s type", projectedCounting ? "pmc" : (weightedCounting ? "wmc" : "mc"), keyWidth);
 }
 
 void Executor::printEstRow(const Number& solution, size_t keyWidth) {
-  util::printPreciseFloatRow("s log10-estimate", logCounting ? solution.fraction : solution.getLog10(), keyWidth);
+  printRow("s log10-estimate", logCounting ? solution.fraction : solution.getLog10(), keyWidth);
 }
 
 void Executor::printArbRow(const Number& solution, bool frac, size_t keyWidth) {
@@ -929,73 +1038,215 @@ void Executor::printArbRow(const Number& solution, bool frac, size_t keyWidth) {
 
   if (weightedCounting) {
     if (frac) {
-      util::printRow(key + "frac", solution, keyWidth);
+      printRow(key + "frac", solution, keyWidth);
     }
     else {
-      util::printRow(key + "float", mpf_class(solution.quotient), keyWidth);
+      printRow(key + "float", mpf_class(solution.quotient), keyWidth);
     }
   }
   else {
-    util::printRow(key + "int", solution, keyWidth);
+    printRow(key + "int", solution, keyWidth);
   }
 }
 
 void Executor::printDoubleRow(const Number& solution, size_t keyWidth) {
   Float f = solution.fraction;
-  util::printPreciseFloatRow("s exact double prec-sci", logCounting ? exp10l(f) : f, keyWidth);
+  printRow("s exact double prec-sci", logCounting ? exp10l(f) : f, keyWidth);
 }
 
-void Executor::printSolutionRows(const Number& solution, bool surelyUnsat, size_t keyWidth) {
-  cout << THIN_LINE;
+Number Executor::printAdjustedSolutionRows(const Number& solution, bool unsatFlag, size_t keyWidth) {
+  cout << DASH_LINE;
+  Number adjustedSolution = getAdjustedSolution(solution);
 
-  Number n = adjustSolution(solution);
-
-  printSatRow(n, surelyUnsat, keyWidth);
+  printSatRow(adjustedSolution, unsatFlag, keyWidth);
   printTypeRow(keyWidth);
-  printEstRow(n, keyWidth);
+  printEstRow(adjustedSolution, keyWidth);
 
   if (multiplePrecision) {
-    printArbRow(n, false, keyWidth); // notation = weighted ? int : float
+    printArbRow(adjustedSolution, false, keyWidth); // notation = weighted ? int : float
     if (weightedCounting) {
-      printArbRow(n, true, keyWidth); // notation = frac
+      printArbRow(adjustedSolution, true, keyWidth); // notation = frac
     }
   }
   else {
-    printDoubleRow(n, keyWidth);
+    printDoubleRow(adjustedSolution, keyWidth);
   }
 
-  cout << THIN_LINE;
+  cout << DASH_LINE;
+  return adjustedSolution;
+}
+
+string Executor::getShortModel(const Assignment& model, Int declaredVarCount) {
+  string s;
+  for (Int cnfVar = 1; cnfVar <= declaredVarCount; cnfVar++) {
+    s += to_string(model.getValue(cnfVar));
+  }
+  return s;
+}
+
+string Executor::getLongModel(const Assignment& model, Int declaredVarCount) {
+  string s;
+  for (Int cnfVar = 1; cnfVar <= declaredVarCount; cnfVar++) {
+    s += (model.getValue(cnfVar) ? " " : " -") + to_string(cnfVar);
+  }
+  return s;
+}
+
+void Executor::printShortMaximizer(const Assignment& maximizer, Int declaredVarCount) {
+  cout << "v ";
+  cout << getShortModel(maximizer, declaredVarCount);
+  cout << "\n";
+}
+
+void Executor::printLongMaximizer(const Assignment& maximizer, Int declaredVarCount) {
+  cout << "v";
+  cout << getLongModel(maximizer, declaredVarCount);
+  cout << "\n";
+}
+
+Assignment Executor::printMaximizerRows(const vector<Int>& ddVarToCnfVarMap, Int declaredVarCount) {
+  vector<int> ddVarAssignment(ddVarToCnfVarMap.size(), -1); // uses init value -1 (neither 0 nor 1) to test assertion in function Cudd_Eval
+  Assignment cnfVarAssignment;
+
+  while (!maximizationStack.empty()) {
+    pair<Int, Dd> ddVarAndDsgn = maximizationStack.back();
+    Int ddVar = ddVarAndDsgn.first;
+    Dd dsgn = ddVarAndDsgn.second;
+
+    bool val = dsgn.evalAssignment(ddVarAssignment);
+    ddVarAssignment[ddVar] = val;
+    cnfVarAssignment.insert({ddVarToCnfVarMap.at(ddVar), val});
+
+    maximizationStack.pop_back();
+  }
+
+  switch (maximizerFormat) {
+    case NEITHER_FORMAT:
+      break;
+    case SHORT_FORMAT:
+      printShortMaximizer(cnfVarAssignment, declaredVarCount);
+      break;
+    case LONG_FORMAT:
+      printLongMaximizer(cnfVarAssignment, declaredVarCount);
+      break;
+    default:
+      printShortMaximizer(cnfVarAssignment, declaredVarCount);
+      printLongMaximizer(cnfVarAssignment, declaredVarCount);
+  }
+
+  return cnfVarAssignment;
+}
+
+Number Executor::verifyMaximizer(
+  const JoinNonterminal* joinRoot,
+  const Map<Int, Int>& cnfVarToDdVarMap,
+  const vector<Int>& ddVarToCnfVarMap,
+  const Assignment& maximizer
+) {
+  Dd dd = solveSubtree(
+    joinRoot,
+    cnfVarToDdVarMap,
+    ddVarToCnfVarMap,
+    Dd::newMgr(maxMem),
+    maximizer
+  );
+  Number solution = dd.extractConst();
+  return getAdjustedSolution(solution);
 }
 
 Executor::Executor(const JoinNonterminal* joinRoot, Int ddVarOrderHeuristic, Int sliceVarOrderHeuristic) {
   cout << "\n";
   cout << "c computing output...\n";
-  Map<Int, Int> cnfVarToDdVarMap; // e.g. {42: 0, 13: 1}
 
   TimePoint ddVarOrderStartPoint = util::getTimePoint();
   vector<Int> ddVarToCnfVarMap = joinRoot->getVarOrder(ddVarOrderHeuristic); // e.g. [42, 13], i.e. ddVarOrder
   if (verboseSolving >= 1) {
-    util::printRow("diagramVarSeconds", util::getDuration(ddVarOrderStartPoint));
+    printRow("diagramVarSeconds", util::getDuration(ddVarOrderStartPoint));
   }
 
+  Map<Int, Int> cnfVarToDdVarMap; // e.g. {42: 0, 13: 1}
   for (Int ddVar = 0; ddVar < ddVarToCnfVarMap.size(); ddVar++) {
     Int cnfVar = ddVarToCnfVarMap.at(ddVar);
     cnfVarToDdVarMap[cnfVar] = ddVar;
   }
 
-  Number n = solveCnf(joinRoot, cnfVarToDdVarMap, ddVarToCnfVarMap, sliceVarOrderHeuristic);
+  setLogBound(joinRoot, cnfVarToDdVarMap, ddVarToCnfVarMap);
+
+  Number solution = solveCnf(joinRoot, cnfVarToDdVarMap, ddVarToCnfVarMap, sliceVarOrderHeuristic);
 
   printVarDurations();
   printVarDdSizes();
 
-  if (verboseSolving >= 1) {
-    util::printRow("apparentSolution", logCounting ? exp10l(n.fraction) : n);
+  if (logBound > -INF) {
+    printRow("prunedDiagrams", Dd::prunedDdCount);
+    printRow("pruningSeconds", Dd::pruningDuration);
   }
 
-  printSolutionRows(n);
+  printRow("maxDiagramLeaves", Dd::maxDdLeafCount);
+  printRow("maxDiagramNodes", Dd::maxDdNodeCount);
+
+  if (verboseSolving >= 1) {
+    printRow("apparentSolution", solution);
+  }
+
+  solution = printAdjustedSolutionRows(solution);
+
+  if (maximizerFormat) {
+    Assignment maximizer = printMaximizerRows(ddVarToCnfVarMap, joinRoot->cnf.declaredVarCount);
+    if (maximizerVerification) {
+      TimePoint maximizerVerificationStartPoint = util::getTimePoint();
+      Number maximizerSolution = verifyMaximizer(
+        joinRoot,
+        cnfVarToDdVarMap,
+        ddVarToCnfVarMap,
+        maximizer
+      );
+      printRow("adjustedSolution", solution);
+      printRow("maximizerSolution", maximizerSolution);
+      printRow("solutionMatch", (solution - maximizerSolution).getAbsolute() < Number("1/1000000")); // 1e-6 is tolerance in ProCount paper
+      if (verboseSolving >= 1) {
+        printRow("maximizerVerificationSeconds", util::getDuration(maximizerVerificationStartPoint));
+      }
+    }
+  }
+}
+
+/* class OptionRequirement ================================================== */
+
+OptionRequirement::OptionRequirement(const string& name, const string& value, const string& comparator) {
+  this->name = name;
+  this->value = value;
+  this->comparator = comparator;
+}
+
+string OptionRequirement::getRequirement() const {
+  return name + "_arg " + comparator + " " + value;
 }
 
 /* class OptionDict ========================================================= */
+
+string OptionDict::requireOptions(const vector<OptionRequirement>& requirements) {
+  string s = " [needs ";
+  for (auto it = requirements.begin(); it != requirements.end(); it++) {
+    s += it->getRequirement();
+    if (next(it) == requirements.end()) {
+      s += "]";
+    }
+    else {
+      s += ", ";
+    }
+  }
+  return s;
+}
+
+string OptionDict::requireOption(const string& name, const string& value, const string& comparator) {
+  return requireOptions({OptionRequirement(name, value, comparator)});
+}
+
+string OptionDict::requireDdPackage(const string& ddPackageArg) {
+  assert(DD_PACKAGES.contains(ddPackageArg));
+  return requireOption(DD_PACKAGE_OPTION, ddPackageArg);
+}
 
 string OptionDict::helpDdPackage() {
   string s = "diagram package: ";
@@ -1006,6 +1257,75 @@ string OptionDict::helpDdPackage() {
     }
   }
   return s + "; string";
+}
+
+string OptionDict::helpLogBound() {
+  string s = "log10(bound) for pruning";
+  s += requireOptions({
+    OptionRequirement(PROJECTED_COUNTING_OPTION, "0"),
+    OptionRequirement(EXIST_RANDOM_OPTION, "1"),
+    OptionRequirement(LOG_COUNTING_OPTION, "1")
+  });
+  return s + "; float";
+}
+
+string OptionDict::helpThresholdModel() {
+  string s = "threshold model for pruning";
+  s += requireOptions({
+    OptionRequirement(PROJECTED_COUNTING_OPTION, "0"),
+    OptionRequirement(EXIST_RANDOM_OPTION, "1"),
+    OptionRequirement(LOG_COUNTING_OPTION, "1"),
+    OptionRequirement(LOG_BOUND_OPTION, "-inf")
+  });
+  return s + "; string";
+}
+
+string OptionDict::helpSatSolverPruning() {
+  string s = "SAT pruning with CryptoMiniSat";
+  s += requireOptions({
+    OptionRequirement(PROJECTED_COUNTING_OPTION, "0"),
+    OptionRequirement(EXIST_RANDOM_OPTION, "1"),
+    OptionRequirement(LOG_COUNTING_OPTION, "1"),
+    OptionRequirement(LOG_BOUND_OPTION, "-inf"),
+    OptionRequirement(THRESHOLD_MODEL_OPTION, "\"\""),
+  });
+  return s + ": 0, 1; int";
+}
+
+string OptionDict::helpMaximizerFormat() {
+  string s = "maximizer format";
+  s += requireOptions({
+    OptionRequirement(EXIST_RANDOM_OPTION, "1"),
+    OptionRequirement(DD_PACKAGE_OPTION, CUDD_PACKAGE)
+  });
+  s += ": ";
+  for (auto it = MAXIMIZER_FORMATS.begin(); it != MAXIMIZER_FORMATS.end(); it++) {
+    s += to_string(it->first) + "/" + it->second;
+    if (next(it) != MAXIMIZER_FORMATS.end()) {
+      s += ", ";
+    }
+  }
+  return s + "; int";
+}
+
+string OptionDict::helpSubstitutionMaximization() {
+  string s = "substitution-based maximization";
+  s += requireOptions({
+    OptionRequirement(WEIGHTED_COUNTING_OPTION, "0"),
+    OptionRequirement(MAXIMIZER_FORMAT_OPTION, to_string(NEITHER_FORMAT), ">")
+  });
+  return s + ": 0, 1; int";
+}
+
+string OptionDict::helpDiagramVarOrderHeuristic() {
+  return "diagram var order" + util::helpVarOrderHeuristic(CNF_VAR_ORDER_HEURISTICS);
+}
+
+string OptionDict::helpSliceVarOrderHeuristic() {
+  string s = "slice var order";
+  s += requireOption(THREAD_SLICE_COUNT_OPTION, "1", ">");
+  s += util::helpVarOrderHeuristic(util::getVarOrderHeuristics());
+  return s;
 }
 
 string OptionDict::helpJoinPriority() {
@@ -1022,60 +1342,78 @@ string OptionDict::helpJoinPriority() {
 void OptionDict::runCommand() const {
   if (verboseSolving >= 1) {
     cout << "c processing command-line options...\n";
-
-    util::printRow("cnfFile", cnfFilePath);
-    util::printRow("weightedCounting", weightedCounting);
-    util::printRow("projectedCounting", projectedCounting);
-
-    util::printRow("planningStrategy", PLANNING_STRATEGIES.at(planningStrategy));
-    if (planningStrategy == TIMED_JOIN_TREES) {
-      util::printRow("plannerWaitSeconds", plannerWaitDuration);
+    printRow("cnfFile", cnfFilePath);
+    printRow("weightedCounting", weightedCounting);
+    printRow("projectedCounting", projectedCounting);
+    printRow("existRandom", existRandom);
+    printRow("diagramPackage", DD_PACKAGES.at(ddPackage));
+    if (ddPackage == CUDD_PACKAGE) {
+      printRow("logCounting", logCounting);
     }
-
-    util::printRow("diagramPackage", DD_PACKAGES.at(ddPackage));
-
-    util::printRow("threadCount", threadCount);
-
-    if (ddPackage == CUDD) {
-      util::printRow("threadSliceCount", threadSliceCount);
+    if (!projectedCounting && existRandom && logCounting) {
+      if (logBound > -INF) {
+        printRow("logBound", logBound);
+      }
+      else if (!thresholdModel.empty()) {
+        printRow("thresholdModel", thresholdModel);
+      }
+      else if (satSolverPruning) {
+        printRow("satSolverPruning", satSolverPruning);
+      }
     }
-
-    util::printRow("randomSeed", randomSeed);
-
-    util::printRow("diagramVarOrder", (ddVarOrderHeuristic < 0 ? "INVERSE_" : "") + CNF_VAR_ORDER_HEURISTICS.at(abs(ddVarOrderHeuristic)));
-
-    if (ddPackage == CUDD) {
-      util::printRow("sliceVarOrder", (sliceVarOrderHeuristic < 0 ? "INVERSE_" : "") + util::getVarOrderHeuristics().at(abs(sliceVarOrderHeuristic)));
-      util::printRow("memSensitivityMegabytes", memSensitivity);
+    if (existRandom && ddPackage == CUDD_PACKAGE) {
+      printRow("maximizerFormat", MAXIMIZER_FORMATS.at(maximizerFormat));
     }
-
-    util::printRow("maxMemMegabytes", maxMem);
-
-    if (ddPackage == SYLVAN) {
-      util::printRow("tableRatio", tableRatio);
-      util::printRow("initRatio", initRatio);
-      util::printRow("multiplePrecision", multiplePrecision);
+    if (maximizerFormat) {
+      printRow("maximizerVerification", maximizerVerification);
     }
-    else {
-      util::printRow("logCounting", logCounting);
+    if (!weightedCounting && maximizerFormat) {
+      printRow("substitutionMaximization", substitutionMaximization);
     }
-
-    util::printRow("joinPriority", JOIN_PRIORITIES.at(joinPriority));
+    printRow("plannerWaitSeconds", plannerWaitDuration);
+    printRow("threadCount", threadCount);
+    if (ddPackage == CUDD_PACKAGE) {
+      printRow("threadSliceCount", threadSliceCount);
+    }
+    printRow("randomSeed", randomSeed);
+    printRow("diagramVarOrderHeuristic", (ddVarOrderHeuristic < 0 ? "INVERSE_" : "") + CNF_VAR_ORDER_HEURISTICS.at(abs(ddVarOrderHeuristic)));
+    if (ddPackage == CUDD_PACKAGE) {
+      printRow("sliceVarOrderHeuristic", (sliceVarOrderHeuristic < 0 ? "INVERSE_" : "") + util::getVarOrderHeuristics().at(abs(sliceVarOrderHeuristic)));
+      printRow("memSensitivityMegabytes", memSensitivity);
+    }
+    printRow("maxMemMegabytes", maxMem);
+    if (ddPackage == SYLVAN_PACKAGE) {
+      printRow("tableRatio", tableRatio);
+      printRow("initRatio", initRatio);
+      printRow("multiplePrecision", multiplePrecision);
+    }
+    printRow("joinPriority", JOIN_PRIORITIES.at(joinPriority));
     cout << "\n";
   }
 
   try {
-    JoinNode::cnf = Cnf(cnfFilePath);
+    JoinNode::cnf.readCnfFile(cnfFilePath);
 
     if (JoinNode::cnf.clauses.empty()) {
-      cout << WARNING << "empty cnf\n";
-      Executor::printSolutionRows(logCounting ? Number() : Number("1"));
+      cout << WARNING << "empty CNF\n";
+      Executor::printAdjustedSolutionRows(logCounting ? Number() : Number("1"));
       return;
     }
 
-    JoinTreeProcessor* joinTreeProcessor = planningStrategy == FIRST_JOIN_TREE ? static_cast<JoinTreeProcessor*>(new JoinTreeParser()) : static_cast<JoinTreeProcessor*>(new JoinTreeReader(plannerWaitDuration));
+    JoinTreeProcessor joinTreeProcessor(plannerWaitDuration);
 
-    if (ddPackage == SYLVAN) { // initializes Sylvan
+    Map<Int, Number> unprunableWeights = JoinNode::cnf.getUnprunableWeights();
+    if (!unprunableWeights.empty() && (logBound > -INF || !thresholdModel.empty() || satSolverPruning)) {
+      JoinTreeProcessor::killPlanner();
+      cout << "\n";
+      cout << "c unprunable literal weights:\n";
+      for (const auto& [literal, weight] : unprunableWeights) {
+        JoinNode::cnf.printLiteralWeight(literal, weight);
+      }
+      throw MyError("must not prune if there are unprunable weights");
+    }
+
+    if (ddPackage == SYLVAN_PACKAGE) { // initializes Sylvan
       lace_init(threadCount, 0);
       lace_startup(0, NULL, NULL);
       sylvan::sylvan_set_limits(maxMem * MEGA, tableRatio, initRatio);
@@ -1086,56 +1424,106 @@ void OptionDict::runCommand() const {
       }
     }
 
-    Executor executor(joinTreeProcessor->getJoinTreeRoot(), ddVarOrderHeuristic, sliceVarOrderHeuristic);
+    Executor executor(joinTreeProcessor.getJoinTreeRoot(), ddVarOrderHeuristic, sliceVarOrderHeuristic);
 
-    if (ddPackage == SYLVAN) { // quits Sylvan
+    if (ddPackage == SYLVAN_PACKAGE) { // quits Sylvan
       sylvan::sylvan_quit();
       lace_exit();
     }
   }
-  catch (EmptyClauseException) {
-    Executor::printSolutionRows(logCounting ? Number(-INF) : Number(), true);
+  catch (UnsatException) {
+    Executor::printAdjustedSolutionRows(logCounting ? Number(-INF) : Number(), true);
   }
 }
 
 OptionDict::OptionDict(int argc, char** argv) {
   cxxopts::Options options("dmc", "Diagram Model Counter (reads join tree from stdin)");
-  options.set_width(105);
+  options.set_width(118);
+
+  using cxxopts::value;
   options.add_options()
-    (CNF_FILE_OPTION, "cnf file path; string (REQUIRED)", value<string>())
-    (WEIGHTED_COUNTING_OPTION, "weighted counting: 0, 1; int", value<Int>()->default_value("0"))
-    (PROJECTED_COUNTING_OPTION, "projected counting: 0, 1; int", value<Int>()->default_value("0"))
-    (PLANNER_WAIT_OPTION, "planner wait duration (in seconds), or 0 for first join tree only; float", value<Float>()->default_value("0"))
-    (DD_PACKAGE_OPTION, helpDdPackage(), value<string>()->default_value(CUDD))
-    (THREAD_COUNT_OPTION, "thread count, or 0 for hardware_concurrency value; int", value<Int>()->default_value("1"))
-    (THREAD_SLICE_COUNT_OPTION, "thread slice count" + util::useDdPackage(CUDD) + "; int", value<Int>()->default_value("1"))
+    (CNF_FILE_OPTION, "CNF file path; string (required)", value<string>())
+    (WEIGHTED_COUNTING_OPTION, "weighted counting: 0, 1; int", value<Int>()->default_value("1"))
+    (PROJECTED_COUNTING_OPTION, "projected counting (graded join tree): 0, 1; int", value<Int>()->default_value("0"))
+    (EXIST_RANDOM_OPTION, "exist-random SAT (max-sum instead of sum-max): 0, 1; int", value<Int>()->default_value("0"))
+    (DD_PACKAGE_OPTION, helpDdPackage(), value<string>()->default_value(CUDD_PACKAGE))
+    (LOG_COUNTING_OPTION, "logarithmic counting" + requireDdPackage(CUDD_PACKAGE) + ": 0, 1; int", value<Int>()->default_value("0"))
+    (LOG_BOUND_OPTION, helpLogBound(), value<string>()->default_value(to_string(-INF))) // cxxopts fails to parse "-inf" as Float
+    (THRESHOLD_MODEL_OPTION, helpThresholdModel(), value<string>()->default_value(""))
+    (SAT_SOLVER_PRUNING, helpSatSolverPruning(), value<Int>()->default_value("0"))
+    (MAXIMIZER_FORMAT_OPTION, helpMaximizerFormat(), value<Int>()->default_value(to_string(NEITHER_FORMAT)))
+    (MAXIMIZER_VERIFICATION_OPTION, "maximizer verification" + requireOption(MAXIMIZER_FORMAT_OPTION, to_string(NEITHER_FORMAT), ">") + ": 0, 1; int", value<Int>()->default_value("0"))
+    (SUBSTITUTION_MAXIMIZATION_OPTION, helpSubstitutionMaximization(), value<Int>()->default_value("0"))
+    (PLANNER_WAIT_OPTION, "planner wait duration minimum (in seconds); float", value<Float>()->default_value("0.0"))
+    (THREAD_COUNT_OPTION, "thread count [or 0 for hardware_concurrency value]; int", value<Int>()->default_value("1"))
+    (THREAD_SLICE_COUNT_OPTION, "thread slice count" + requireDdPackage(CUDD_PACKAGE) + "; int", value<Int>()->default_value("1"))
     (RANDOM_SEED_OPTION, "random seed; int", value<Int>()->default_value("0"))
-    (DD_VAR_OPTION, util::helpVarOrderHeuristic("diagram"), value<Int>()->default_value(to_string(MCS)))
-    (SLICE_VAR_OPTION, util::helpVarOrderHeuristic("slice"), value<Int>()->default_value(to_string(BIGGEST_NODE)))
-    (MEM_SENSITIVITY_OPTION, "mem sensitivity (in MB) for reporting usage" + util::useDdPackage(CUDD) + "; float", value<Float>()->default_value("1e3"))
-    (MAX_MEM_OPTION, "max mem (in MB) for unique table and cache table combined; float", value<Float>()->default_value("4e3"))
-    (TABLE_RATIO_OPTION, "table ratio" + util::useDdPackage(SYLVAN) + ": log2(unique_size/cache_size); int", value<Int>()->default_value("1"))
-    (INIT_RATIO_OPTION, "init ratio for tables" + util::useDdPackage(SYLVAN) + ": log2(max_size/init_size); int", value<Int>()->default_value("10"))
-    (MULTIPLE_PRECISION_OPTION, "multiple precision" + util::useDdPackage(SYLVAN) + ": 0, 1; int", value<Int>()->default_value("0"))
-    (LOG_COUNTING_OPTION, "log counting" + util::useDdPackage(CUDD) + ": 0, 1; int", value<Int>()->default_value("0"))
+    (DD_VAR_OPTION, helpDiagramVarOrderHeuristic(), value<Int>()->default_value(to_string(MCS_HEURISTIC)))
+    (SLICE_VAR_OPTION, helpSliceVarOrderHeuristic(), value<Int>()->default_value(to_string(BIGGEST_NODE_HEURISTIC)))
+    (MEM_SENSITIVITY_OPTION, "memory sensitivity (in MB) for reporting usage" + requireDdPackage(CUDD_PACKAGE) + "; float", value<Float>()->default_value("1e3"))
+    (MAX_MEM_OPTION, "maximum memory (in MB) for unique table and cache table combined [or 0 for unlimited memory with CUDD]; float", value<Float>()->default_value("4e3"))
+    (TABLE_RATIO_OPTION, "table ratio" + requireDdPackage(SYLVAN_PACKAGE) + ": log2(unique_size/cache_size); int", value<Int>()->default_value("1"))
+    (INIT_RATIO_OPTION, "init ratio for tables" + requireDdPackage(SYLVAN_PACKAGE) + ": log2(max_size/init_size); int", value<Int>()->default_value("10"))
+    (MULTIPLE_PRECISION_OPTION, "multiple precision" + requireDdPackage(SYLVAN_PACKAGE) + ": 0, 1; int", value<Int>()->default_value("0"))
     (JOIN_PRIORITY_OPTION, helpJoinPriority(), value<string>()->default_value(SMALLEST_PAIR))
-    (VERBOSE_CNF_OPTION, "verbose cnf: 0, " + INPUT_VERBOSITIES, value<Int>()->default_value("0"))
-    (VERBOSE_JOIN_TREE_OPTION, "verbose join tree: 0, " + INPUT_VERBOSITIES, value<Int>()->default_value("0"))
+    (VERBOSE_CNF_OPTION, util::helpVerboseCnfProcessing(), value<Int>()->default_value("0"))
+    (VERBOSE_JOIN_TREE_OPTION, "verbose join-tree processing: 0, 1, 2", value<Int>()->default_value("0"))
     (VERBOSE_PROFILING_OPTION, "verbose profiling: 0, 1, 2; int", value<Int>()->default_value("0"))
-    (VERBOSE_SOLVING_OPTION, util::helpVerboseSolving(), value<Int>()->default_value("1"))
+    (VERBOSE_SOLVING_OPTION, util::helpVerboseSolving(), value<Int>()->default_value("0"))
+    (HELP_OPTION, "help")
   ;
+
   cxxopts::ParseResult result = options.parse(argc, argv);
-  if (result.count(CNF_FILE_OPTION)) {
+  if (result.count(HELP_OPTION) || !result.count(CNF_FILE_OPTION)) {
+    cout << options.help();
+  }
+  else {
     cnfFilePath = result[CNF_FILE_OPTION].as<string>();
 
     weightedCounting = result[WEIGHTED_COUNTING_OPTION].as<Int>(); // global var
+
     projectedCounting = result[PROJECTED_COUNTING_OPTION].as<Int>(); // global var
 
-    plannerWaitDuration = result[PLANNER_WAIT_OPTION].as<Float>();
-    planningStrategy = plannerWaitDuration <= 0 ? FIRST_JOIN_TREE : TIMED_JOIN_TREES; // global var
+    existRandom = result[EXIST_RANDOM_OPTION].as<Int>(); // global var
 
     ddPackage = result[DD_PACKAGE_OPTION].as<string>(); // global var
     assert(DD_PACKAGES.contains(ddPackage));
+
+    logCounting = result[LOG_COUNTING_OPTION].as<Int>(); // global var
+    assert(!logCounting || ddPackage == CUDD_PACKAGE);
+
+    logBound = stold(result[LOG_BOUND_OPTION].as<string>()); // global var
+    assert(logBound == -INF || !projectedCounting);
+    assert(logBound == -INF || existRandom);
+    assert(logBound == -INF || logCounting);
+
+    thresholdModel = result[THRESHOLD_MODEL_OPTION].as<string>(); // global var
+    assert(thresholdModel.empty() || !projectedCounting);
+    assert(thresholdModel.empty() || existRandom);
+    assert(thresholdModel.empty() || logCounting);
+    assert(thresholdModel.empty() || logBound == -INF);
+
+    satSolverPruning = result[SAT_SOLVER_PRUNING].as<Int>(); // global var
+    assert(!satSolverPruning || !projectedCounting);
+    assert(!satSolverPruning || existRandom);
+    assert(!satSolverPruning || logCounting);
+    assert(!satSolverPruning || logBound == -INF);
+    assert(!satSolverPruning || thresholdModel.empty());
+
+    maximizerFormat = result[MAXIMIZER_FORMAT_OPTION].as<Int>(); // global var
+    assert(MAXIMIZER_FORMATS.contains(maximizerFormat));
+    assert(!maximizerFormat || existRandom);
+    assert(!maximizerFormat || ddPackage == CUDD_PACKAGE);
+
+    maximizerVerification = result[MAXIMIZER_VERIFICATION_OPTION].as<Int>(); // global var
+    assert(!maximizerVerification || maximizerFormat);
+
+    substitutionMaximization = result[SUBSTITUTION_MAXIMIZATION_OPTION].as<Int>(); // global var
+    assert(!substitutionMaximization || !weightedCounting);
+    assert(!substitutionMaximization || maximizerFormat);
+
+    plannerWaitDuration = result[PLANNER_WAIT_OPTION].as<Float>();
+    plannerWaitDuration = max(plannerWaitDuration, 0.0l);
 
     threadCount = result[THREAD_COUNT_OPTION].as<Int>(); // global var
     if (threadCount <= 0) {
@@ -1144,32 +1532,38 @@ OptionDict::OptionDict(int argc, char** argv) {
     assert(threadCount > 0);
 
     threadSliceCount = result[THREAD_SLICE_COUNT_OPTION].as<Int>(); // global var
-    assert(threadSliceCount > 0);
+    threadSliceCount = max(threadSliceCount, 1ll);
+    assert(threadSliceCount == 1 || ddPackage == CUDD_PACKAGE);
 
     randomSeed = result[RANDOM_SEED_OPTION].as<Int>(); // global var
 
     ddVarOrderHeuristic = result[DD_VAR_OPTION].as<Int>();
     assert(CNF_VAR_ORDER_HEURISTICS.contains(abs(ddVarOrderHeuristic)));
 
+    assert(!result.count(SLICE_VAR_OPTION) || threadSliceCount > 1);
     sliceVarOrderHeuristic = result[SLICE_VAR_OPTION].as<Int>();
     assert(util::getVarOrderHeuristics().contains(abs(sliceVarOrderHeuristic)));
 
+    assert(!result.count(MEM_SENSITIVITY_OPTION) || ddPackage == CUDD_PACKAGE);
     memSensitivity = result[MEM_SENSITIVITY_OPTION].as<Float>(); // global var
-    maxMem = result[MAX_MEM_OPTION].as<Float>(); // global var
 
+    maxMem = result[MAX_MEM_OPTION].as<Float>(); // global var
+    maxMem = max(maxMem, 0.0l);
+
+    assert(!result.count(TABLE_RATIO_OPTION) || ddPackage == SYLVAN_PACKAGE);
     tableRatio = result[TABLE_RATIO_OPTION].as<Int>();
+
+    assert(!result.count(INIT_RATIO_OPTION) || ddPackage == SYLVAN_PACKAGE);
     initRatio = result[INIT_RATIO_OPTION].as<Int>();
 
     multiplePrecision = result[MULTIPLE_PRECISION_OPTION].as<Int>(); // global var
-    assert(!multiplePrecision || ddPackage == SYLVAN);
-
-    logCounting = result[LOG_COUNTING_OPTION].as<Int>(); // global var
-    assert(!logCounting || ddPackage == CUDD);
+    assert(!multiplePrecision || ddPackage == SYLVAN_PACKAGE);
 
     joinPriority = result[JOIN_PRIORITY_OPTION].as<string>(); //global var
     assert(JOIN_PRIORITIES.contains(joinPriority));
 
     verboseCnf = result[VERBOSE_CNF_OPTION].as<Int>(); // global var
+
     verboseJoinTree = result[VERBOSE_JOIN_TREE_OPTION].as<Int>(); // global var
 
     verboseProfiling = result[VERBOSE_PROFILING_OPTION].as<Int>(); // global var
@@ -1179,10 +1573,7 @@ OptionDict::OptionDict(int argc, char** argv) {
 
     toolStartPoint = util::getTimePoint(); // global var
     runCommand();
-    util::printRow("seconds", util::getDuration(toolStartPoint));
-  }
-  else {
-    cout << options.help();
+    printRow("seconds", util::getDuration(toolStartPoint));
   }
 }
 

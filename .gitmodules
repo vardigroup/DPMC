@@ -7,3 +7,6 @@
 [submodule "addmc/libraries/sylvan"]
 	path = addmc/libraries/sylvan
 	url = https://github.com/vuphan314/sylvan
+[submodule "addmc/libraries/cryptominisat"]
+	path = addmc/libraries/cryptominisat
+	url = https://github.com/msoos/cryptominisat

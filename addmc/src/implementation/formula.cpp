@@ -48,6 +48,17 @@ void Cnf::addClause(const vector<Int> &clause) {
   for (Int literal : clause) updateApparentVars(literal);
 }
 
+void Cnf::checkLiteralWeights() const {
+  for (Int var = 1; var <= declaredVarCount; var++) {
+    for (Int lit : vector<Int>{var, -var}) {
+      Float weight = literalWeights.at(lit);
+      if (weight <= 0) {
+        showWarning("literal " + to_string(lit) + " has weight " + to_string(weight));
+      }
+    }
+  }
+}
+
 Graph Cnf::getGaifmanGraph() const {
   Set<Int> vars;
   for (Int var : apparentVars) vars.insert(var);
@@ -522,6 +533,8 @@ Cnf::Cnf(const string &filePath, WeightFormat weightFormat) {
       }
     }
   }
+
+  checkLiteralWeights();
 
   if (verbosityLevel >= 1) {
     util::printRow("declaredVarCount", declaredVarCount);

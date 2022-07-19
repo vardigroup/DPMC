@@ -34,6 +34,7 @@ protected:
   static string getWeightFormatWord(WeightFormat weightFormat);
   void updateApparentVars(Int literal); // adds var to apparentVars
   void addClause(const vector<Int> &clause); // writes: clauses, apparentVars
+  void checkLiteralWeights() const; // for non-positive numbers
   Graph getGaifmanGraph() const;
   vector<Int> getAppearanceVarOrdering() const;
   vector<Int> getDeclarationVarOrdering() const;
@@ -48,7 +49,7 @@ public:
   vector<Int> getRestrictedVarOrdering(VarOrderingHeuristic varOrderingHeuristic, bool inverseVarOrdering, const Set<Int> &restrictedVars) const;
   Int getDeclaredVarCount() const;
   Map<Int, Float> getLiteralWeights() const;
-  Int getEmptyClauseIndex() const; // first (nonnegative) index if found else DUMMY_MIN_INT
+  Int getEmptyClauseIndex() const; // first (non-negative) index if found else DUMMY_MIN_INT
   const vector<vector<Int>> &getClauses() const;
   const vector<Int> &getApparentVars() const;
   const Set<Int> &getAdditiveVars() const;

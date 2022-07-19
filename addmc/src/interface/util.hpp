@@ -320,7 +320,7 @@ namespace util {
     return true;
   }
 
-  template<typename T> Float adjustModelCount(Float apparentModelCount, const T &projectedCnfVars, const Map<Int, Float> &literalWeights) {
+  template<typename T> Float adjustModelCount(Float apparentModelCount, const T &projectedCnfVars, const T &additiveCnfVars, const Map<Int, Float> &literalWeights) {
     Float totalModelCount = apparentModelCount;
 
     Int totalLiteralCount = literalWeights.size();
@@ -331,7 +331,14 @@ namespace util {
 
     for (Int cnfVar = 1; cnfVar <= totalVarCount; cnfVar++) {
       if (!isFound(cnfVar, projectedCnfVars)) {
-        totalModelCount *= literalWeights.at(cnfVar) + literalWeights.at(-cnfVar);
+        Float hiWeight = literalWeights.at(cnfVar);
+        Float loWeight = literalWeights.at(-cnfVar);
+        if (isFound(cnfVar, additiveCnfVars)) {
+          totalModelCount *= hiWeight + loWeight;
+        }
+        else {
+          totalModelCount *= std::max(hiWeight, loWeight);
+        }
       }
     }
 

@@ -159,7 +159,7 @@ Float Executor::computeModelCount(const Cnf &cnf) {
   Dd dd = countSubtree(static_cast<JoinNode *>(joinRoot), cnf, projectedCnfVars);
 
   Float modelCount = dd.countConstDdFloat();
-  modelCount = util::adjustModelCount(modelCount, projectedCnfVars, cnf.getLiteralWeights());
+  modelCount = util::adjustModelCount(modelCount, projectedCnfVars, cnf.getAdditiveVars(), cnf.getLiteralWeights());
   return modelCount;
 }
 

@@ -220,6 +220,7 @@ def main():
     print()
 
     if args.pre:
+        os.makedirs(outDirPath, exist_ok=True)
         cnfPath = preprocessCnf(megs, args.cnf, outDirPath, args.task, args.mp, args.vs)
     else:
         cnfPath = args.cnf

@@ -21,7 +21,7 @@
 
 --------------------------------------------------------------------------------
 
-## Cloning this repository
+## Cloning this repository and its submodules
 ```bash
 git clone --recursive https://github.com/vardigroup/DPMC
 ```
@@ -36,6 +36,7 @@ git clone --recursive https://github.com/vardigroup/DPMC
 - [ADDMC](https://github.com/vardigroup/ADDMC): Dudek, Phan, Vardi
 - [BIRD](https://github.com/meelgroup/approxmc): Soos, Meel
 - [Cachet](https://cs.rochester.edu/u/kautz/Cachet): Sang, Beame, Kautz
+- [CryptoMiniSat](https://github.com/msoos/cryptominisat): Soos
 - [CUDD package](https://github.com/ivmai/cudd): Somenzi
 - [CUDD visualization](https://davidkebo.com/cudd#cudd6): Kebo
 - [cxxopts](https://github.com/jarro2783/cxxopts): Beck

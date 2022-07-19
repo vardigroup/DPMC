@@ -12,22 +12,22 @@ $(ZIP0): $(FILES0)
 	zip $(ZIP0) -FS $(FILES0)
 
 ZIP1 = dpmc1.zip
-FILES1 = bin/starexec_run_1pre1 $(BIN_FILES) $(DOCS)
+FILES1 = bin/starexec_run_1mp* $(BIN_FILES) $(DOCS)
 $(ZIP1): $(FILES1)
 	zip $(ZIP1) -FS $(FILES1)
 
 ZIP2 = dpmc2.zip
-FILES2 = bin/starexec_run_2pre1 $(BIN_FILES) $(DOCS)
+FILES2 = bin/starexec_run_2mp* $(BIN_FILES) $(DOCS)
 $(ZIP2): $(FILES2)
 	zip $(ZIP2) -FS $(FILES2)
 
 ZIP3 = dpmc3.zip
-FILES3 = bin/starexec_run_3pre1 $(BIN_FILES) $(DOCS)
+FILES3 = bin/starexec_run_3mp* $(BIN_FILES) $(DOCS)
 $(ZIP3): $(FILES3)
 	zip $(ZIP3) -FS $(FILES3)
 
 ZIP4 = dpmc4.zip
-FILES4 = bin/starexec_run_4pre1 $(BIN_FILES) $(DOCS)
+FILES4 = bin/starexec_run_4mp* $(BIN_FILES) $(DOCS)
 $(ZIP4): $(FILES4)
 	zip $(ZIP4) -FS $(FILES4)
 

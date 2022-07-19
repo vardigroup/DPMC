@@ -1,11 +1,22 @@
-# DPMC/ProCount: Dynamic Programming for (Projected) Model Counting
-- DPMC/ProCount computes (projected) model counts of CNF formulas
-- The DPMC/ProCount framework runs in two phases:
-  - Planning phase: [LG](./lg) or [HTB](./htb) constructs a (graded) project-join tree for a CNF formula
-  - Execution phase: [DMC](./dmc) computes the (projected) model count of the formula using the constructed project-join tree
+# DPMC/ProCount/DPO/DPER
+- We provide four exact solvers that support XOR-CNF formulas.
+  - DPMC solves *weighted model counting (WMC)*.
+  - ProCount solves *weighted projected model counting (WPMC)*.
+  - [DPO](https://arxiv.org/abs/2205.08632) solves *weighted SAT (WSAT)*, i.e., Boolean MPE.
+  - [DPER](https://arxiv.org/abs/2205.09826) solves *exist-random SAT (ERSAT)*.
+- Each of these four solvers is a combination of a planner and an executor.
+  - A planner produces a **project-join tree** T from an XOR-CNF formula F.
+  - An executor traverses T to computes a solution of F.
+  - For WPMC and ERSAT, T must be **graded**.
+- Two planners are available.
+  - [HTB](./htb) uses constraint-programming heuristics.
+  - [LG](./lg) uses tree decomposers.
+- Two executors are available.
+  - [DMC](./dmc) uses *algebraic decision diagrams (ADDs)*.
+  - [Tensor](./tensor) uses tensors and only solves WMC on pure CNF.
 - Developers:
-  - Jeffrey Dudek
-  - Vu Phan
+  - Jeffrey Dudek: LG and Tensor
+  - Vu Phan: HTB and DMC
 
 --------------------------------------------------------------------------------
 
@@ -28,7 +39,7 @@ git clone --recursive https://github.com/vardigroup/DPMC
 
 --------------------------------------------------------------------------------
 
-## [Example files](./examples)
+## [Examples](./examples)
 
 --------------------------------------------------------------------------------
 
@@ -40,7 +51,6 @@ git clone --recursive https://github.com/vardigroup/DPMC
 - [CUDD package](https://github.com/ivmai/cudd): Somenzi
 - [CUDD visualization](https://davidkebo.com/cudd#cudd6): Kebo
 - [cxxopts](https://github.com/jarro2783/cxxopts): Beck
-- [DPMC](https://github.com/vardigroup/DPMC): Dudek, Phan, Vardi
 - [FlowCutter](https://github.com/kit-algo/flow-cutter-pace17): Strasser
 - [htd](https://github.com/mabseher/htd): Abseher, Musliu, Woltran
 - [miniC2D](http://reasoning.cs.ucla.edu/minic2d): Oztok, Darwiche

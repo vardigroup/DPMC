@@ -1026,7 +1026,17 @@ void Executor::printSatRow(const Number& solution, bool unsatFlag, size_t keyWid
 }
 
 void Executor::printTypeRow(size_t keyWidth) {
-  printRow("s type", projectedCounting ? "pmc" : (weightedCounting ? "wmc" : "mc"), keyWidth);
+  string type = "maximum";
+  if (!existRandom) {
+    type = "mc";
+    if (weightedCounting) {
+      type = "w" + type;
+    }
+    if (projectedCounting) {
+      type = "p" + type;
+    }
+  }
+  printRow("s type", type, keyWidth);
 }
 
 void Executor::printEstRow(const Number& solution, size_t keyWidth) {

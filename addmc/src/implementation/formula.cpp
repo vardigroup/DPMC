@@ -1,5 +1,7 @@
 /* inclusions *****************************************************************/
 
+#include <set>
+
 #include "../interface/formula.hpp"
 
 /* constants ******************************************************************/
@@ -273,74 +275,21 @@ Set<Int> Cnf::getDisjunctiveVars() const {
   return disjunctiveVars;
 }
 
+void Cnf::printAdditiveVars() const {
+  std::set<Int> vars(additiveVars.begin(), additiveVars.end());
+  cout << "c additiveVars:";
+  for (Int var : vars) {
+    cout << " " << var;
+  }
+  cout << "\n";
+}
+
 void Cnf::printLiteralWeights() const {
   util::printLiteralWeights(literalWeights);
 }
 
 void Cnf::printClauses() const {
   util::printCnf(clauses);
-}
-
-void Cnf::printWeightedFormula(const WeightFormat &outputWeightFormat) const {
-  printComment("printing weighted formula...", 1);
-  printThinLine();
-
-  Int apparentVarCount = apparentVars.size();
-  switch (outputWeightFormat) {
-    case WeightFormat::MINIC2D: {
-      cout << PROBLEM_WORD << " " << CNF_WORD << " " << apparentVarCount << " " << clauses.size() << "\n";
-
-      cout << "c " << WEIGHTS_WORD << " ";
-      for (Int var = 1; var <= apparentVarCount; var++) {
-        cout << literalWeights.at(var) << " " << literalWeights.at(-var) << " ";
-      }
-      cout << "\n";
-
-      break;
-    }
-    case WeightFormat::CACHET: {
-      cout << PROBLEM_WORD << " " << CNF_WORD << " " << apparentVarCount << " " << clauses.size() << "\n";
-
-      for (Int var = 1; var <= apparentVarCount; var++) {
-        Float positiveWeight = literalWeights.at(var);
-        Float negativeWeight = literalWeights.at(-var);
-        if (positiveWeight == 1 && negativeWeight == 1) {
-          cout << WEIGHT_WORD << " " << var << " " << -1 << "\n";
-        }
-        else {
-          cout << WEIGHT_WORD << " " << var << " " << positiveWeight << "\n";
-
-          if (positiveWeight + negativeWeight != 1) {
-            showWarning("var " + to_string(var) + " has negetive literal weight " + to_string(negativeWeight));
-          }
-        }
-      }
-
-      break;
-    }
-    case WeightFormat::WCNF: {
-      cout << PROBLEM_WORD << " " << WCNF_WORD << " " << apparentVarCount << " " << clauses.size() << "\n";
-
-      for (Int var = 1; var <= apparentVarCount; var++) {
-        cout << WEIGHT_WORD << " " << var << " " << literalWeights.at(var) << " " << LINE_END_WORD << "\n";
-        cout << WEIGHT_WORD << " " << -var << " " << literalWeights.at(-var) << " " << LINE_END_WORD << "\n";
-      }
-
-      break;
-    }
-    default: {
-      showError("outputWeightFormat " + util::getWeightFormatName(outputWeightFormat) + " unsupported | Cnf::printWeightedFormula");
-    }
-  }
-
-  for (const vector<Int> &clause : clauses) {
-    for (Int literal : clause) {
-      cout << literal << " ";
-    }
-    cout << LINE_END_WORD << "\n";
-  }
-
-  printThinLine();
 }
 
 Cnf::Cnf(const vector<vector<Int>> &clauses) {
@@ -583,8 +532,9 @@ Cnf::Cnf(const string &filePath, WeightFormat weightFormat) {
 
   if (verbosityLevel >= 2) {
     printThinLine();
-    printClauses();
+    printAdditiveVars();
     printLiteralWeights();
+    printClauses();
     printThinLine();
   }
 }

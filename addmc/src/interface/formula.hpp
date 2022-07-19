@@ -53,9 +53,9 @@ public:
   const vector<Int> &getApparentVars() const;
   const Set<Int> &getAdditiveVars() const;
   Set<Int> getDisjunctiveVars() const;
+  void printAdditiveVars() const;
   void printLiteralWeights() const;
   void printClauses() const;
-  void printWeightedFormula(const WeightFormat &outputWeightFormat) const;
   Cnf(const vector<vector<Int>> &clauses = vector<vector<Int>>());
   Cnf(const string &filePath, WeightFormat weightFormat);
 };

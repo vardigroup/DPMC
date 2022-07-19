@@ -1,5 +1,7 @@
 /* inclusions *****************************************************************/
 
+#include <set>
+
 #include "../interface/join.hpp"
 
 /* constants ******************************************************************/
@@ -271,8 +273,9 @@ JoinComponent::JoinComponent(const Cnf &cnf, VarOrderingHeuristic varOrderingHeu
 /* class JoinRootBuilder ******************************************************/
 
 void JoinRootBuilder::printDisjunctiveVarSets() const {
+  std::set<Int> vars(disjunctiveVars.begin(), disjunctiveVars.end());
   cout << "c disjunctiveVars:";
-  for (Int var : disjunctiveVars) {
+  for (Int var : vars) {
     cout << " " << var;
   }
   cout << "\n";
@@ -438,7 +441,7 @@ JoinTreeProcessor::JoinTreeProcessor() {
 
 void JoinTreeParser::killPlanner() {
   if (plannerPid == DUMMY_MIN_INT) {
-    showWarning("plannerPid == DUMMY_MIN_INT; cannot kill");
+    // showWarning("plannerPid == DUMMY_MIN_INT; cannot kill");
   }
   else if (kill(plannerPid, SIGKILL) == 0) { // SIGTERM is not fast enough
     printComment("successfully killed planner process with PID " + to_string(plannerPid));

@@ -46,15 +46,13 @@ $(O_DIR)/%.o: $(CPP_DIR)/%.cpp $(HPP_DIR)/%.hpp lib
 lib: lib.zip
 	unzip -qq -n -D lib.zip && \
 	cd $(CUDD_DIR) && \
-	./configure --quiet --prefix=$(CURDIR)/$(CUDD_DIR)/INSTALLED --enable-obj && \
+	./configure --quiet --enable-obj && \
 	make --quiet && \
-	make --quiet install && \
 	cd ../../$(SYLVAN_DIR) && \
 	mkdir -p build && \
 	cd build && \
-	cmake -DCMAKE_INSTALL_PREFIX=../INSTALLED -DBUILD_SHARED_LIBS=OFF .. && \
+	cmake -DBUILD_SHARED_LIBS=OFF .. && \
 	make --quiet && \
-	make --quiet install && \
 	echo
 
 .PHONY: all clean

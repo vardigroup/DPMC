@@ -30,7 +30,7 @@ CMSAT_BUILD_DIR = $(CMSAT_DIR)/build
 CMSAT_LIB_DIR = $(CMSAT_BUILD_DIR)/lib
 CMSAT_TARGET = $(CMSAT_LIB_DIR)/libcryptominisat5.a
 CMSAT_INCLUSIONS = -I$(CMSAT_BUILD_DIR)/include
-CMSAT_LINKS = -L$(CMSAT_LIB_DIR) -lcryptominisat5 -lsqlite3 -ldl
+CMSAT_LINKS = -L$(CMSAT_LIB_DIR) -lcryptominisat5
 
 ################################################################################
 
@@ -69,10 +69,8 @@ $(SYLVAN_TARGET):
 $(CMSAT_TARGET):
 	mkdir -p $(CMSAT_BUILD_DIR)
 	cd $(CMSAT_BUILD_DIR)
-	cmake .. -DSTATICCOMPILE=on -DONLY_SIMPLE=ON -DNOZLIB=ON -DNOM4RI=ON
+	cmake .. -DSTATICCOMPILE=on -DONLY_SIMPLE=ON -DNOZLIB=ON -DNOM4RI=ON -DNOSQLITE=ON
 	make -s
-
-.PHONY: all cudd sylvan cryptominisat clean clean-dmc clean-htb clean-cudd clean-sylvan clean-cryptominisat clean-libraries
 
 all: dmc htb
 
@@ -101,3 +99,5 @@ clean-cryptominisat:
 	rm -rf $(CMSAT_BUILD_DIR)
 
 clean-libraries: clean-cudd clean-sylvan clean-cryptominisat
+
+clean-all: clean clean-libraries

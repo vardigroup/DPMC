@@ -1,4 +1,4 @@
-htb: ../addmc/src/*
+htb: ../addmc/src/*  ../addmc/makefile
 	make -C ../addmc clean-htb
 	make -C ../addmc htb opt=-Ofast link=-static
 	rm -f htb

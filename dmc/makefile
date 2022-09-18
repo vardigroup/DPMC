@@ -4,7 +4,7 @@ dmc: ../addmc/src/* ../addmc/makefile
 	rm -f dmc
 	cp ../addmc/dmc .
 
-dmc.sif: Singularity ../addmc/src/* ../addmc/Makefile
+dmc.sif: Singularity ../addmc/src/* ../addmc/makefile
 	make -C ../addmc clean-libraries
 	singularity build -F dmc.sif Singularity
 

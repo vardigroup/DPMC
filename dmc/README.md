@@ -15,7 +15,6 @@ Given a join tree T for an XOR-CNF formula, DMC solves:
 - cmake 3.16
 - g++ 11.2
 - gmp 6.2
-- python3 3.8
 #### [Included libraries](../addmc/libraries/)
 - [cryptominisat 5.8](https://github.com/msoos/cryptominisat)
 - [cudd 3.0](https://github.com/ivmai/cudd)

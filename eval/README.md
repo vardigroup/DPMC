@@ -1,6 +1,6 @@
 # Evaluation (Linux)
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ## Benchmarks
 
@@ -25,7 +25,7 @@ unzip ./benchmarksSsat.zip
   - A `.cnf` file, a `.var` file, and a `.weight` file for D4P & projMC
   - A `.sdimacs` file for reSSAT
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ## Tools
 - `lg.sif`: ProCount's (main) planner [LG](../lg)
@@ -77,7 +77,7 @@ sdimacsFile=benchmarks/bird/sdimacs/blasted_case102.no_w.sdimacs && abc -c "ssat
 > Time        =     0.01 sec
 ```
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ## Data
 - Download [archive](https://github.com/vardigroup/DPMC/releases/download/v2.0.0/data.zip) to this dir (`eval`)
@@ -104,14 +104,14 @@ Dir `./data/solving/ssat0`
 ### nestHDB & ProCount: 90 de-weighted WAPS benchmarks with 100-second timeout (preliminary results)
 Dir `./data/camera/`
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ## [Jupyter notebook](./procount.ipynb)
 - Near the end, there are 7 figures (4 in the main paper and 3 in the supplement)
 - Run all cells again to re-generate these figures from dir `./data`
 - Some Python lines for running experiments (e.g., submitting Slurm jobs and parsing stdout/stderr) have been commented out
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ## Notes on timing
 Recall that `time` is the time a solver spent to solve a benchmark

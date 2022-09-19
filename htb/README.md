@@ -2,7 +2,7 @@
 HTB constructs join trees of formulas in conjunctive normal form for model counting
 - Developer: Vu Phan
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ## Installation (Linux)
 
@@ -28,7 +28,7 @@ sudo make htb.sif
 make htb
 ```
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ## Examples
 If you use Singularity, then replace `./htb --cf=$cnfFile` with `singularity run --bind="/:/host" ./htb.sif --cf=/host$(realpath $cnfFile)` in the following commands.

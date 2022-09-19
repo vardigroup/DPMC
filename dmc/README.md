@@ -2,7 +2,7 @@
 DMC computes exact literal-weighted model counts of formulas in conjunctive normal form using algebraic decision diagrams
 - Developer: Vu Phan
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ## Installation (Linux)
 
@@ -28,7 +28,7 @@ sudo make dmc.sif
 make dmc
 ```
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ## Examples
 If you use Singularity, then replace `./dmc --cf=$cnfFile` with `singularity run --bind="/:/host" ./dmc.sif --cf=/host$(realpath $cnfFile)` in the following commands.

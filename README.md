@@ -7,7 +7,7 @@ ProCount computes weighted projected model counts of formulas in conjunctive nor
   - Jeffrey Dudek
   - Vu Phan
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ## [Releases](https://github.com/vardigroup/DPMC/releases)
 - 2021/05/23: [v2.0.0](https://github.com/vardigroup/DPMC/releases/tag/v2.0.0)
@@ -17,15 +17,15 @@ ProCount computes weighted projected model counts of formulas in conjunctive nor
   - CP-2020 paper: **DPMC: Weighted Model Counting by Dynamic Programming on Project-Join Trees**
     - Authors: Jeffrey Dudek, Vu Phan, Moshe Vardi
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ## [Example files](./examples)
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ## [Experimental evaluation](./eval)
 
-<!-- ####################################################################### -->
+--------------------------------------------------------------------------------
 
 ## Acknowledgment
 - [ADDMC](https://github.com/vardigroup/ADDMC): Dudek, Phan, Vardi
@@ -38,7 +38,7 @@ ProCount computes weighted projected model counts of formulas in conjunctive nor
 - [FlowCutter](https://github.com/kit-algo/flow-cutter-pace17): Strasser
 - [htd](https://github.com/mabseher/htd): Abseher, Musliu, Woltran
 - [miniC2D](http://reasoning.cs.ucla.edu/minic2d): Oztok, Darwiche
-- [Model-counting competition](https://mccompetition.org): Hecher, Fichte
+- [Model Counting Competition](https://mccompetition.org): Hecher, Fichte
 - [SlurmQueen](https://github.com/Kasekopf/SlurmQueen): Dudek
 - [Sylvan](https://trolando.github.io/sylvan): van Dijk
 - [Tamaki](https://github.com/TCS-Meiji/PACE2017-TrackA): Tamaki

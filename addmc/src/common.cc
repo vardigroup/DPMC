@@ -592,6 +592,51 @@ vector<Int> Cnf::getLexMVarOrder() const {
   return numberedVertices;
 }
 
+vector<Int> Cnf::getColAMDVarOrder() const {
+  /* create matrix A, p of entries of constraints 
+      
+  */
+  // int A[10], p[10];
+  vector<uint64_t> p, A;
+  uint64_t nNZ = 0;
+  uint64_t nRows = clauses.size();
+  uint64_t nCols = apparentVars.size();
+  p.push_back(0);
+  vector<Int> colToVar;
+  for (const auto& [var, clauseIndices] : varToClauses) {
+    uint32_t nCls = clauseIndices.size();
+    p.push_back(p.back()+nCls);
+    for (auto ind: clauseIndices){
+      A.push_back(ind);
+    }
+    nNZ += nCls;
+    colToVar.push_back(var);
+  }
+  size_t ALEN = colamd_recommended(nRows,nCols,nNZ) ;
+  int* Aa = new int[ALEN];
+  int* pp = new int[p.size()];
+  std::copy(A.begin(),A.end(),Aa);
+  std::copy(p.begin(),p.end(),pp);
+  int stats [COLAMD_STATS] ;	/* for colamd and symamd output statistics */
+  int ok;
+  ok = colamd (nRows, nCols, ALEN, Aa, pp, (double *) NULL, stats) ;
+  colamd_report (stats) ;
+  if (!ok){
+	  cout<<"c colamd Error! Exiting..\n";
+	  exit (1) ;
+  }
+  // pp[0] = j means that column j of original matrix A should be in 0th position after permutation
+  // colToVar[j] = k means that jth column of original matrix A belonged to the apparentVar k
+  // so colToVar[pp[0]] will give the apparentVar to place in 0th positon in varOrder
+  vector<Int> varOrder;
+  for(uint64_t i=0; i<apparentVars.size();i++) {
+    varOrder.push_back(colToVar[pp[i]]);
+  }
+  delete Aa;
+  delete pp;
+  return(varOrder);
+}
+
 vector<Int> Cnf::getCnfVarOrder(Int cnfVarOrderHeuristic) const {
   vector<Int> varOrder;
   switch (abs(cnfVarOrderHeuristic)) {

@@ -1,6 +1,7 @@
 ## in dir src/: file common.hh is included by files dmc.hh and htb.hh
 
-GXX = g++-11
+## GXX = g++-11
+GXX = g++
 
 # opt = -Ofast # be careful with inf and nan
 ASSEMBLY_OPTIONS = -g -std=c++2a -Wno-register $(opt)
@@ -32,6 +33,8 @@ CMSAT_TARGET = $(CMSAT_LIB_DIR)/libcryptominisat5.a
 CMSAT_INCLUSIONS = -I$(CMSAT_BUILD_DIR)/include
 CMSAT_LINKS = -L$(CMSAT_LIB_DIR) -lcryptominisat5
 
+COLAMD_DIR = libraries/colamd
+COLAMD_LINKS = -L$(COLAMD_DIR) -lcolamd
 ################################################################################
 
 DMC_OBJECTS = common.o dmc.o
@@ -40,7 +43,7 @@ HTB_OBJECTS = common.o htb.o
 .ONESHELL: # for all targets
 
 dmc: $(DMC_OBJECTS)
-	$(GXX) -o dmc $(DMC_OBJECTS) $(CUDD_LINKS) $(SYLVAN_LINKS) $(CMSAT_LINKS) $(LINK_OPTIONS)
+	$(GXX) -o dmc $(DMC_OBJECTS) $(CUDD_LINKS) $(SYLVAN_LINKS) $(CMSAT_LINKS) $(COLAMD_LINKS) $(LINK_OPTIONS)
 
 htb: $(HTB_OBJECTS)
 	$(GXX) -o htb $(HTB_OBJECTS) $(LINK_OPTIONS)

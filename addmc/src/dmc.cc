@@ -1,5 +1,5 @@
 #include "dmc.hh"
-
+#include "util/util.h"
 /* global vars ============================================================== */
 
 bool existRandom;
@@ -21,6 +21,7 @@ Int verboseProfiling;
 
 Int dotFileIndex = 1;
 
+Int dynVarOrdering;
 /* classes for processing join trees ======================================== */
 
 /* class JoinTree =========================================================== */
@@ -369,6 +370,134 @@ size_t Dd::maxDdNodeCount;
 
 size_t Dd::prunedDdCount;
 Float Dd::pruningDuration;
+
+bool Dd::dynOrderEnabled = false;
+
+bool Dd::enableDynamicOrdering(const Cudd* mgr) {
+  assert(ddPackage == CUDD_PACKAGE);
+  mgr->AutodynEnable();
+  Dd::dynOrderEnabled = true;
+  mgr->AddHook(postReorderHook, CUDD_POST_REORDERING_HOOK);
+  mgr->AddHook(preReorderHook, CUDD_PRE_REORDERING_HOOK);
+  return (Dd::dynOrderEnabled);
+}
+
+bool Dd::disableDynamicOrdering(const Cudd* mgr) {
+  assert(ddPackage == CUDD_PACKAGE);
+  mgr->AutodynDisable();
+  Dd::dynOrderEnabled = false;
+  return (Dd::dynOrderEnabled);
+}
+
+int Dd::postReorderHook(DdManager *dd, const char *str, void *data){
+    //TODO: 
+    //read new var order from manager using cudd_readperm and cudd_readinvperm
+    //    https://add-lib.scce.info/assets/doxygen-cudd-documentation/cuddAPI_8c.html#aacfa59899b792c9f47a612ceba42c976
+    //    https://add-lib.scce.info/assets/doxygen-cudd-documentation/cuddAPI_8c.html#ae16ce73ed2e5afcd0dd1c1db43884d2a
+    //    say int perm[] holds the permutation of vars from 1..n read using perm[i] = Cudd_ReadPerm(dd, i) 
+    //    i.e. perm[i] = j means that the position of ith variable in the new order is j
+    //
+    // uint64_t nVars = JoinNode::cnf.apparentVars.size();
+    // for (uint64_t i=0; i<nVars; i++){
+    //   Cudd_ReadPerm(dd,i);
+    // }     
+    
+    //make sure cnfVartoDDVar and ddVarToCNFVar maps are public static members of Executor class
+    // update those maps using new var order.
+    //    for i 1...n
+    //        set cnfVarToDDVarMap[i] = perm[cnfVarToDDVarMap[i]]
+    //        set ddVarToCnFVarmap[perm[cnfVarToDDVarMap[i]]] = i
+              //where perm is as calculated in previous step    
+    // use Cudd_AddHook or mgr->AddHook to add this function as a hook. (added in enableDynamicOrdering)
+    //    https://add-lib.scce.info/assets/doxygen-cudd-documentation/cuddAPI_8c.html#a6884f064de544463f006f9104e4afa74
+    //optionally additionally make Cudd* mgr a static member of Dd class
+    
+    unsigned long initialTime = (unsigned long) (ptruint) data;
+    int retval;
+    unsigned long finalTime = util_cpu_time();
+    double totalTimeSec = (double)(finalTime - initialTime) / 1000.0;
+
+    retval = fprintf(dd->out,"%ld nodes in %g sec\n", strcmp(str, "BDD") == 0 ? Cudd_ReadNodeCount(dd) : Cudd_zddReadNodeCount(dd), totalTimeSec);
+    if (retval == EOF) return(0);
+    retval = fflush(dd->out);
+    if (retval == EOF) return(0);
+    return(1);
+
+}
+
+int Dd::preReorderHook(DdManager *dd, const char *str, void *data){
+    Cudd_ReorderingType method = (Cudd_ReorderingType) (ptruint) data;
+    int retval;
+
+    retval = fprintf(dd->out,"%s reordering with ", str);
+    if (retval == EOF) return(0);
+    switch (method) {
+    case CUDD_REORDER_SIFT_CONVERGE:
+    case CUDD_REORDER_SYMM_SIFT_CONV:
+    case CUDD_REORDER_GROUP_SIFT_CONV:
+    case CUDD_REORDER_WINDOW2_CONV:
+    case CUDD_REORDER_WINDOW3_CONV:
+    case CUDD_REORDER_WINDOW4_CONV:
+    case CUDD_REORDER_LINEAR_CONVERGE:
+        retval = fprintf(dd->out,"converging ");
+        if (retval == EOF) return(0);
+        break;
+    default:
+        break;
+    }
+    switch (method) {
+    case CUDD_REORDER_RANDOM:
+    case CUDD_REORDER_RANDOM_PIVOT:
+        retval = fprintf(dd->out,"random");
+        break;
+    case CUDD_REORDER_SIFT:
+    case CUDD_REORDER_SIFT_CONVERGE:
+        retval = fprintf(dd->out,"sifting");
+        break;
+    case CUDD_REORDER_SYMM_SIFT:
+    case CUDD_REORDER_SYMM_SIFT_CONV:
+        retval = fprintf(dd->out,"symmetric sifting");
+        break;
+    case CUDD_REORDER_LAZY_SIFT:
+        retval = fprintf(dd->out,"lazy sifting");
+        break;
+    case CUDD_REORDER_GROUP_SIFT:
+    case CUDD_REORDER_GROUP_SIFT_CONV:
+        retval = fprintf(dd->out,"group sifting");
+        break;
+    case CUDD_REORDER_WINDOW2:
+    case CUDD_REORDER_WINDOW3:
+    case CUDD_REORDER_WINDOW4:
+    case CUDD_REORDER_WINDOW2_CONV:
+    case CUDD_REORDER_WINDOW3_CONV:
+    case CUDD_REORDER_WINDOW4_CONV:
+        retval = fprintf(dd->out,"window");
+        break;
+    case CUDD_REORDER_ANNEALING:
+        retval = fprintf(dd->out,"annealing");
+        break;
+    case CUDD_REORDER_GENETIC:
+        retval = fprintf(dd->out,"genetic");
+        break;
+    case CUDD_REORDER_LINEAR:
+    case CUDD_REORDER_LINEAR_CONVERGE:
+        retval = fprintf(dd->out,"linear sifting");
+        break;
+    case CUDD_REORDER_EXACT:
+        retval = fprintf(dd->out,"exact");
+        break;
+    default:
+        return(0);
+    }
+    if (retval == EOF) return(0);
+
+    retval = fprintf(dd->out,": from %ld to ... ", strcmp(str, "BDD") == 0 ? Cudd_ReadNodeCount(dd) : Cudd_zddReadNodeCount(dd));
+    if (retval == EOF) return(0);
+    fflush(dd->out);
+    return(1);
+
+} /* end of Cudd_StdPreReordHook */
+
 
 size_t Dd::getLeafCount() const {
   if (ddPackage == CUDD_PACKAGE) {
@@ -801,8 +930,12 @@ void Executor::solveThreadSlices(const JoinNonterminal* joinRoot, const Map<Int,
   const vector<Assignment>& threadAssignments = threadAssignmentLists.at(threadIndex);
   for (Int threadAssignmentIndex = 0; threadAssignmentIndex < threadAssignments.size(); threadAssignmentIndex++) {
     TimePoint sliceStartPoint = util::getTimePoint();
-
-    Number partialSolution = solveSubtree(static_cast<const JoinNode*>(joinRoot), cnfVarToDdVarMap, ddVarToCnfVarMap, Dd::newMgr(threadMem, threadIndex), threadAssignments.at(threadAssignmentIndex)).extractConst();
+    
+    const Cudd* mgr = Dd::newMgr(threadMem, threadIndex);
+    if(dynVarOrdering == 1){
+      Dd::enableDynamicOrdering(mgr);
+    }
+    Number partialSolution = solveSubtree(static_cast<const JoinNode*>(joinRoot), cnfVarToDdVarMap, ddVarToCnfVarMap, mgr, threadAssignments.at(threadAssignmentIndex)).extractConst();
 
     const std::lock_guard<mutex> g(solutionMutex);
 
@@ -1349,6 +1482,10 @@ string OptionDict::helpJoinPriority() {
   return s + "; string";
 }
 
+string OptionDict::helpDynamicVarOrdering() {
+  return "dynamic variable ordering. DD_PACKAGE must be CUDD. 0/1. Default 0.";
+}
+
 void OptionDict::runCommand() const {
   if (verboseSolving >= 1) {
     cout << "c processing command-line options...\n";
@@ -1359,6 +1496,7 @@ void OptionDict::runCommand() const {
     printRow("diagramPackage", DD_PACKAGES.at(ddPackage));
     if (ddPackage == CUDD_PACKAGE) {
       printRow("logCounting", logCounting);
+      printRow("dynamic var ordering", dynVarOrdering);
     }
     if (!projectedCounting && existRandom && logCounting) {
       if (logBound > -INF) {
@@ -1468,6 +1606,7 @@ OptionDict::OptionDict(int argc, char** argv) {
     (THREAD_COUNT_OPTION, "thread count [or 0 for hardware_concurrency value]; int", value<Int>()->default_value("1"))
     (THREAD_SLICE_COUNT_OPTION, "thread slice count" + requireDdPackage(CUDD_PACKAGE) + "; int", value<Int>()->default_value("1"))
     (RANDOM_SEED_OPTION, "random seed; int", value<Int>()->default_value("0"))
+    (DYN_ORDER_OPTION, helpDynamicVarOrdering(), value<Int>()->default_value("0"))
     (DD_VAR_OPTION, helpDiagramVarOrderHeuristic(), value<Int>()->default_value(to_string(MCS_HEURISTIC)))
     (SLICE_VAR_OPTION, helpSliceVarOrderHeuristic(), value<Int>()->default_value(to_string(BIGGEST_NODE_HEURISTIC)))
     (MEM_SENSITIVITY_OPTION, "memory sensitivity (in MB) for reporting usage" + requireDdPackage(CUDD_PACKAGE) + "; float", value<Float>()->default_value("1e3"))
@@ -1546,6 +1685,9 @@ OptionDict::OptionDict(int argc, char** argv) {
     assert(threadSliceCount == 1 || ddPackage == CUDD_PACKAGE);
 
     randomSeed = result[RANDOM_SEED_OPTION].as<Int>(); // global var
+    
+    dynVarOrdering = result[DYN_ORDER_OPTION].as<Int>();
+    assert(dynVarOrdering == 0 || ddPackage == CUDD_PACKAGE);
 
     ddVarOrderHeuristic = result[DD_VAR_OPTION].as<Int>();
     assert(CNF_VAR_ORDER_HEURISTICS.contains(abs(ddVarOrderHeuristic)));

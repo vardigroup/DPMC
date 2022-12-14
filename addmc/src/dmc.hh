@@ -53,6 +53,7 @@ const string PLANNER_WAIT_OPTION = "pw";
 const string THREAD_COUNT_OPTION = "tc";
 const string THREAD_SLICE_COUNT_OPTION = "ts";
 const string DD_VAR_OPTION = "dv";
+const string DYN_ORDER_OPTION = "dy";
 const string SLICE_VAR_OPTION = "sv";
 const string MEM_SENSITIVITY_OPTION = "ms";
 const string MAX_MEM_OPTION = "mm";
@@ -105,6 +106,8 @@ extern Int verboseJoinTree; // 1: parsed join tree, 2: raw join tree too
 extern Int verboseProfiling; // 1: sorted stats for CNF vars, 2: unsorted stats for join nodes too
 
 extern Int dotFileIndex;
+
+extern Int dynVarOrdering;
 
 /* classes for processing join trees ======================================== */
 
@@ -177,9 +180,11 @@ public:
 
   static size_t prunedDdCount;
   static Float pruningDuration;
-
+ 
   ADD cuadd; // CUDD
   Mtbdd mtbdd; // Sylvan
+  
+  static bool dynOrderEnabled;
 
   size_t getLeafCount() const;
   size_t getNodeCount() const;
@@ -216,6 +221,11 @@ public:
   Dd getPrunedDd(Float lowerBound, const Cudd* mgr) const;
   void writeDotFile(const Cudd* mgr, const string& dotFileDir = "./") const;
   static void writeInfoFile(const Cudd* mgr, const string& filePath);
+  
+  static bool enableDynamicOrdering(const Cudd* mgr);
+  static bool disableDynamicOrdering(const Cudd* mgr);
+  static int postReorderHook(DdManager *dd, const char *str, void *data);
+  static int preReorderHook(DdManager *dd, const char *str, void *data);
 };
 
 class Executor {
@@ -328,6 +338,7 @@ public:
   static string helpDiagramVarOrderHeuristic();
   static string helpSliceVarOrderHeuristic();
   static string helpJoinPriority();
+  static string helpDynamicVarOrdering();
 
   void runCommand() const;
 

@@ -14,8 +14,11 @@
 #include <sys/time.h>
 #include <thread>
 #include <unordered_set>
+#include <iterator>
 
 #include <gmpxx.h>
+
+#include "../libraries/colamd/colamd.h"
 
 /* uses ===================================================================== */
 
@@ -329,6 +332,7 @@ public:
   vector<Int> getLexPVarOrder() const;
   vector<Int> getLexMVarOrder() const;
   vector<Int> getCnfVarOrder(Int cnfVarOrderHeuristic) const;
+  vector<Int> getColAMDVarOrder() const;
 
   bool isMc21ShowLine(const vector<string> &words) const; // c p show <vars> [0]
   bool isMc21WeightLine(const vector<string> &words) const; // c p weight <literal> <weight> [0]

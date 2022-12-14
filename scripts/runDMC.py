@@ -39,7 +39,7 @@ cnf = cnf2
 
 #cmd1 = os.environ['DPSAMPLER']+'/lg/build/lg "lg/solvers/flow-cutter-pace17/flow_cutter_pace17 -s 1234567 -p 100" < '+cnf+' > tree.tmp'
 #cmd2 = os.environ['DPSAMPLER']+' DMC/dmc --cf='+cnf+' --cs='+cs+' --sf='+sf+'< tree.tmp'
-cmd3 = os.environ['DPMC']+'htb/htb --cf='+cnf+' --cv=7 | '+os.environ['DPMC']+'dmc/dmc'+dmc+' --pw='+str(pw)+' --cf='+cnf+' --dp=c --lc=1 --wc=1 --vs=2 --pc=1 --dy=1'
+cmd3 = os.environ['DPMC']+'htb/htb --cf='+cnf+' --cv=7 | '+os.environ['DPMC']+'dmc/dmc'+dmc+' --pw='+str(pw)+' --cf='+cnf+' --dp=c --dv=7 --lc=1 --wc=1 --vs=2 --pc=1 --dy=1'
 #cmd3 = os.environ['DPMC']+'lg/build/lg "'+os.environ['DPMC']+'lg/solvers/flow-cutter-pace17/flow_cutter_pace17 -s 1234567 -p 100" < '+cnf+' | '+os.environ['DPMC']+'dmc/dmc'+dmc+' --pw='+str(pw)+' --cf='+cnf+' --dp=c --lc=1 --wc=1 --vs=2 --pc=1 --dy=1'
 cmd4 = os.environ['DPMC']+'lg/build/lg "'+os.environ['DPMC']+'lg/solvers/htd-master/bin/bin/htd_main -s 1234567 --type hypertree --output human --print-progress --preprocessing full" < '+cnf+' | '+os.environ['DPMC']+'dmc/dmc'+dmc+' --pw='+str(pw)+' --cf='+cnf+' --lc=1 --wc=1 --vs=2'
 cmd5 = os.environ['DPMC']+'lg/build/lg "'+os.environ['DPMC']+'lg/solvers/htd-master/bin/bin/htd_main -s 1234567 --print-progress --strategy challenge  --opt width --iterations 0  --preprocessing full" < '+cnf+' | '+os.environ['DPMC']+'dmc/dmc'+dmc+' --pw='+str(pw)+' --cf='+cnf+' --lc=1 --wc=1 --vs=2'

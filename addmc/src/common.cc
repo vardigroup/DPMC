@@ -620,7 +620,7 @@ vector<Int> Cnf::getColAMDVarOrder() const {
   int stats [COLAMD_STATS] ;	/* for colamd and symamd output statistics */
   int ok;
   ok = colamd (nRows, nCols, ALEN, Aa, pp, (double *) NULL, stats) ;
-  colamd_report (stats) ;
+  // colamd_report (stats) ;
   if (!ok){
 	  cout<<"c colamd Error! Exiting..\n";
 	  exit (1) ;
@@ -657,6 +657,9 @@ vector<Int> Cnf::getCnfVarOrder(Int cnfVarOrderHeuristic) const {
       break;
     case LEX_P_HEURISTIC:
       varOrder = getLexPVarOrder();
+      break;
+    case COLAMD_HEURISTIC:
+      varOrder = getColAMDVarOrder();
       break;
     default:
       assert(abs(cnfVarOrderHeuristic) == LEX_M_HEURISTIC);

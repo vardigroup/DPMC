@@ -306,6 +306,56 @@ public:
   Executor(const JoinNonterminal* joinRoot, Int ddVarOrderHeuristic, Int sliceVarOrderHeuristic);
 };
 
+class SatFilter{
+  public:
+  static vector<pair<Int, Dd>> maximizationStack; // pair<DD var, derivative sign>
+
+  static Map<Int, Float> varDurations; // CNF var |-> total execution time in seconds
+  static Map<Int, size_t> varDdSizes; // CNF var |-> max DD size
+
+  static void updateVarDurations(const JoinNode* joinNode, TimePoint startPoint);
+  static void updateVarDdSizes(const JoinNode* joinNode, const Dd& dd);
+
+  static void printVarDurations();
+  static void printVarDdSizes();
+
+  static Dd getClauseDd(
+    const Map<Int, Int>& cnfVarToDdVarMap,
+    const Clause& clause,
+    const Cudd* mgr,
+    const Assignment& assignment
+  );
+  static Dd solveSubtree( // recursively computes valuation of join tree node
+    const JoinNode* joinNode,
+    const Map<Int, Int>& cnfVarToDdVarMap,
+    const vector<Int>& ddVarToCnfVarMap,
+    const Cudd* mgr = nullptr,
+    const Assignment& assignment = Assignment()
+  );
+  static void solveThreadSlices( // sequentially solves all slices in one thread
+    const JoinNonterminal* joinRoot,
+    const Map<Int, Int>& cnfVarToDdVarMap,
+    const vector<Int>& ddVarToCnfVarMap,
+    Float threadMem,
+    Int threadIndex,
+    const vector<vector<Assignment>>& threadAssignmentLists,
+    Number& totalSolution,
+    mutex& solutionMutex
+  );
+  static vector<vector<Assignment>> getThreadAssignmentLists(
+    const JoinNonterminal* joinRoot,
+    Int sliceVarOrderHeuristic
+  );
+  static Number solveCnf(
+    const JoinNonterminal* joinRoot,
+    const Map<Int, Int>& cnfVarToDdVarMap,
+    const vector<Int>& ddVarToCnfVarMap,
+    Int sliceVarOrderHeuristic
+  );
+
+  SatFilter(const JoinNonterminal* joinRoot, Int ddVarOrderHeuristic, Int sliceVarOrderHeuristic);
+};
+
 class OptionRequirement {
 public:
   string name;

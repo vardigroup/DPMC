@@ -29,6 +29,8 @@ using sylvan::mtbdd_makenode;
 using sylvan::Mtbdd;
 using sylvan::MTBDD;
 
+using sylvan::Bdd;
+
 using CMSat::Lit;
 using CMSat::lbool; // generally uint8_t; typically {l_True, l_False, l_Undef}
 using CMSat::l_True;
@@ -54,6 +56,7 @@ const string THREAD_COUNT_OPTION = "tc";
 const string THREAD_SLICE_COUNT_OPTION = "ts";
 const string DD_VAR_OPTION = "dv";
 const string DYN_ORDER_OPTION = "dy";
+const string SAT_FILTER_OPTION = "sa";
 const string SLICE_VAR_OPTION = "sv";
 const string MEM_SENSITIVITY_OPTION = "ms";
 const string MAX_MEM_OPTION = "mm";
@@ -183,7 +186,7 @@ public:
  
   ADD cuadd; // CUDD
   Mtbdd mtbdd; // Sylvan
-  
+
   static bool dynOrderEnabled;
 
   size_t getLeafCount() const;
@@ -226,6 +229,26 @@ public:
   static bool disableDynamicOrdering(const Cudd* mgr);
   static int postReorderHook(DdManager *dd, const char *str, void *data);
   static int preReorderHook(DdManager *dd, const char *str, void *data);
+
+  BDD cubdd; 
+  Bdd sybdd;
+
+  static Dd getZeroBdd(const Cudd* mgr); // returns minus infinity if logCounting
+  static Dd getOneBdd(const Cudd* mgr); // returns zero if logCounting
+  static Dd getVarBdd(Int ddVar, bool val, const Cudd* mgr);
+  Dd(const BDD& cubdd);
+  Dd(const Bdd& sybdd);
+
+  Dd getBddExists(
+    vector<Int> ddVars,
+    const vector<Int>& ddVarToCnfVarMap,
+    const Cudd* mgr
+  ) const;
+  Dd getBddAnd(const Dd& dd) const;
+  Dd getBddOr(const Dd& dd) const; // must be Bdd
+  bool isTrue() const; // must be Bdd
+  Set<Int> getBddSupport() const;
+  Dd getFilteredBdd(const Dd, const Cudd* mgr);
 };
 
 class Executor {
@@ -308,8 +331,8 @@ public:
 
 class SatFilter{
   public:
-  static vector<pair<Int, Dd>> maximizationStack; // pair<DD var, derivative sign>
-
+  //static vector<pair<Int, Dd>> maximizationStack; // pair<DD var, derivative sign> Retained here just as a dummy placeholder in solveSubtree
+  /*
   static Map<Int, Float> varDurations; // CNF var |-> total execution time in seconds
   static Map<Int, size_t> varDdSizes; // CNF var |-> max DD size
 
@@ -318,42 +341,35 @@ class SatFilter{
 
   static void printVarDurations();
   static void printVarDdSizes();
-
-  static Dd getClauseDd(
+  */
+  static Dd getClauseBdd(
     const Map<Int, Int>& cnfVarToDdVarMap,
     const Clause& clause,
-    const Cudd* mgr,
-    const Assignment& assignment
+    const Cudd* mgr
   );
   static Dd solveSubtree( // recursively computes valuation of join tree node
     const JoinNode* joinNode,
     const Map<Int, Int>& cnfVarToDdVarMap,
     const vector<Int>& ddVarToCnfVarMap,
-    const Cudd* mgr = nullptr,
-    const Assignment& assignment = Assignment()
-  );
-  static void solveThreadSlices( // sequentially solves all slices in one thread
-    const JoinNonterminal* joinRoot,
-    const Map<Int, Int>& cnfVarToDdVarMap,
-    const vector<Int>& ddVarToCnfVarMap,
-    Float threadMem,
-    Int threadIndex,
-    const vector<vector<Assignment>>& threadAssignmentLists,
-    Number& totalSolution,
-    mutex& solutionMutex
-  );
-  static vector<vector<Assignment>> getThreadAssignmentLists(
-    const JoinNonterminal* joinRoot,
-    Int sliceVarOrderHeuristic
-  );
-  static Number solveCnf(
-    const JoinNonterminal* joinRoot,
-    const Map<Int, Int>& cnfVarToDdVarMap,
-    const vector<Int>& ddVarToCnfVarMap,
-    Int sliceVarOrderHeuristic
+    const Cudd* mgr = nullptr
   );
 
-  SatFilter(const JoinNonterminal* joinRoot, Int ddVarOrderHeuristic, Int sliceVarOrderHeuristic);
+  static bool solveCnf(
+    const JoinNonterminal* joinRoot,
+    const Map<Int, Int>& cnfVarToDdVarMap,
+    const vector<Int>& ddVarToCnfVarMap,
+    const Cudd* mgr
+  );
+
+  static bool filterBdds(
+    const JoinNode* joinNode,
+    const Map<Int, Int>& cnfVarToDdVarMap,
+    const vector<Int>& ddVarToCnfVarMap,
+    const Dd parentBdd,
+    const Cudd* mgr
+  );
+
+  SatFilter(const JoinNonterminal* joinRoot, Int ddVarOrderHeuristic);
 };
 
 class OptionRequirement {
@@ -389,7 +405,8 @@ public:
   static string helpSliceVarOrderHeuristic();
   static string helpJoinPriority();
   static string helpDynamicVarOrdering();
-
+  static string helpSatFilter();
+  
   void runCommand() const;
 
   OptionDict(int argc, char** argv);

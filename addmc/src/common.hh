@@ -379,6 +379,8 @@ public:
   Set<Int> projectionVars; // empty for JoinTerminal
   Set<Int> preProjectionVars; // set by constructor
 
+  void* dd = 0; // for sampling. void* type so as to avoid circular dependency with class Dd definition in dmc.hh
+
   static void resetStaticFields(); // backs up and re-initializes static fields
   static void restoreStaticFields(); // from backup
 

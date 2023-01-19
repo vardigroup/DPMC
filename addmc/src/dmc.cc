@@ -22,6 +22,8 @@ Int verboseProfiling;
 Int dotFileIndex = 1;
 
 Int dynVarOrdering;
+
+Int satFilter = 0;
 /* classes for processing join trees ======================================== */
 
 /* class JoinTree =========================================================== */
@@ -526,14 +528,18 @@ Dd::Dd(const Mtbdd& mtbdd) {
 
 Dd::Dd(const Dd& dd) {
   if (ddPackage == CUDD_PACKAGE) {
-    *this = Dd(dd.cuadd);
+    // *this = Dd(dd.cuadd);
+    this->cuadd = dd.cuadd;
+    this->cubdd = dd.cubdd;
   }
   else {
-    *this = Dd(dd.mtbdd);
+    // *this = Dd(dd.mtbdd);
+    this->mtbdd = dd.mtbdd;
+    this->sybdd = dd.sybdd;
   }
 
-  maxDdLeafCount = max(maxDdLeafCount, getLeafCount());
-  maxDdNodeCount = max(maxDdNodeCount, getNodeCount());
+  // maxDdLeafCount = max(maxDdLeafCount, getLeafCount());
+  // maxDdNodeCount = max(maxDdNodeCount, getNodeCount());
 }
 
 Number Dd::extractConst() const {
@@ -583,7 +589,113 @@ Dd Dd::getVarDd(Int ddVar, bool val, const Cudd* mgr) {
   }
   MTBDD d0 = getZeroDd(mgr).mtbdd.GetMTBDD();
   MTBDD d1= getOneDd(mgr).mtbdd.GetMTBDD();
-  return val ? Dd(mtbdd_makenode(ddVar, d0, d1)) : Dd(mtbdd_makenode(ddVar, d1, d0));
+  return val ? Dd(Mtbdd(sylvan::mtbdd_makenode(ddVar, d0, d1))) : Dd(Mtbdd(sylvan::mtbdd_makenode(ddVar, d1, d0)));
+}
+
+Dd::Dd(const BDD& cubdd){
+  assert(ddPackage == CUDD_PACKAGE);
+  this->cubdd = cubdd;
+}
+
+Dd::Dd(const Bdd& sybdd) {
+  assert(ddPackage == SYLVAN_PACKAGE);
+  this->sybdd = sybdd;
+}
+
+Dd Dd::getZeroBdd(const Cudd* mgr) {
+  if (ddPackage == CUDD_PACKAGE){
+    return mgr->bddZero();
+  } else{
+    return Bdd::bddZero();
+  }
+}
+
+Dd Dd::getOneBdd(const Cudd* mgr) {
+  if (ddPackage == CUDD_PACKAGE){
+    return mgr->bddOne();
+  } else{
+    return Bdd::bddOne();
+  }
+}
+
+Dd Dd::getVarBdd(Int ddVar, bool val, const Cudd* mgr) {
+  if (ddPackage == CUDD_PACKAGE) {
+    BDD d = mgr->bddVar(ddVar);
+    return val ? Dd(d) : Dd(!d);
+  } else {
+    return val? Bdd::bddVar(ddVar) : !Bdd::bddVar(ddVar); 
+  }
+}
+
+Dd Dd::getBddAnd(const Dd& dd) const {
+  if (ddPackage == CUDD_PACKAGE) {
+    return Dd(cubdd * dd.cubdd);
+  } else{
+    return Dd(sybdd * dd.sybdd);
+  }
+}
+
+Dd Dd::getBddExists(vector<Int> ddVars, const vector<Int>& ddVarToCnfVarMap, const Cudd* mgr) const {
+  Dd cube = getOneBdd(mgr);
+  for (auto& var : ddVars){
+    cube = cube.getBddAnd(getVarBdd(var,true,mgr));
+  }
+  if (ddPackage == CUDD_PACKAGE){
+    return cubdd.ExistAbstract(cube.cubdd);
+  } else{
+    return sybdd.ExistAbstract(sylvan::BddSet(cube.sybdd));
+  }
+}
+
+Dd Dd::getBddOr(const Dd& dd) const {
+  if(ddPackage == CUDD_PACKAGE){
+    return Dd(cubdd.Or(dd.cubdd));
+  } else{
+    return Dd(sybdd.Or(dd.sybdd));
+  }
+}
+
+bool Dd::isTrue() const{
+  if(ddPackage == CUDD_PACKAGE){
+     return cubdd.IsOne();
+  } else{
+    return sybdd.isOne();
+  }
+}
+
+Set<Int> Dd::getBddSupport() const{
+  Set<Int> support;
+  if (ddPackage == CUDD_PACKAGE) {
+    for (Int ddVar : cubdd.SupportIndices()) {
+      support.insert(ddVar);
+    }
+   
+  }
+  else {
+    Mtbdd cube = sybdd.Support(); // conjunction of all vars appearing in mtbdd
+    while (!cube.isOne()) {
+      support.insert(cube.TopVar());
+      cube = cube.Then();
+    }
+  }
+  return support;
+}
+
+Dd Dd::getFilteredBdd(const Dd other, const Cudd* mgr){
+  Set<Int> otherSupport = other.getBddSupport();
+  for (const auto& elem : getBddSupport()) {
+    otherSupport.erase(elem);
+  }
+
+  Dd cube = getOneBdd(mgr);
+  for (auto& var : otherSupport){
+    cube = cube.getBddAnd(getVarBdd(var,true,mgr));
+  }
+  if (ddPackage == CUDD_PACKAGE){
+    return Dd(cubdd.AndAbstract(other.cubdd, cube.cubdd));
+  } else{
+    return Dd(sybdd.AndAbstract(other.sybdd,cube.sybdd));
+  }
 }
 
 const Cudd* Dd::newMgr(Float mem, Int threadIndex) {
@@ -764,6 +876,141 @@ void Dd::writeInfoFile(const Cudd* mgr, const string& filePath) {
   Cudd_PrintInfo(mgr->getManager(), file);
   fclose(file);
   cout << "c wrote CUDD info to file " << filePath << "\n";
+}
+
+/* class SatFilter =========================================================== */
+
+Dd SatFilter::getClauseBdd(const Map<Int, Int>& cnfVarToDdVarMap, const Clause& clause, const Cudd* mgr){
+  Dd clauseDd = Dd::getZeroBdd(mgr);
+  for (Int literal : clause) {
+    bool val = literal > 0;
+    Int cnfVar = abs(literal);
+    Int ddVar = cnfVarToDdVarMap.at(cnfVar);
+    Dd literalDd = Dd::getVarBdd(ddVar, val, mgr);
+    clauseDd = clauseDd.getBddOr(literalDd);
+  }
+  return clauseDd;
+}
+
+Dd SatFilter::solveSubtree(const JoinNode* joinNode, const Map<Int, Int>& cnfVarToDdVarMap, const vector<Int>& ddVarToCnfVarMap, const Cudd* mgr) {
+  if (joinNode->isTerminal()) {
+    TimePoint terminalStartPoint = util::getTimePoint();
+    // cout << "c 1\n";
+    Dd d = getClauseBdd(cnfVarToDdVarMap, JoinNode::cnf.clauses.at(joinNode->nodeIndex), mgr);
+    return d;
+  }
+
+  vector<Dd> childDdList;
+  for (JoinNode* child : joinNode->children) {
+    // cout << "c before recurse\n";
+    childDdList.push_back(solveSubtree(child, cnfVarToDdVarMap, ddVarToCnfVarMap, mgr));
+    // Dd d = solveSubtree(child, cnfVarToDdVarMap, ddVarToCnfVarMap, mgr);
+    // cout << "c mid recurse\n";
+    // childDdList.push_back(d);
+    // cout << "c after recurse\n";
+  }
+
+  TimePoint nonterminalStartPoint = util::getTimePoint();
+  // cout << "c 3\n";
+  Dd dd = Dd::getOneBdd(mgr);
+  // cout << "c 4\n";
+  // if (joinPriority == ARBITRARY_PAIR) { // arbitrarily multiplies child decision diagrams
+    for (Dd childDd : childDdList) {
+      // cout << "c 5\n";
+      dd = dd.getBddAnd(childDd);
+      // cout << "c 6\n";
+    }
+  // }
+  
+  if (joinNode->projectionVars.size()>0){
+    Dd* d = new Dd(dd); // to make sure it does not go out of scope since we are storing a pointer
+    ((JoinNode*) joinNode)->dd = (void*) d; //cast away const-ness of joinNode to modify dd. Should be fine since object itself is not const
+    //joinNode->dd = (void*)&dd;
+  }
+    
+
+  vector<Int> ddVars;
+  for (Int cnfVar : joinNode->projectionVars) {
+    ddVars.push_back(cnfVarToDdVarMap.at(cnfVar));
+  }
+  // cout << "c 7\n";
+  dd = dd.getBddExists(ddVars, ddVarToCnfVarMap, mgr);
+  // cout << "c 8\n";
+  return dd;
+}
+
+bool SatFilter::solveCnf(const JoinNonterminal* joinRoot, const Map<Int, Int>& cnfVarToDdVarMap, const vector<Int>& ddVarToCnfVarMap, const Cudd* mgr) {
+  if (ddPackage == SYLVAN_PACKAGE) {
+    return solveSubtree(
+      static_cast<const JoinNode*>(joinRoot),
+      cnfVarToDdVarMap,
+      ddVarToCnfVarMap
+    ).isTrue();
+  } else{
+    cout << "c Starting solvesubtree in SatFilter ...\n";
+    return solveSubtree(static_cast<const JoinNode*>(joinRoot), cnfVarToDdVarMap, ddVarToCnfVarMap, mgr).isTrue();
+  }
+}
+
+bool SatFilter::filterBdds(const JoinNode* joinNode, const Map<Int, Int>& cnfVarToDdVarMap, const vector<Int>& ddVarToCnfVarMap, Dd parentBdd, const Cudd* mgr){
+  Dd* d = (Dd*)joinNode->dd;
+  // if(d == 0){
+  //   return false;
+  // }
+  if (joinNode->projectionVars.size()==0){
+    assert(d==0);
+    d = &parentBdd;   
+  } else{
+    Dd temp = d->getFilteredBdd(parentBdd, mgr);
+    delete d;
+    d = new Dd(temp); // to make sure it does not go out of scope since we are storing a pointer
+    ((JoinNode*) joinNode)->dd = (void*) d;
+  }
+  for (JoinNode* child : joinNode->children) {
+    filterBdds(child, cnfVarToDdVarMap, ddVarToCnfVarMap, *d, mgr);
+  }
+  return true;
+}
+
+SatFilter::SatFilter(const JoinNonterminal* joinRoot, Int ddVarOrderHeuristic) {
+  cout << "\n";
+  cout << "c constructing SatFilter. Note: leaf and node counting functions may not return right answer (see Dd copy constructor comment)..\n";
+
+  TimePoint ddVarOrderStartPoint = util::getTimePoint();
+  vector<Int> ddVarToCnfVarMap = joinRoot->getVarOrder(ddVarOrderHeuristic); // e.g. [42, 13], i.e. ddVarOrder
+  if (verboseSolving >= 1) {
+    printRow("diagramVarSeconds", util::getDuration(ddVarOrderStartPoint));
+  }
+
+  Map<Int, Int> cnfVarToDdVarMap; // e.g. {42: 0, 13: 1}
+  for (Int ddVar = 0; ddVar < ddVarToCnfVarMap.size(); ddVar++) {
+    Int cnfVar = ddVarToCnfVarMap.at(ddVar);
+    cnfVarToDdVarMap[cnfVar] = ddVar;
+  }
+
+  const Cudd* mgr = Dd::newMgr(maxMem, 0);
+  if(dynVarOrdering == 1){
+    Dd::enableDynamicOrdering(mgr);
+  }
+
+  bool solution = solveCnf(joinRoot, cnfVarToDdVarMap, ddVarToCnfVarMap, mgr);
+  if (!solution){
+    cout << "c Formula is UNSAT. Exiting..\n";
+    exit(1);
+  }
+  cout << "c Done constructing SatFilter. Applying SatFilter...\n";
+  filterBdds(joinRoot,cnfVarToDdVarMap,ddVarToCnfVarMap,Dd::getOneBdd(mgr),mgr);
+  cout << "c Done Applying SatFilter!\n";
+  //printVarDurations();
+  //printVarDdSizes();
+
+  // printRow("maxDiagramLeaves", Dd::maxDdLeafCount);
+  // printRow("maxDiagramNodes", Dd::maxDdNodeCount);
+
+  // if (verboseSolving >= 1) {
+  //   printRow("formula is SAT? 1/0: ", solution);
+  // }
+
 }
 
 /* class Executor =========================================================== */
@@ -1325,8 +1572,8 @@ Executor::Executor(const JoinNonterminal* joinRoot, Int ddVarOrderHeuristic, Int
     printRow("pruningSeconds", Dd::pruningDuration);
   }
 
-  printRow("maxDiagramLeaves", Dd::maxDdLeafCount);
-  printRow("maxDiagramNodes", Dd::maxDdNodeCount);
+  // printRow("maxDiagramLeaves", Dd::maxDdLeafCount);
+  // printRow("maxDiagramNodes", Dd::maxDdNodeCount);
 
   if (verboseSolving >= 1) {
     printRow("apparentSolution", solution);
@@ -1486,6 +1733,10 @@ string OptionDict::helpDynamicVarOrdering() {
   return "dynamic variable ordering. DD_PACKAGE must be CUDD. 0/1. Default 0.";
 }
 
+string OptionDict::helpSatFilter() {
+  return "0 - Disable SatFilter (Only Executor) / 1 - Only SatFilter / 2 - SatFilter + Executor. Default 0.";
+}
+
 void OptionDict::runCommand() const {
   if (verboseSolving >= 1) {
     cout << "c processing command-line options...\n";
@@ -1571,9 +1822,13 @@ void OptionDict::runCommand() const {
         sylvan::gmp_init();
       }
     }
-
-    Executor executor(joinTreeProcessor.getJoinTreeRoot(), ddVarOrderHeuristic, sliceVarOrderHeuristic);
-
+    if (satFilter > 0){
+      SatFilter satfilter(joinTreeProcessor.getJoinTreeRoot(), ddVarOrderHeuristic);
+    }
+    if (satFilter != 1) {
+      Executor executor(joinTreeProcessor.getJoinTreeRoot(), ddVarOrderHeuristic, sliceVarOrderHeuristic);
+    }
+    
     if (ddPackage == SYLVAN_PACKAGE) { // quits Sylvan
       sylvan::sylvan_quit();
       lace_exit();
@@ -1607,6 +1862,7 @@ OptionDict::OptionDict(int argc, char** argv) {
     (THREAD_SLICE_COUNT_OPTION, "thread slice count" + requireDdPackage(CUDD_PACKAGE) + "; int", value<Int>()->default_value("1"))
     (RANDOM_SEED_OPTION, "random seed; int", value<Int>()->default_value("0"))
     (DYN_ORDER_OPTION, helpDynamicVarOrdering(), value<Int>()->default_value("0"))
+    (SAT_FILTER_OPTION, helpSatFilter(), value<Int>()->default_value("0"))
     (DD_VAR_OPTION, helpDiagramVarOrderHeuristic(), value<Int>()->default_value(to_string(MCS_HEURISTIC)))
     (SLICE_VAR_OPTION, helpSliceVarOrderHeuristic(), value<Int>()->default_value(to_string(BIGGEST_NODE_HEURISTIC)))
     (MEM_SENSITIVITY_OPTION, "memory sensitivity (in MB) for reporting usage" + requireDdPackage(CUDD_PACKAGE) + "; float", value<Float>()->default_value("1e3"))
@@ -1688,6 +1944,9 @@ OptionDict::OptionDict(int argc, char** argv) {
     
     dynVarOrdering = result[DYN_ORDER_OPTION].as<Int>();
     assert(dynVarOrdering == 0 || ddPackage == CUDD_PACKAGE);
+
+    satFilter = result[SAT_FILTER_OPTION].as<Int>();
+    assert(satFilter >= 0 && satFilter <=2);
 
     ddVarOrderHeuristic = result[DD_VAR_OPTION].as<Int>();
     assert(CNF_VAR_ORDER_HEURISTICS.contains(abs(ddVarOrderHeuristic)));

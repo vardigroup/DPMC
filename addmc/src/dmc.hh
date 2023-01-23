@@ -249,6 +249,7 @@ public:
   bool isTrue() const; // must be Bdd
   Set<Int> getBddSupport() const;
   Dd getFilteredBdd(const Dd, const Cudd* mgr);
+  Dd getAdd();
 };
 
 class Executor {
@@ -326,7 +327,8 @@ public:
     const Assignment& maximizer
   );
 
-  Executor(const JoinNonterminal* joinRoot, Int ddVarOrderHeuristic, Int sliceVarOrderHeuristic);
+  Executor(const JoinNonterminal* joinRoot, Int ddVarOrderHeuristic, Int sliceVarOrderHeuristic, const Cudd* mgr, const Map<Int, Int>& cnfVarToDdVarMap,
+    const vector<Int>& ddVarToCnfVarMap);
 };
 
 class SatFilter{
@@ -369,7 +371,8 @@ class SatFilter{
     const Cudd* mgr
   );
 
-  SatFilter(const JoinNonterminal* joinRoot, Int ddVarOrderHeuristic);
+  SatFilter(const JoinNonterminal* joinRoot, Int ddVarOrderHeuristic, const Cudd* mgr, const Map<Int, Int>& cnfVarToDdVarMap,
+    const vector<Int>& ddVarToCnfVarMap);
 };
 
 class OptionRequirement {

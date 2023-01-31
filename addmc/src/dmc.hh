@@ -250,10 +250,13 @@ public:
   Set<Int> getBddSupport() const;
   Dd getFilteredBdd(const Dd, const Cudd* mgr);
   Dd getAdd();
+  Dd getAddSumAbstract(const Set<Int>& cnfVars, const Map<Int,Int>& cnfVarToDdVarMap, Map<Int, Number>& literalWeights, const Cudd* mgr);
 };
 
 class Executor {
 public:
+  static vector<Int> d2cMap;
+
   static vector<pair<Int, Dd>> maximizationStack; // pair<DD var, derivative sign>
 
   static Map<Int, Float> varDurations; // CNF var |-> total execution time in seconds

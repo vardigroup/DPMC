@@ -40,8 +40,8 @@ cnf = cnf2
 '''
 
 pString = os.environ['DPMC']+'lg/build/lg "'+os.environ['DPMC']+'lg/solvers/htd-master/build/bin/htd_main -s 1234567 --print-progress --strategy challenge  --opt width --iterations 0  --preprocessing full --patience 20" < '+cnf+' | '
+eString = 'valgrind --tool=callgrind '+os.environ['DPMC']+'dmc/dmc'+dmc+' --pw='+str(pw)+' --cf='+cnf+' --dp=c --lc=0 --wc=1 --vs=2 --dy=0 --mm=6000 --jp=a --sa='+str(sa)
 
-eString = os.environ['DPMC']+'dmc/dmc'+dmc+' --pw='+str(pw)+' --cf='+cnf+' --dp=c --lc=1 --wc=1 --vs=2 --dy=1 --mm=6000 --jp=a --sa='+str(sa)
 
 cmd3 = os.environ['DPMC']+'htb/htb --cf='+cnf+' --cv=7 | '+os.environ['DPMC']+'dmc/dmc'+dmc+' --pw='+str(pw)+' --cf='+cnf+' --dp=c --dv=7 --lc=1 --wc=1 --vs=2 --pc=1 --dy=1'
 #cmd3 = os.environ['DPMC']+'lg/build/lg "'+os.environ['DPMC']+'lg/solvers/flow-cutter-pace17/flow_cutter_pace17 -s 1234567 -p 100" < '+cnf+' | '+os.environ['DPMC']+'dmc/dmc'+dmc+' --pw='+str(pw)+' --cf='+cnf+' --dp=c --lc=1 --wc=1 --vs=2 --pc=1 --dy=1'

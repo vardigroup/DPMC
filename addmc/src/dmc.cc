@@ -707,6 +707,75 @@ Dd Dd::getAdd(){
   }
 }
 
+template<typename TReal>
+static bool isApproximatelyEqual(TReal a, TReal b, TReal tolerance = std::numeric_limits<TReal>::epsilon())
+{
+    TReal diff = std::fabs(a - b);
+    if (diff <= tolerance)
+        return true;
+
+    if (diff < std::fmax(std::fabs(a), std::fabs(b)) * tolerance)
+        return true;
+
+    return false;
+}
+
+Float getNegWt(Int ddVar){
+  assert (ddVar>=0);
+  Int cnfVar = Executor::d2cMap.at(ddVar);
+  Float negWt = JoinNode::cnf.literalWeights.at(-cnfVar).fraction;
+  Float posWt = JoinNode::cnf.literalWeights.at(cnfVar).fraction;
+  if (negWt == 1){
+    assert (posWt == 1);
+  } else{
+    if (!isApproximatelyEqual(negWt + posWt,1.0l,0.001l)){
+      cout<<"Sum not to 1!!  "<<cnfVar<<":"<<ddVar<<"  "<<posWt<<":"<<negWt<<"\n";
+      exit(1);
+    }
+  }
+  return logCounting ? log10l(negWt) : negWt;
+}
+
+Dd Dd::getAddSumAbstract(const Set<Int>& cnfVars, const Map<Int,Int>& cnfVarToDdVarMap, Map<Int, Number>& literalWeights, const Cudd* mgr){
+  if (ddPackage == CUDD_PACKAGE){
+    ADD wCube = mgr->addOne();
+    for (auto& cnfVar : cnfVars){
+      Int ddVar = cnfVarToDdVarMap.at(cnfVar);
+      ADD v = mgr->addVar(ddVar);
+      wCube *= v;
+    //   if(ddVar==227){
+    //     cout<<"227!!!\n";
+    //   }
+    //   // cout<<ddVar<<":"<<var<<":"<<val<<" ";
+    //   Float negWt = 0;
+    //   if (weightedCounting){
+    //     negWt = literalWeights.at(-cnfVar).fraction;
+    //     if (negWt == 1){
+    //       assert (literalWeights.at(cnfVar).fraction==1);
+    //       negWt = 0;
+    //     }
+    //     cout<<ddVar<<":"<<negWt<<"  "<<literalWeights.at(-cnfVar).fraction<<":"<<literalWeights.at(cnfVar).fraction<<"\n"; 
+    //   }
+    //   wCube = v.Ite(wCube,mgr->constant(negWt));
+    }
+    // cout<<"\n";
+    // cout<<"EA\n";
+    return cuadd.WeightedExistAbstract(wCube, getNegWt);
+    // cout<<"EA done\n";
+  } else{
+    vector<Int> ddVars;
+    for(auto& cnfVar : cnfVars){
+      ddVars.push_back(cnfVarToDdVarMap.at(cnfVar));
+    }
+    sylvan::BddSet b;
+    for (auto& v : ddVars){
+      b.add((uint32_t)v);
+    }
+    return mtbdd.AbstractPlus(b);
+    
+  }
+}
+
 const Cudd* Dd::newMgr(Float mem, Int threadIndex) {
   assert(ddPackage == CUDD_PACKAGE);
   Cudd* mgr = new Cudd(
@@ -991,7 +1060,7 @@ bool SatFilter::filterBdds(const JoinNode* joinNode, const Map<Int, Int>& cnfVar
     hasNewClsDescendents |= (filterBdds(child, cnfVarToDdVarMap, ddVarToCnfVarMap, *d, mgr)); // bitwise & so that no short-circuiting happens
   }
   if (hasNewClsDescendents && bottomMost){
-
+    //do nothing
   } else{
     *(Dd*)(((JoinNode*) joinNode)->dd) = Dd::getOneBdd(mgr);
   }
@@ -1024,6 +1093,8 @@ SatFilter::SatFilter(const JoinNonterminal* joinRoot, Int ddVarOrderHeuristic, c
 }
 
 /* class Executor =========================================================== */
+
+vector<Int> Executor::d2cMap;
 
 vector<pair<Int, Dd>> Executor::maximizationStack;
 
@@ -1171,6 +1242,18 @@ Dd Executor::solveSubtree(const JoinNode* joinNode, const Map<Int, Int>& cnfVarT
   //     cout << r << " " << ddVarToCnfVarMap.at(r) << "\n";
   //   }
   // }
+  
+  if (!logCounting){
+  // if (false){
+    // if (false){
+    dd = dd.getAddSumAbstract(joinNode->projectionVars,cnfVarToDdVarMap, JoinNode::cnf.literalWeights, mgr);
+    const Set<Int> sup = dd.getSupport();
+    for (auto& cnfVar:joinNode->projectionVars){
+      Int ddVar = cnfVarToDdVarMap.at(cnfVar);
+      assert (!sup.contains(ddVar));
+    }
+  } else{
+
   for (Int cnfVar : joinNode->projectionVars) {
     Int ddVar = cnfVarToDdVarMap.at(cnfVar);
 
@@ -1197,7 +1280,7 @@ Dd Executor::solveSubtree(const JoinNode* joinNode, const Map<Int, Int>& cnfVarT
       }
     }
   }
-
+  }
   updateVarDurations(joinNode, nonterminalStartPoint);
   updateVarDdSizes(joinNode, dd);
 
@@ -1891,6 +1974,7 @@ void OptionDict::runCommand() const {
       Int cnfVar = ddVarToCnfVarMap.at(ddVar);
       cnfVarToDdVarMap[cnfVar] = ddVar;
     }
+    Executor::d2cMap = ddVarToCnfVarMap;
     // for (auto& i : cnfVarToDdVarMap){
     //   cout<< i.first << " " << i.second << "\n";
     // }
@@ -1916,6 +2000,15 @@ void OptionDict::runCommand() const {
 }
 
 OptionDict::OptionDict(int argc, char** argv) {
+  // print all command line arguments
+    std::cout << "name of program: " << argv[0] << '\n' ;
+
+    if( argc > 1 )
+    {
+        std::cout << "there are " << argc-1 << " (more) arguments, they are:\n" ;
+
+        std::copy( argv+1, argv+argc, std::ostream_iterator<const char*>( std::cout, "\n" ) ) ;
+    }
   cxxopts::Options options("dmc", "Diagram Model Counter (reads join tree from stdin)");
   options.set_width(118);
 
@@ -1973,7 +2066,10 @@ OptionDict::OptionDict(int argc, char** argv) {
     logCounting = result[LOG_COUNTING_OPTION].as<Int>(); // global var
     assert(!logCounting || ddPackage == CUDD_PACKAGE);
 
-    logBound = stold(result[LOG_BOUND_OPTION].as<string>()); // global var
+    // cout<<"Logbound:" << result[LOG_BOUND_OPTION].as<string>()<<"\n";
+    // logBound = stold(result[LOG_BOUND_OPTION].as<string>()); // global var
+    // cout << logBound << " "<< -INF<< " " <<(logBound == -INF) <<"\n";
+    logBound = -INF;
     assert(logBound == -INF || !projectedCounting);
     assert(logBound == -INF || existRandom);
     assert(logBound == -INF || logCounting);

@@ -760,7 +760,7 @@ Dd Dd::getAddSumAbstract(const Set<Int>& cnfVars, const Map<Int,Int>& cnfVarToDd
     }
     // cout<<"\n";
     // cout<<"EA\n";
-    return cuadd.WeightedExistAbstract(wCube, getNegWt);
+    return logCounting? cuadd.WeightedLogSumExistAbstract(wCube, getNegWt) : cuadd.WeightedExistAbstract(wCube, getNegWt);
     // cout<<"EA done\n";
   } else{
     vector<Int> ddVars;
@@ -1243,7 +1243,7 @@ Dd Executor::solveSubtree(const JoinNode* joinNode, const Map<Int, Int>& cnfVarT
   //   }
   // }
   
-  if (!logCounting){
+  if (!existRandom && !projectedCounting){
   // if (false){
     // if (false){
     dd = dd.getAddSumAbstract(joinNode->projectionVars,cnfVarToDdVarMap, JoinNode::cnf.literalWeights, mgr);

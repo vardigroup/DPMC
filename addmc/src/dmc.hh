@@ -57,6 +57,7 @@ const string THREAD_SLICE_COUNT_OPTION = "ts";
 const string DD_VAR_OPTION = "dv";
 const string DYN_ORDER_OPTION = "dy";
 const string SAT_FILTER_OPTION = "sa";
+const string ATOMIC_ABSTRACT_OPTION = "aa";
 const string SLICE_VAR_OPTION = "sv";
 const string MEM_SENSITIVITY_OPTION = "ms";
 const string MAX_MEM_OPTION = "mm";
@@ -83,10 +84,12 @@ const map<Int, string> MAXIMIZER_FORMATS = {
 const string ARBITRARY_PAIR = "a";
 const string BIGGEST_PAIR = "b";
 const string SMALLEST_PAIR = "s";
+const string FCFS = "f";
 const map<string, string> JOIN_PRIORITIES = {
   {ARBITRARY_PAIR, "ARBITRARY_PAIR"},
   {BIGGEST_PAIR, "BIGGEST_PAIR"},
-  {SMALLEST_PAIR, "SMALLEST_PAIR"}
+  {SMALLEST_PAIR, "SMALLEST_PAIR"},
+  {FCFS, "FCFS"}
 };
 
 /* global vars ============================================================== */
@@ -111,6 +114,7 @@ extern Int verboseProfiling; // 1: sorted stats for CNF vars, 2: unsorted stats 
 extern Int dotFileIndex;
 
 extern Int dynVarOrdering;
+extern bool atomicAbstract;
 
 /* classes for processing join trees ======================================== */
 
@@ -255,6 +259,9 @@ public:
 
 class Executor {
 public:
+  static TimePoint executorStartPoint;
+  static Int joinNodesProcessed;
+
   static vector<Int> d2cMap;
 
   static vector<pair<Int, Dd>> maximizationStack; // pair<DD var, derivative sign>
@@ -347,6 +354,10 @@ class SatFilter{
   static void printVarDurations();
   static void printVarDdSizes();
   */
+  static TimePoint constructFilterStartPoint;
+  static TimePoint satFilterStartPoint;
+  static Int joinNodesProcessed;
+
   static Dd getClauseBdd(
     const Map<Int, Int>& cnfVarToDdVarMap,
     const Clause& clause,
@@ -412,7 +423,8 @@ public:
   static string helpJoinPriority();
   static string helpDynamicVarOrdering();
   static string helpSatFilter();
-  
+  static string helpAtomicAbstract();
+
   void runCommand() const;
 
   OptionDict(int argc, char** argv);

@@ -333,6 +333,7 @@ public:
   bool isMc21ShowLine(const vector<string> &words) const; // c p show <vars> [0]
   bool isMc21WeightLine(const vector<string> &words) const; // c p weight <literal> <weight> [0]
 
+  void completeImplicitLiteralWeight(Int literal);
   void completeLiteralWeights();
 
   void printStats() const;

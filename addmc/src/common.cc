@@ -641,20 +641,23 @@ bool Cnf::isMc21WeightLine(const vector<string> &words) const {
   }
 }
 
+void Cnf::completeImplicitLiteralWeight(Int literal) {
+  if (!literalWeights.contains(literal) && literalWeights.contains(-literal)){
+    literalWeights[literal] = Number("1") - literalWeights.at(-literal);
+    if (literalWeights[literal] < Number()) {
+      throw MyError("literal ", literal, " has implicit weight ", literalWeights[literal], " < 0");
+    }
+  }
+}
+
 void Cnf::completeLiteralWeights() {
   if (weightedCounting) {
     for (Int var = 1; var <= declaredVarCount; var++) {
+      completeImplicitLiteralWeight(var);
+      completeImplicitLiteralWeight(-var);
       if (!literalWeights.contains(var) && !literalWeights.contains(-var)) {
         literalWeights[var] = Number("1");
         literalWeights[-var] = Number("1");
-      }
-      else if (!literalWeights.contains(var)) {
-        assert(literalWeights.at(-var) < Number("1"));
-        literalWeights[var] = Number("1") - literalWeights.at(-var);
-      }
-      else if (!literalWeights.contains(-var)) {
-        assert(literalWeights.at(var) < Number("1"));
-        literalWeights[-var] = Number("1") - literalWeights.at(var);
       }
     }
   }
@@ -761,8 +764,8 @@ void Cnf::readCnfFile(const string& filePath) {
         }
 
         Number weight(words.at(4));
-        if (weight <= Number()) {
-          throw MyError("weight must be positive | line ", lineIndex);
+        if (weight < Number()) {
+          throw MyError("literal weight must be non-negative | line ", lineIndex);
         }
         literalWeights[literal] = weight;
       }

@@ -387,7 +387,8 @@ Map<Int, Number> Cnf::getUnprunableWeights() const {
 }
 
 void Cnf::printLiteralWeight(Int literal, const Number& weight) {
-  cout << "c  weight " << right << setw(5) << literal << ": " << weight << "\n";
+  cout << "c  weight " << right << setw(5) << literal << ": ";
+  cout << (weight < 0 ? "" : " ") << weight << "\n";
 }
 
 void Cnf::printLiteralWeights() const {
@@ -765,7 +766,8 @@ void Cnf::readCnfFile(const string& filePath) {
 
         Number weight(words.at(4));
         if (weight < Number()) {
-          throw MyError("literal weight must be non-negative | line ", lineIndex);
+          cout << WARNING << "literal weight is negative | line " << lineIndex << ": " << line << "\n";
+          // throw MyError("literal weight must be non-negative | line ", lineIndex);
         }
         literalWeights[literal] = weight;
       }

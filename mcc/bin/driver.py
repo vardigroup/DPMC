@@ -135,7 +135,7 @@ def preprocessCnf(megs, cnf, outDirPath, task, mp, vs):
                 if line.startswith('c p'):
                     cpLines.append(line)
 
-    outFilePath = os.path.join(outDirPath, 'preprocessed.cnf')
+    outFilePath = os.path.join(outDirPath, 'preprocessed_' + os.path.basename(cnf))
     cmd.append(f'>{outFilePath}')
 
     if not vs:

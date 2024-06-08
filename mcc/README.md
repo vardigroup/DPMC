@@ -1,17 +1,17 @@
-# Model Counting Competition 2022: DPMC and ProCount
+# Model Counting Competition 2024: DPMC and ProCount
 - This repository implements DPMC (published at CP 2020) and ProCount (published at SAT 2021).
-  - DPMC competed in Tracks 1 and 2 (unprojected counting).
-  - ProCount competed in Tracks 3 and 4 (projected counting).
-- The preprocessor [pmc v1.1](http://www.cril.univ-artois.fr/KC/pmc.html) was used on all tracks.
+  - DPMC competes in Tracks 1 and 2 (unprojected counting).
+  - ProCount competes in Tracks 3 and 4 (projected counting).
+- The preprocessor [pmc v1.1](http://www.cril.univ-artois.fr/KC/pmc.html) is used on all tracks.
 
 --------------------------------------------------------------------------------
 
-### Downloading
+## Downloading
 [Solver](https://github.com/vardigroup/DPMC/releases/download/mc-2022/dpmc.zip)
 
 --------------------------------------------------------------------------------
 
-### Building
+## Building
 ```bash
 make dpmc.zip
 ```
@@ -29,22 +29,30 @@ The path to a benchmark must be given as the first positional argument `$1` (`st
 
 #### Track 1
 ```bash
-bin/driver.py --cluster=tu --maxrss=4 --tmpdir=bin --task=mc --mp=1 test.cnf
+bin/driver.py --cluster=tu --maxrss=4 --tmpdir=tmp1 --task=mc --mp=1 instances/test.cnf
+
+bin/driver.py --cluster=tu --maxrss=4 --tmpdir=tmp1 --task=mc --mp=1 instances/mc2024_track1_029.cnf
 ```
 
 #### Track 2
 ```bash
-bin/driver.py --cluster=tu --maxrss=4 --tmpdir=bin --task=wmc --mp=0 test.cnf
+bin/driver.py --cluster=tu --maxrss=4 --tmpdir=tmp2 --task=wmc --mp=0 instances/test.cnf
+
+bin/driver.py --cluster=tu --maxrss=4 --tmpdir=tmp2 --task=wmc --mp=0 instances/mc2024_track2-random_029.cnf
 ```
 
 #### Track 3
 ```bash
-bin/driver.py --cluster=tu --maxrss=4 --tmpdir=bin --task=pmc --mp=1 test.cnf
+bin/driver.py --cluster=tu --maxrss=4 --tmpdir=tmp3 --task=pmc --mp=1 instances/test.cnf
+
+bin/driver.py --cluster=tu --maxrss=4 --tmpdir=tmp3 --task=pmc --mp=1 instances/mc2024_track3_131.cnf
 ```
 
 #### Track 4
 ```bash
-bin/driver.py --cluster=tu --maxrss=4 --tmpdir=bin --task=pwmc --mp=0 test.cnf
+bin/driver.py --cluster=tu --maxrss=4 --tmpdir=tmp4 --task=pwmc --mp=0 instances/test.cnf
+
+bin/driver.py --cluster=tu --maxrss=4 --tmpdir=tmp4 --task=pwmc --mp=0 instances/mc2024_track4_015.cnf
 ```
 
 --------------------------------------------------------------------------------
@@ -55,25 +63,41 @@ bin/driver.py --cluster=tu --maxrss=4 --tmpdir=bin --task=pwmc --mp=0 test.cnf
 
 #### Track 1
 ```bash
-export STAREXEC_MAX_MEM=4000 && bin/starexec_run_1mp1 test.cnf $2
+export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track1_pre1_mp1 instances/test.cnf tmp1
+
+export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track1_pre1_mp1 instances/mc2024_track1_029.cnf tmp1
+# c s log10-estimate 16.8941
+# c seconds                       576.781
 ```
 
 #### Track 2
 ```bash
-export STAREXEC_MAX_MEM=4000 && bin/starexec_run_2mp0 test.cnf $2
+export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track2_pre1_mp0 instances/test.cnf tmp2
+
+export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track2_pre1_mp0 instances/mc2024_track2-random_029.cnf tmp2
+# c s log10-estimate 13.5112
+# c seconds                       11.407
 ```
 
 #### Track 3
 ```bash
-export STAREXEC_MAX_MEM=4000 && bin/starexec_run_3mp1 test.cnf $2
+export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track3_pre1_mp1 instances/test.cnf tmp3
+
+export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track3_pre1_mp1 instances/mc2024_track3_131.cnf tmp3
+# c s log10-estimate 1.53148
+# c seconds                       0.002
 ```
 
 #### Track 4
 ```bash
-export STAREXEC_MAX_MEM=4000 && bin/starexec_run_4mp0 test.cnf $2
+export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track4_pre1_mp0 instances/test.cnf tmp4
+
+export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track4_pre1_mp0 instances/mc2024_track4_015.cnf tmp4
+# c s log10-estimate 0
+# c seconds                       0.026
 ```
 
 --------------------------------------------------------------------------------
 
-### Notes
+## Notes
 Arguments and environment variables not mentioned above are ignored.

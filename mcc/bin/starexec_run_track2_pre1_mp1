@@ -1,8 +1,8 @@
 #!/bin/bash
 
 `dirname $0`/driver.py \
-  --task=pmc \
+  --task=wmc \
   --pre=1 \
+  --mp=1 \
   --width=100 \
-  --mp=0 \
   $@ \

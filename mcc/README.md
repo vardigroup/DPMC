@@ -39,6 +39,8 @@ bin/driver.py --cluster=tu --maxrss=4 --tmpdir=tmp1 --task=mc --mp=1 instances/m
 bin/driver.py --cluster=tu --maxrss=4 --tmpdir=tmp2 --task=wmc --mp=0 instances/test.cnf
 
 bin/driver.py --cluster=tu --maxrss=4 --tmpdir=tmp2 --task=wmc --mp=0 instances/mc2024_track2-random_029.cnf
+
+bin/driver.py --cluster=tu --maxrss=4 --tmpdir=tmp2 --task=wmc --mp=0 instances/mc2024_track2-bonus_175.cnf
 ```
 
 #### Track 3
@@ -77,6 +79,8 @@ export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track2_pre1_mp0 instances/test.
 export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track2_pre1_mp0 instances/mc2024_track2-random_029.cnf tmp2
 # c s log10-estimate 13.5112
 # c seconds                       11.407
+
+export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track2_pre1_mp0 instances/mc2024_track2-bonus_175.cnf tmp2
 ```
 
 #### Track 3

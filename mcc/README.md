@@ -92,6 +92,14 @@ export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track3_pre1_mp1 instances/mc202
 ```bash
 export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track4_pre1_mp0 instances/test.cnf tmp4
 
+export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track4_pre1_mp0 instances/mc2024_track4_047.cnf tmp4
+# c s log10-estimate -18.7206
+# c seconds                       0.04
+
+export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track4_pre1_mp0 instances/mc2024_track4_053.cnf tmp4
+# c s log10-estimate -49.5817
+# c seconds                       48.122
+
 export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track4_pre1_mp0 instances/mc2024_track4_055.cnf tmp4
 # c s log10-estimate -78.945
 # c seconds                       296.454

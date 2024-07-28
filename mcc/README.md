@@ -3,6 +3,8 @@
   - DPMC competes in Tracks 1 and 2 (unprojected counting).
   - ProCount competes in Tracks 3 and 4 (projected counting).
 - The preprocessor [pmc v1.1](http://www.cril.univ-artois.fr/KC/pmc.html) is used on all tracks.
+- In some instances of Track 4, non-show variables are weighted.
+  To overwrite these unintentional weights with 1, we use the option `dmc --wc=2`.
 
 --------------------------------------------------------------------------------
 
@@ -93,16 +95,16 @@ export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track3_pre1_mp1 instances/mc202
 export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track4_pre1_mp0 instances/test.cnf tmp4
 
 export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track4_pre1_mp0 instances/mc2024_track4_047.cnf tmp4
-# c s log10-estimate -18.7206
-# c seconds                       0.04
+# c s log10-estimate -1.39666
+# c seconds                       0.023
 
 export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track4_pre1_mp0 instances/mc2024_track4_053.cnf tmp4
-# c s log10-estimate -49.5817
-# c seconds                       48.122
+# c s log10-estimate 0
+# c seconds                       0.053
 
 export STAREXEC_MAX_MEM=4000 && bin/starexec_run_track4_pre1_mp0 instances/mc2024_track4_055.cnf tmp4
-# c s log10-estimate -78.945
-# c seconds                       296.454
+# c s log10-estimate 0
+# c seconds                       0.074
 ```
 
 --------------------------------------------------------------------------------

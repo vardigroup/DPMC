@@ -11,22 +11,22 @@ FILES0 = bin/starexec_run_track* $(BIN_FILES) $(DOCS)
 $(ZIP0): $(FILES0)
 	zip $(ZIP0) -FS $(FILES0)
 
-ZIP1 = dpmc1.zip
+ZIP1 = dpmc_track1.zip
 FILES1 = bin/starexec_run_track1_pre*_mp* $(BIN_FILES) $(DOCS)
 $(ZIP1): $(FILES1)
 	zip $(ZIP1) -FS $(FILES1)
 
-ZIP2 = dpmc2.zip
+ZIP2 = dpmc_track2.zip
 FILES2 = bin/starexec_run_track2_pre*_mp* $(BIN_FILES) $(DOCS)
 $(ZIP2): $(FILES2)
 	zip $(ZIP2) -FS $(FILES2)
 
-ZIP3 = dpmc3.zip
+ZIP3 = dpmc_track3.zip
 FILES3 = bin/starexec_run_track3_pre*_mp* $(BIN_FILES) $(DOCS)
 $(ZIP3): $(FILES3)
 	zip $(ZIP3) -FS $(FILES3)
 
-ZIP4 = dpmc4.zip
+ZIP4 = dpmc_track4.zip
 FILES4 = bin/starexec_run_track4_pre*_mp* $(BIN_FILES) $(DOCS)
 $(ZIP4): $(FILES4)
 	zip $(ZIP4) -FS $(FILES4)

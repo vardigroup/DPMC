@@ -1003,7 +1003,7 @@ void Executor::printSatRow(const Number& solution, bool unsatFlag, size_t keyWid
   }
   else if (logCounting) {
     if (solution == Number(-INF)) {
-      if (!weightedCounting) {
+      if (weightedCountingMode == WeightedCountingMode::NO_VARS) {
         satisfiability = UNSAT_WORD;
       }
     }
@@ -1013,7 +1013,7 @@ void Executor::printSatRow(const Number& solution, bool unsatFlag, size_t keyWid
   }
   else {
     if (solution == Number()) {
-      if (!weightedCounting || multiplePrecision) {
+      if (weightedCountingMode == WeightedCountingMode::NO_VARS || multiplePrecision) {
         satisfiability = UNSAT_WORD;
       }
     }
@@ -1029,7 +1029,7 @@ void Executor::printTypeRow(size_t keyWidth) {
   string type = "maximum";
   if (!existRandom) {
     type = "mc";
-    if (weightedCounting) {
+    if (weightedCountingMode > WeightedCountingMode::NO_VARS) {
       type = "w" + type;
     }
     if (projectedCounting) {
@@ -1046,7 +1046,7 @@ void Executor::printEstRow(const Number& solution, size_t keyWidth) {
 void Executor::printArbRow(const Number& solution, bool frac, size_t keyWidth) {
   string key = "s exact arb ";
 
-  if (weightedCounting) {
+  if (weightedCountingMode > WeightedCountingMode::NO_VARS) {
     if (frac) {
       printRow(key + "frac", solution, keyWidth);
     }
@@ -1074,7 +1074,7 @@ Number Executor::printAdjustedSolutionRows(const Number& solution, bool unsatFla
 
   if (multiplePrecision) {
     printArbRow(adjustedSolution, false, keyWidth); // notation = weighted ? int : float
-    if (weightedCounting) {
+    if (weightedCountingMode > WeightedCountingMode::NO_VARS) {
       printArbRow(adjustedSolution, true, keyWidth); // notation = frac
     }
   }
@@ -1258,6 +1258,17 @@ string OptionDict::requireDdPackage(const string& ddPackageArg) {
   return requireOption(DD_PACKAGE_OPTION, ddPackageArg);
 }
 
+string OptionDict::helpWeightedCounting() {
+  string s = "weighted counting: ";
+  for (auto it = WEIGHTED_COUNTING_MODES.begin(); it != WEIGHTED_COUNTING_MODES.end(); it++) {
+    s += to_string(static_cast<Int>(it->first)) + "/" + it->second;
+    if (next(it) != WEIGHTED_COUNTING_MODES.end()) {
+      s += ", ";
+    }
+  }
+  return s + "; int";
+}
+
 string OptionDict::helpDdPackage() {
   string s = "diagram package: ";
   for (auto it = DD_PACKAGES.begin(); it != DD_PACKAGES.end(); it++) {
@@ -1353,7 +1364,7 @@ void OptionDict::runCommand() const {
   if (verboseSolving >= 1) {
     cout << "c processing command-line options...\n";
     printRow("cnfFile", cnfFilePath);
-    printRow("weightedCounting", weightedCounting);
+    printRow("weightedCountingMode", weightedCountingMode);
     printRow("projectedCounting", projectedCounting);
     printRow("existRandom", existRandom);
     printRow("diagramPackage", DD_PACKAGES.at(ddPackage));
@@ -1377,7 +1388,7 @@ void OptionDict::runCommand() const {
     if (maximizerFormat) {
       printRow("maximizerVerification", maximizerVerification);
     }
-    if (!weightedCounting && maximizerFormat) {
+    if (weightedCountingMode == WeightedCountingMode::NO_VARS && maximizerFormat) {
       printRow("substitutionMaximization", substitutionMaximization);
     }
     printRow("plannerWaitSeconds", plannerWaitDuration);
@@ -1448,12 +1459,12 @@ void OptionDict::runCommand() const {
 
 OptionDict::OptionDict(int argc, char** argv) {
   cxxopts::Options options("dmc", "Diagram Model Counter (reads join tree from stdin)");
-  options.set_width(118);
+  options.set_width(125);
 
   using cxxopts::value;
   options.add_options()
     (CNF_FILE_OPTION, "CNF file path; string (required)", value<string>())
-    (WEIGHTED_COUNTING_OPTION, "weighted counting: 0, 1; int", value<Int>()->default_value("1"))
+    (WEIGHTED_COUNTING_OPTION, helpWeightedCounting(), value<Int>()->default_value("1"))
     (PROJECTED_COUNTING_OPTION, "projected counting (graded join tree): 0, 1; int", value<Int>()->default_value("0"))
     (EXIST_RANDOM_OPTION, "exist-random SAT (max-sum instead of sum-max): 0, 1; int", value<Int>()->default_value("0"))
     (DD_PACKAGE_OPTION, helpDdPackage(), value<string>()->default_value(CUDD_PACKAGE))
@@ -1490,7 +1501,7 @@ OptionDict::OptionDict(int argc, char** argv) {
   else {
     cnfFilePath = result[CNF_FILE_OPTION].as<string>();
 
-    weightedCounting = result[WEIGHTED_COUNTING_OPTION].as<Int>(); // global var
+    weightedCountingMode = static_cast<WeightedCountingMode>(result[WEIGHTED_COUNTING_OPTION].as<Int>()); // global var
 
     projectedCounting = result[PROJECTED_COUNTING_OPTION].as<Int>(); // global var
 
@@ -1529,7 +1540,7 @@ OptionDict::OptionDict(int argc, char** argv) {
     assert(!maximizerVerification || maximizerFormat);
 
     substitutionMaximization = result[SUBSTITUTION_MAXIMIZATION_OPTION].as<Int>(); // global var
-    assert(!substitutionMaximization || !weightedCounting);
+    assert(!substitutionMaximization || weightedCountingMode == WeightedCountingMode::NO_VARS);
     assert(!substitutionMaximization || maximizerFormat);
 
     plannerWaitDuration = result[PLANNER_WAIT_OPTION].as<Float>();

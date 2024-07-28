@@ -2,7 +2,7 @@
 
 /* global vars ============================================================== */
 
-bool weightedCounting;
+WeightedCountingMode weightedCountingMode;
 bool projectedCounting;
 Int randomSeed;
 bool multiplePrecision;
@@ -642,6 +642,11 @@ bool Cnf::isMc21WeightLine(const vector<string> &words) const {
   }
 }
 
+void Cnf::setDefaultLiteralWeights(Int var) {
+  literalWeights[var] = Number("1");
+  literalWeights[-var] = Number("1");
+}
+
 void Cnf::completeImplicitLiteralWeight(Int literal) {
   if (!literalWeights.contains(literal) && literalWeights.contains(-literal)){
     literalWeights[literal] = Number("1") - literalWeights.at(-literal);
@@ -652,20 +657,23 @@ void Cnf::completeImplicitLiteralWeight(Int literal) {
 }
 
 void Cnf::completeLiteralWeights() {
-  if (weightedCounting) {
+  if (weightedCountingMode == WeightedCountingMode::NO_VARS) {
     for (Int var = 1; var <= declaredVarCount; var++) {
-      completeImplicitLiteralWeight(var);
-      completeImplicitLiteralWeight(-var);
-      if (!literalWeights.contains(var) && !literalWeights.contains(-var)) {
-        literalWeights[var] = Number("1");
-        literalWeights[-var] = Number("1");
-      }
+      setDefaultLiteralWeights(var);
     }
   }
   else {
     for (Int var = 1; var <= declaredVarCount; var++) {
-      literalWeights[var] = Number("1");
-      literalWeights[-var] = Number("1");
+      completeImplicitLiteralWeight(var);
+      completeImplicitLiteralWeight(-var);
+      if (!literalWeights.contains(var) && !literalWeights.contains(-var)) {
+        setDefaultLiteralWeights(var);
+      }
+    }
+    if (weightedCountingMode == WeightedCountingMode::OUTER_VARS) {
+      for (Int var : getInnerVars()) {
+        setDefaultLiteralWeights(var);
+      }
     }
   }
 }
@@ -752,7 +760,7 @@ void Cnf::readCnfFile(const string& filePath) {
           }
         }
       }
-      else if (weightedCounting && isMc21WeightLine(words)) {
+      else if (weightedCountingMode > WeightedCountingMode::NO_VARS && isMc21WeightLine(words)) {
         if (problemLineIndex == MIN_INT) {
           throw MyError("no problem line before literal weight | line ", lineIndex, ": ", line);
         }
@@ -852,7 +860,7 @@ void Cnf::readCnfFile(const string& filePath) {
         cout << "}\n";
       }
 
-      if (weightedCounting) {
+      if (weightedCountingMode > WeightedCountingMode::NO_VARS) {
         printLiteralWeights();
       }
 
@@ -1211,6 +1219,12 @@ ostream& operator<<(ostream& stream, const Number& n) {
   else {
     stream << n.fraction;
   }
+
+  return stream;
+}
+
+ostream& operator<<(ostream& stream, WeightedCountingMode mode) {
+  stream << static_cast<Int>(mode);
 
   return stream;
 }

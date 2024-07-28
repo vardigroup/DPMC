@@ -230,7 +230,7 @@ def main():
     dmcCmd = [
         getBinPath('dmc'),
         f'--cf={cnfPath}',
-        f'--wc={int(args.task in {WMC, PWMC})}',
+        f'--wc={2 if args.task in {WMC, PWMC} else 0}', # overwrites non-show weights with 1
         f'--pc={int(args.task in {PMC, PWMC})}',
         f'--dp={"s" if args.mp else "c"}',
         f'--mm={megs}',

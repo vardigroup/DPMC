@@ -47,6 +47,12 @@ using TimePoint = std::chrono::time_point<std::chrono::steady_clock>;
 template<typename K, typename V> using Map = std::unordered_map<K, V>;
 template<typename T> using Set = std::unordered_set<T>;
 
+enum class WeightedCountingMode {
+  NO_VARS = 0,
+  ALL_VARS = 1,
+  OUTER_VARS = 2
+};
+
 /* consts =================================================================== */
 
 const Float INF = std::numeric_limits<Float>::infinity();
@@ -116,7 +122,7 @@ const map<string, string> CLUSTERING_HEURISTICS = {
 
 /* global vars ============================================================== */
 
-extern bool weightedCounting;
+extern WeightedCountingMode weightedCountingMode;
 extern bool projectedCounting;
 extern Int randomSeed; // for reproducibility
 extern bool multiplePrecision;
@@ -333,6 +339,7 @@ public:
   bool isMc21ShowLine(const vector<string> &words) const; // c p show <vars> [0]
   bool isMc21WeightLine(const vector<string> &words) const; // c p weight <literal> <weight> [0]
 
+  void setDefaultLiteralWeights(Int var);
   void completeImplicitLiteralWeight(Int literal);
   void completeLiteralWeights();
 
@@ -428,3 +435,4 @@ public:
 /* global functions ========================================================= */
 
 ostream& operator<<(ostream& stream, const Number& n);
+ostream& operator<<(ostream& stream, WeightedCountingMode mode);

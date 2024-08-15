@@ -1,8 +1,8 @@
-mcc/bin/*.cnf
 mcc/bin/dmc
 mcc/bin/flow_cutter_pace17
 mcc/bin/htb
 mcc/bin/lg
+mcc/tmp*/
 mcc/*.zip
 
 addmc/dmc

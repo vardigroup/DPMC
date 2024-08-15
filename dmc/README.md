@@ -56,16 +56,15 @@ Usage:
   dmc [OPTION...]
 
       --cf arg  CNF file path; string (required)
-      --wc arg  weighted counting: 0, 1; int (default: 1)
+      --wc arg  weighted counting: 0/NO_VARS, 1/ALL_VARS, 2/OUTER_VARS; int (default: 1)
       --pc arg  projected counting (graded join tree): 0, 1; int (default: 0)
       --er arg  exist-random SAT (max-sum instead of sum-max): 0, 1; int (default: 0)
       --dp arg  diagram package: c/CUDD, s/SYLVAN; string (default: c)
       --lc arg  logarithmic counting [needs dp_arg = c]: 0, 1; int (default: 0)
       --lb arg  log10(bound) for pruning [needs pc_arg = 0, er_arg = 1, lc_arg = 1]; float (default: -inf)
-      --tm arg  threshold model for pruning [needs pc_arg = 0, er_arg = 1, lc_arg = 1, lb_arg = -inf]; string
-                (default: "")
-      --sp arg  SAT pruning with CryptoMiniSat [needs pc_arg = 0, er_arg = 1, lc_arg = 1, lb_arg = -inf, tm_arg =
-                ""]: 0, 1; int (default: 0)
+      --tm arg  threshold model for pruning [needs pc_arg = 0, er_arg = 1, lc_arg = 1, lb_arg = -inf]; string (default: "")
+      --sp arg  SAT pruning with CryptoMiniSat [needs pc_arg = 0, er_arg = 1, lc_arg = 1, lb_arg = -inf, tm_arg = ""]: 0, 1;
+                int (default: 0)
       --mf arg  maximizer format [needs er_arg = 1, dp_arg = c]: 0/NEITHER, 1/SHORT, 2/LONG, 3/DUAL; int (default: 0)
       --mv arg  maximizer verification [needs mf_arg > 0]: 0, 1; int (default: 0)
       --sm arg  substitution-based maximization [needs wc_arg = 0, mf_arg > 0]: 0, 1; int (default: 0)
@@ -73,13 +72,13 @@ Usage:
       --tc arg  thread count [or 0 for hardware_concurrency value]; int (default: 1)
       --ts arg  thread slice count [needs dp_arg = c]; int (default: 1)
       --rs arg  random seed; int (default: 0)
-      --dv arg  diagram var order: 0/RANDOM, 1/DECLARATION, 2/MOST_CLAUSES, 3/MIN_FILL, 4/MCS, 5/LEX_P, 6/LEX_M
-                (negatives for inverse orders); int (default: 4)
-      --sv arg  slice var order [needs ts_arg > 1]: 0/RANDOM, 1/DECLARATION, 2/MOST_CLAUSES, 3/MIN_FILL, 4/MCS,
-                5/LEX_P, 6/LEX_M, 7/BIGGEST_NODE, 8/HIGHEST_NODE (negatives for inverse orders); int (default: 7)
+      --dv arg  diagram var order: 0/RANDOM, 1/DECLARATION, 2/MOST_CLAUSES, 3/MIN_FILL, 4/MCS, 5/LEX_P, 6/LEX_M (negatives
+                for inverse orders); int (default: 4)
+      --sv arg  slice var order [needs ts_arg > 1]: 0/RANDOM, 1/DECLARATION, 2/MOST_CLAUSES, 3/MIN_FILL, 4/MCS, 5/LEX_P,
+                6/LEX_M, 7/BIGGEST_NODE, 8/HIGHEST_NODE (negatives for inverse orders); int (default: 7)
       --ms arg  memory sensitivity (in MB) for reporting usage [needs dp_arg = c]; float (default: 1e3)
-      --mm arg  maximum memory (in MB) for unique table and cache table combined [or 0 for unlimited memory with
-                CUDD]; float (default: 4e3)
+      --mm arg  maximum memory (in MB) for unique table and cache table combined [or 0 for unlimited memory with CUDD];
+                float (default: 4e3)
       --tr arg  table ratio [needs dp_arg = s]: log2(unique_size/cache_size); int (default: 1)
       --ir arg  init ratio for tables [needs dp_arg = s]: log2(max_size/init_size); int (default: 10)
       --mp arg  multiple precision [needs dp_arg = s]: 0, 1; int (default: 0)

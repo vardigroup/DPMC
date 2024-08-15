@@ -63,6 +63,12 @@ const string JOIN_PRIORITY_OPTION = "jp";
 const string VERBOSE_JOIN_TREE_OPTION = "vj";
 const string VERBOSE_PROFILING_OPTION = "vp";
 
+const map<WeightedCountingMode, string> WEIGHTED_COUNTING_MODES = {
+  {WeightedCountingMode::NO_VARS, "NO_VARS"},
+  {WeightedCountingMode::ALL_VARS, "ALL_VARS"},
+  {WeightedCountingMode::OUTER_VARS, "OUTER_VARS"}
+};
+
 /* maximizer formats: */
 const Int NEITHER_FORMAT = 0;
 const Int SHORT_FORMAT = 1;
@@ -319,6 +325,7 @@ public:
   static string requireOption(const string& name, const string& value, const string& comparator = "=");
   static string requireDdPackage(const string& ddPackageArg);
 
+  static string helpWeightedCounting();
   static string helpDdPackage();
   static string helpLogBound();
   static string helpThresholdModel();

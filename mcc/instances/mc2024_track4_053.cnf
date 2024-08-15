@@ -1,0 +1,2967 @@
+c t pwmc
+c file mc2024_track4_053.cnf
+p cnf 924 1115
+c p weight 374 0.70006116 0
+c p weight -374 0.29993884 0
+c p weight 811 0.98111900 0
+c p weight -811 0.01888100 0
+c p weight 731 0.70349479 0
+c p weight -731 0.29650521 0
+c p weight 392 0.24103268 0
+c p weight -392 0.75896732 0
+c p weight 54 0.45692323 0
+c p weight -54 0.54307677 0
+c p weight 537 0.24460497 0
+c p weight -537 0.75539503 0
+c p weight 508 0.74912966 0
+c p weight -508 0.25087034 0
+c p weight 850 0.29297700 0
+c p weight -850 0.70702300 0
+c p weight 867 0.80722100 0
+c p weight -867 0.19277900 0
+c p weight 206 0.50182802 0
+c p weight -206 0.49817198 0
+c p weight 151 0.42775364 0
+c p weight -151 0.57224636 0
+c p weight 381 0.74922200 0
+c p weight -381 0.25077800 0
+c p weight 535 0.52471107 0
+c p weight -535 0.47528893 0
+c p weight 662 0.47896500 0
+c p weight -662 0.52103500 0
+c p weight 185 0.63253738 0
+c p weight -185 0.36746262 0
+c p weight 787 0.52050700 0
+c p weight -787 0.47949300 0
+c p weight 176 0.37917117 0
+c p weight -176 0.62082883 0
+c p weight 826 0.03240310 0
+c p weight -826 0.96759690 0
+c p weight 1 0.02826870 0
+c p weight -1 0.97173130 0
+c p weight 2 1 0
+c p weight -2 1 0
+c p weight 3 1 0
+c p weight -3 1 0
+c p weight 4 1 0
+c p weight -4 1 0
+c p weight 5 1 0
+c p weight -5 1 0
+c p weight 6 1 0
+c p weight -6 1 0
+c p weight 7 1 0
+c p weight -7 1 0
+c p weight 8 1 0
+c p weight -8 1 0
+c p weight 9 1 0
+c p weight -9 1 0
+c p weight 10 1 0
+c p weight -10 1 0
+c p weight 11 1 0
+c p weight -11 1 0
+c p weight 12 1 0
+c p weight -12 1 0
+c p weight 13 1 0
+c p weight -13 1 0
+c p weight 14 1 0
+c p weight -14 1 0
+c p weight 15 1 0
+c p weight -15 1 0
+c p weight 16 1 0
+c p weight -16 1 0
+c p weight 17 1 0
+c p weight -17 1 0
+c p weight 18 1 0
+c p weight -18 1 0
+c p weight 19 1 0
+c p weight -19 1 0
+c p weight 20 1 0
+c p weight -20 1 0
+c p weight 21 1 0
+c p weight -21 1 0
+c p weight 22 1 0
+c p weight -22 1 0
+c p weight 23 1 0
+c p weight -23 1 0
+c p weight 24 1 0
+c p weight -24 1 0
+c p weight 25 1 0
+c p weight -25 1 0
+c p weight 26 1 0
+c p weight -26 1 0
+c p weight 27 1 0
+c p weight -27 1 0
+c p weight 28 1 0
+c p weight -28 1 0
+c p weight 29 1 0
+c p weight -29 1 0
+c p weight 30 1 0
+c p weight -30 1 0
+c p weight 31 1 0
+c p weight -31 1 0
+c p weight 32 1 0
+c p weight -32 1 0
+c p weight 33 1 0
+c p weight -33 1 0
+c p weight 34 1 0
+c p weight -34 1 0
+c p weight 35 1 0
+c p weight -35 1 0
+c p weight 36 1 0
+c p weight -36 1 0
+c p weight 37 1 0
+c p weight -37 1 0
+c p weight 38 1 0
+c p weight -38 1 0
+c p weight 39 1 0
+c p weight -39 1 0
+c p weight 40 1 0
+c p weight -40 1 0
+c p weight 41 1 0
+c p weight -41 1 0
+c p weight 42 1 0
+c p weight -42 1 0
+c p weight 43 1 0
+c p weight -43 1 0
+c p weight 44 1 0
+c p weight -44 1 0
+c p weight 45 1 0
+c p weight -45 1 0
+c p weight 46 1 0
+c p weight -46 1 0
+c p weight 47 1 0
+c p weight -47 1 0
+c p weight 48 1 0
+c p weight -48 1 0
+c p weight 49 1 0
+c p weight -49 1 0
+c p weight 50 1 0
+c p weight -50 1 0
+c p weight 51 1 0
+c p weight -51 1 0
+c p weight 52 1 0
+c p weight -52 1 0
+c p weight 53 1 0
+c p weight -53 1 0
+c p weight 55 1 0
+c p weight -55 1 0
+c p weight 56 1 0
+c p weight -56 1 0
+c p weight 57 1 0
+c p weight -57 1 0
+c p weight 58 1 0
+c p weight -58 1 0
+c p weight 59 1 0
+c p weight -59 1 0
+c p weight 60 1 0
+c p weight -60 1 0
+c p weight 61 1 0
+c p weight -61 1 0
+c p weight 62 1 0
+c p weight -62 1 0
+c p weight 63 1 0
+c p weight -63 1 0
+c p weight 64 1 0
+c p weight -64 1 0
+c p weight 65 1 0
+c p weight -65 1 0
+c p weight 66 1 0
+c p weight -66 1 0
+c p weight 67 1 0
+c p weight -67 1 0
+c p weight 68 1 0
+c p weight -68 1 0
+c p weight 69 1 0
+c p weight -69 1 0
+c p weight 70 1 0
+c p weight -70 1 0
+c p weight 71 1 0
+c p weight -71 1 0
+c p weight 72 1 0
+c p weight -72 1 0
+c p weight 73 1 0
+c p weight -73 1 0
+c p weight 74 1 0
+c p weight -74 1 0
+c p weight 75 1 0
+c p weight -75 1 0
+c p weight 76 1 0
+c p weight -76 1 0
+c p weight 77 1 0
+c p weight -77 1 0
+c p weight 78 1 0
+c p weight -78 1 0
+c p weight 79 1 0
+c p weight -79 1 0
+c p weight 80 1 0
+c p weight -80 1 0
+c p weight 81 1 0
+c p weight -81 1 0
+c p weight 82 1 0
+c p weight -82 1 0
+c p weight 83 1 0
+c p weight -83 1 0
+c p weight 84 1 0
+c p weight -84 1 0
+c p weight 85 1 0
+c p weight -85 1 0
+c p weight 86 1 0
+c p weight -86 1 0
+c p weight 87 1 0
+c p weight -87 1 0
+c p weight 88 1 0
+c p weight -88 1 0
+c p weight 89 1 0
+c p weight -89 1 0
+c p weight 90 1 0
+c p weight -90 1 0
+c p weight 91 1 0
+c p weight -91 1 0
+c p weight 92 1 0
+c p weight -92 1 0
+c p weight 93 1 0
+c p weight -93 1 0
+c p weight 94 1 0
+c p weight -94 1 0
+c p weight 95 1 0
+c p weight -95 1 0
+c p weight 96 1 0
+c p weight -96 1 0
+c p weight 97 1 0
+c p weight -97 1 0
+c p weight 98 1 0
+c p weight -98 1 0
+c p weight 99 1 0
+c p weight -99 1 0
+c p weight 100 1 0
+c p weight -100 1 0
+c p weight 101 1 0
+c p weight -101 1 0
+c p weight 102 1 0
+c p weight -102 1 0
+c p weight 103 1 0
+c p weight -103 1 0
+c p weight 104 1 0
+c p weight -104 1 0
+c p weight 105 1 0
+c p weight -105 1 0
+c p weight 106 1 0
+c p weight -106 1 0
+c p weight 107 1 0
+c p weight -107 1 0
+c p weight 108 1 0
+c p weight -108 1 0
+c p weight 109 1 0
+c p weight -109 1 0
+c p weight 110 1 0
+c p weight -110 1 0
+c p weight 111 1 0
+c p weight -111 1 0
+c p weight 112 1 0
+c p weight -112 1 0
+c p weight 113 1 0
+c p weight -113 1 0
+c p weight 114 1 0
+c p weight -114 1 0
+c p weight 115 1 0
+c p weight -115 1 0
+c p weight 116 1 0
+c p weight -116 1 0
+c p weight 117 1 0
+c p weight -117 1 0
+c p weight 118 1 0
+c p weight -118 1 0
+c p weight 119 1 0
+c p weight -119 1 0
+c p weight 120 1 0
+c p weight -120 1 0
+c p weight 121 1 0
+c p weight -121 1 0
+c p weight 122 1 0
+c p weight -122 1 0
+c p weight 123 1 0
+c p weight -123 1 0
+c p weight 124 1 0
+c p weight -124 1 0
+c p weight 125 1 0
+c p weight -125 1 0
+c p weight 126 1 0
+c p weight -126 1 0
+c p weight 127 1 0
+c p weight -127 1 0
+c p weight 128 1 0
+c p weight -128 1 0
+c p weight 129 1 0
+c p weight -129 1 0
+c p weight 130 1 0
+c p weight -130 1 0
+c p weight 131 1 0
+c p weight -131 1 0
+c p weight 132 1 0
+c p weight -132 1 0
+c p weight 133 1 0
+c p weight -133 1 0
+c p weight 134 1 0
+c p weight -134 1 0
+c p weight 135 1 0
+c p weight -135 1 0
+c p weight 136 1 0
+c p weight -136 1 0
+c p weight 137 1 0
+c p weight -137 1 0
+c p weight 138 1 0
+c p weight -138 1 0
+c p weight 139 1 0
+c p weight -139 1 0
+c p weight 140 1 0
+c p weight -140 1 0
+c p weight 141 1 0
+c p weight -141 1 0
+c p weight 142 1 0
+c p weight -142 1 0
+c p weight 143 1 0
+c p weight -143 1 0
+c p weight 144 1 0
+c p weight -144 1 0
+c p weight 145 1 0
+c p weight -145 1 0
+c p weight 146 1 0
+c p weight -146 1 0
+c p weight 147 1 0
+c p weight -147 1 0
+c p weight 148 1 0
+c p weight -148 1 0
+c p weight 149 1 0
+c p weight -149 1 0
+c p weight 150 1 0
+c p weight -150 1 0
+c p weight 152 1 0
+c p weight -152 1 0
+c p weight 153 1 0
+c p weight -153 1 0
+c p weight 154 1 0
+c p weight -154 1 0
+c p weight 155 1 0
+c p weight -155 1 0
+c p weight 156 1 0
+c p weight -156 1 0
+c p weight 157 1 0
+c p weight -157 1 0
+c p weight 158 1 0
+c p weight -158 1 0
+c p weight 159 1 0
+c p weight -159 1 0
+c p weight 160 1 0
+c p weight -160 1 0
+c p weight 161 1 0
+c p weight -161 1 0
+c p weight 162 1 0
+c p weight -162 1 0
+c p weight 163 1 0
+c p weight -163 1 0
+c p weight 164 1 0
+c p weight -164 1 0
+c p weight 165 1 0
+c p weight -165 1 0
+c p weight 166 1 0
+c p weight -166 1 0
+c p weight 167 1 0
+c p weight -167 1 0
+c p weight 168 1 0
+c p weight -168 1 0
+c p weight 169 1 0
+c p weight -169 1 0
+c p weight 170 1 0
+c p weight -170 1 0
+c p weight 171 1 0
+c p weight -171 1 0
+c p weight 172 1 0
+c p weight -172 1 0
+c p weight 173 1 0
+c p weight -173 1 0
+c p weight 174 1 0
+c p weight -174 1 0
+c p weight 175 1 0
+c p weight -175 1 0
+c p weight 177 1 0
+c p weight -177 1 0
+c p weight 178 1 0
+c p weight -178 1 0
+c p weight 179 1 0
+c p weight -179 1 0
+c p weight 180 1 0
+c p weight -180 1 0
+c p weight 181 1 0
+c p weight -181 1 0
+c p weight 182 1 0
+c p weight -182 1 0
+c p weight 183 1 0
+c p weight -183 1 0
+c p weight 184 1 0
+c p weight -184 1 0
+c p weight 186 1 0
+c p weight -186 1 0
+c p weight 187 1 0
+c p weight -187 1 0
+c p weight 188 1 0
+c p weight -188 1 0
+c p weight 189 1 0
+c p weight -189 1 0
+c p weight 190 1 0
+c p weight -190 1 0
+c p weight 191 1 0
+c p weight -191 1 0
+c p weight 192 1 0
+c p weight -192 1 0
+c p weight 193 1 0
+c p weight -193 1 0
+c p weight 194 1 0
+c p weight -194 1 0
+c p weight 195 1 0
+c p weight -195 1 0
+c p weight 196 1 0
+c p weight -196 1 0
+c p weight 197 0.20801900 0
+c p weight -197 0.79198100 0
+c p weight 198 0.49117700 0
+c p weight -198 0.50882300 0
+c p weight 199 1 0
+c p weight -199 1 0
+c p weight 200 1 0
+c p weight -200 1 0
+c p weight 201 0.99817400 0
+c p weight -201 0.00182600 0
+c p weight 202 0.23737500 0
+c p weight -202 0.76262500 0
+c p weight 203 0.97495700 0
+c p weight -203 0.02504300 0
+c p weight 204 0.08975880 0
+c p weight -204 0.91024120 0
+c p weight 205 1 0
+c p weight -205 1 0
+c p weight 207 1 0
+c p weight -207 1 0
+c p weight 208 1 0
+c p weight -208 1 0
+c p weight 209 1 0
+c p weight -209 1 0
+c p weight 210 1 0
+c p weight -210 1 0
+c p weight 211 1 0
+c p weight -211 1 0
+c p weight 212 1 0
+c p weight -212 1 0
+c p weight 213 1 0
+c p weight -213 1 0
+c p weight 214 1 0
+c p weight -214 1 0
+c p weight 215 1 0
+c p weight -215 1 0
+c p weight 216 1 0
+c p weight -216 1 0
+c p weight 217 1 0
+c p weight -217 1 0
+c p weight 218 1 0
+c p weight -218 1 0
+c p weight 219 1 0
+c p weight -219 1 0
+c p weight 220 1 0
+c p weight -220 1 0
+c p weight 221 1 0
+c p weight -221 1 0
+c p weight 222 1 0
+c p weight -222 1 0
+c p weight 223 0.20573000 0
+c p weight -223 0.79427000 0
+c p weight 224 0.39578200 0
+c p weight -224 0.60421800 0
+c p weight 225 0.69690600 0
+c p weight -225 0.30309400 0
+c p weight 226 0.47148100 0
+c p weight -226 0.52851900 0
+c p weight 227 0.44497900 0
+c p weight -227 0.55502100 0
+c p weight 228 0.49537800 0
+c p weight -228 0.50462200 0
+c p weight 229 1 0
+c p weight -229 1 0
+c p weight 230 1 0
+c p weight -230 1 0
+c p weight 231 1 0
+c p weight -231 1 0
+c p weight 232 1 0
+c p weight -232 1 0
+c p weight 233 1 0
+c p weight -233 1 0
+c p weight 234 1 0
+c p weight -234 1 0
+c p weight 235 1 0
+c p weight -235 1 0
+c p weight 236 1 0
+c p weight -236 1 0
+c p weight 237 0.49347300 0
+c p weight -237 0.50652700 0
+c p weight 238 0.06991630 0
+c p weight -238 0.93008370 0
+c p weight 239 0.81142700 0
+c p weight -239 0.18857300 0
+c p weight 240 0.85867100 0
+c p weight -240 0.14132900 0
+c p weight 241 1 0
+c p weight -241 1 0
+c p weight 242 1 0
+c p weight -242 1 0
+c p weight 243 1 0
+c p weight -243 1 0
+c p weight 244 1 0
+c p weight -244 1 0
+c p weight 245 0.90768100 0
+c p weight -245 0.09231900 0
+c p weight 246 0.05879300 0
+c p weight -246 0.94120700 0
+c p weight 247 0.04003170 0
+c p weight -247 0.95996830 0
+c p weight 248 0.30346300 0
+c p weight -248 0.69653700 0
+c p weight 249 0.73693800 0
+c p weight -249 0.26306200 0
+c p weight 250 0.77494400 0
+c p weight -250 0.22505600 0
+c p weight 251 0.29728800 0
+c p weight -251 0.70271200 0
+c p weight 252 0.23231600 0
+c p weight -252 0.76768400 0
+c p weight 253 1 0
+c p weight -253 1 0
+c p weight 254 1 0
+c p weight -254 1 0
+c p weight 255 1 0
+c p weight -255 1 0
+c p weight 256 1 0
+c p weight -256 1 0
+c p weight 257 0.84047200 0
+c p weight -257 0.15952800 0
+c p weight 258 0.82283400 0
+c p weight -258 0.17716600 0
+c p weight 259 0.41676600 0
+c p weight -259 0.58323400 0
+c p weight 260 0.34401700 0
+c p weight -260 0.65598300 0
+c p weight 261 0.35992900 0
+c p weight -261 0.64007100 0
+c p weight 262 0.83749000 0
+c p weight -262 0.16251000 0
+c p weight 263 0.58098200 0
+c p weight -263 0.41901800 0
+c p weight 264 0.17135600 0
+c p weight -264 0.82864400 0
+c p weight 265 0.83683700 0
+c p weight -265 0.16316300 0
+c p weight 266 0.02681710 0
+c p weight -266 0.97318290 0
+c p weight 267 0.35300100 0
+c p weight -267 0.64699900 0
+c p weight 268 0.11070200 0
+c p weight -268 0.88929800 0
+c p weight 269 0.18730300 0
+c p weight -269 0.81269700 0
+c p weight 270 0.01838310 0
+c p weight -270 0.98161690 0
+c p weight 271 0.55890600 0
+c p weight -271 0.44109400 0
+c p weight 272 0.22733500 0
+c p weight -272 0.77266500 0
+c p weight 273 1 0
+c p weight -273 1 0
+c p weight 274 1 0
+c p weight -274 1 0
+c p weight 275 1 0
+c p weight -275 1 0
+c p weight 276 1 0
+c p weight -276 1 0
+c p weight 277 1 0
+c p weight -277 1 0
+c p weight 278 1 0
+c p weight -278 1 0
+c p weight 279 0.55398100 0
+c p weight -279 0.44601900 0
+c p weight 280 0.03059950 0
+c p weight -280 0.96940050 0
+c p weight 281 0.43990100 0
+c p weight -281 0.56009900 0
+c p weight 282 0.12026000 0
+c p weight -282 0.87974000 0
+c p weight 283 0.26273600 0
+c p weight -283 0.73726400 0
+c p weight 284 0.53702600 0
+c p weight -284 0.46297400 0
+c p weight 285 0.21508900 0
+c p weight -285 0.78491100 0
+c p weight 286 0.77380200 0
+c p weight -286 0.22619800 0
+c p weight 287 0.05257880 0
+c p weight -287 0.94742120 0
+c p weight 288 0.35478400 0
+c p weight -288 0.64521600 0
+c p weight 289 0.06831050 0
+c p weight -289 0.93168950 0
+c p weight 290 0.74874000 0
+c p weight -290 0.25126000 0
+c p weight 291 1 0
+c p weight -291 1 0
+c p weight 292 1 0
+c p weight -292 1 0
+c p weight 293 1 0
+c p weight -293 1 0
+c p weight 294 1 0
+c p weight -294 1 0
+c p weight 295 1 0
+c p weight -295 1 0
+c p weight 296 1 0
+c p weight -296 1 0
+c p weight 297 1 0
+c p weight -297 1 0
+c p weight 298 1 0
+c p weight -298 1 0
+c p weight 299 1 0
+c p weight -299 1 0
+c p weight 300 1 0
+c p weight -300 1 0
+c p weight 301 1 0
+c p weight -301 1 0
+c p weight 302 1 0
+c p weight -302 1 0
+c p weight 303 0.23122300 0
+c p weight -303 0.76877700 0
+c p weight 304 0.11133100 0
+c p weight -304 0.88866900 0
+c p weight 305 0.40191200 0
+c p weight -305 0.59808800 0
+c p weight 306 0.35148300 0
+c p weight -306 0.64851700 0
+c p weight 307 0.66464800 0
+c p weight -307 0.33535200 0
+c p weight 308 0.88850900 0
+c p weight -308 0.11149100 0
+c p weight 309 0.19749100 0
+c p weight -309 0.80250900 0
+c p weight 310 0.43844900 0
+c p weight -310 0.56155100 0
+c p weight 311 0.25006900 0
+c p weight -311 0.74993100 0
+c p weight 312 0.79323300 0
+c p weight -312 0.20676700 0
+c p weight 313 0.85377400 0
+c p weight -313 0.14622600 0
+c p weight 314 0.99880900 0
+c p weight -314 0.00119100 0
+c p weight 315 0.94890200 0
+c p weight -315 0.05109800 0
+c p weight 316 0.10055000 0
+c p weight -316 0.89945000 0
+c p weight 317 0.28717700 0
+c p weight -317 0.71282300 0
+c p weight 318 0.54414300 0
+c p weight -318 0.45585700 0
+c p weight 319 1 0
+c p weight -319 1 0
+c p weight 320 1 0
+c p weight -320 1 0
+c p weight 321 1 0
+c p weight -321 1 0
+c p weight 322 1 0
+c p weight -322 1 0
+c p weight 323 1 0
+c p weight -323 1 0
+c p weight 324 1 0
+c p weight -324 1 0
+c p weight 325 1 0
+c p weight -325 1 0
+c p weight 326 1 0
+c p weight -326 1 0
+c p weight 327 1 0
+c p weight -327 1 0
+c p weight 328 1 0
+c p weight -328 1 0
+c p weight 329 1 0
+c p weight -329 1 0
+c p weight 330 1 0
+c p weight -330 1 0
+c p weight 331 0.16424100 0
+c p weight -331 0.83575900 0
+c p weight 332 0.56608700 0
+c p weight -332 0.43391300 0
+c p weight 333 0.36173100 0
+c p weight -333 0.63826900 0
+c p weight 334 0.00453611 0
+c p weight -334 0.99546389 0
+c p weight 335 0.32054600 0
+c p weight -335 0.67945400 0
+c p weight 336 0.61180100 0
+c p weight -336 0.38819900 0
+c p weight 337 0.17432000 0
+c p weight -337 0.82568000 0
+c p weight 338 0.61061000 0
+c p weight -338 0.38939000 0
+c p weight 339 0.78262400 0
+c p weight -339 0.21737600 0
+c p weight 340 0.12322200 0
+c p weight -340 0.87677800 0
+c p weight 341 0.06980070 0
+c p weight -341 0.93019930 0
+c p weight 342 0.66736500 0
+c p weight -342 0.33263500 0
+c p weight 343 0.10075400 0
+c p weight -343 0.89924600 0
+c p weight 344 0.67768300 0
+c p weight -344 0.32231700 0
+c p weight 345 1 0
+c p weight -345 1 0
+c p weight 346 1 0
+c p weight -346 1 0
+c p weight 347 1 0
+c p weight -347 1 0
+c p weight 348 1 0
+c p weight -348 1 0
+c p weight 349 0.16682300 0
+c p weight -349 0.83317700 0
+c p weight 350 0.45722200 0
+c p weight -350 0.54277800 0
+c p weight 351 0.98840300 0
+c p weight -351 0.01159700 0
+c p weight 352 0.66635000 0
+c p weight -352 0.33365000 0
+c p weight 353 0.17024200 0
+c p weight -353 0.82975800 0
+c p weight 354 0.56779000 0
+c p weight -354 0.43221000 0
+c p weight 355 0.39888600 0
+c p weight -355 0.60111400 0
+c p weight 356 0.33448300 0
+c p weight -356 0.66551700 0
+c p weight 357 1 0
+c p weight -357 1 0
+c p weight 358 1 0
+c p weight -358 1 0
+c p weight 359 1 0
+c p weight -359 1 0
+c p weight 360 1 0
+c p weight -360 1 0
+c p weight 361 1 0
+c p weight -361 1 0
+c p weight 362 1 0
+c p weight -362 1 0
+c p weight 363 1 0
+c p weight -363 1 0
+c p weight 364 1 0
+c p weight -364 1 0
+c p weight 365 0.62978500 0
+c p weight -365 0.37021500 0
+c p weight 366 0.78860700 0
+c p weight -366 0.21139300 0
+c p weight 367 0.21942200 0
+c p weight -367 0.78057800 0
+c p weight 368 0.73053900 0
+c p weight -368 0.26946100 0
+c p weight 369 1 0
+c p weight -369 1 0
+c p weight 370 1 0
+c p weight -370 1 0
+c p weight 371 1 0
+c p weight -371 1 0
+c p weight 372 1 0
+c p weight -372 1 0
+c p weight 373 1 0
+c p weight -373 1 0
+c p weight 375 1 0
+c p weight -375 1 0
+c p weight 376 1 0
+c p weight -376 1 0
+c p weight 377 1 0
+c p weight -377 1 0
+c p weight 378 1 0
+c p weight -378 1 0
+c p weight 379 1 0
+c p weight -379 1 0
+c p weight 380 1 0
+c p weight -380 1 0
+c p weight 382 0.67301100 0
+c p weight -382 0.32698900 0
+c p weight 383 0.50164600 0
+c p weight -383 0.49835400 0
+c p weight 384 0.88763500 0
+c p weight -384 0.11236500 0
+c p weight 385 0.80966100 0
+c p weight -385 0.19033900 0
+c p weight 386 0.82381800 0
+c p weight -386 0.17618200 0
+c p weight 387 1 0
+c p weight -387 1 0
+c p weight 388 1 0
+c p weight -388 1 0
+c p weight 389 1 0
+c p weight -389 1 0
+c p weight 390 1 0
+c p weight -390 1 0
+c p weight 391 1 0
+c p weight -391 1 0
+c p weight 393 1 0
+c p weight -393 1 0
+c p weight 394 1 0
+c p weight -394 1 0
+c p weight 395 0.19192900 0
+c p weight -395 0.80807100 0
+c p weight 396 0.92729700 0
+c p weight -396 0.07270300 0
+c p weight 397 0.95649800 0
+c p weight -397 0.04350200 0
+c p weight 398 0.50423200 0
+c p weight -398 0.49576800 0
+c p weight 399 1 0
+c p weight -399 1 0
+c p weight 400 1 0
+c p weight -400 1 0
+c p weight 401 1 0
+c p weight -401 1 0
+c p weight 402 1 0
+c p weight -402 1 0
+c p weight 403 1 0
+c p weight -403 1 0
+c p weight 404 1 0
+c p weight -404 1 0
+c p weight 405 1 0
+c p weight -405 1 0
+c p weight 406 1 0
+c p weight -406 1 0
+c p weight 407 1 0
+c p weight -407 1 0
+c p weight 408 1 0
+c p weight -408 1 0
+c p weight 409 1 0
+c p weight -409 1 0
+c p weight 410 1 0
+c p weight -410 1 0
+c p weight 411 1 0
+c p weight -411 1 0
+c p weight 412 1 0
+c p weight -412 1 0
+c p weight 413 1 0
+c p weight -413 1 0
+c p weight 414 1 0
+c p weight -414 1 0
+c p weight 415 1 0
+c p weight -415 1 0
+c p weight 416 1 0
+c p weight -416 1 0
+c p weight 417 1 0
+c p weight -417 1 0
+c p weight 418 1 0
+c p weight -418 1 0
+c p weight 419 1 0
+c p weight -419 1 0
+c p weight 420 1 0
+c p weight -420 1 0
+c p weight 421 1 0
+c p weight -421 1 0
+c p weight 422 1 0
+c p weight -422 1 0
+c p weight 423 0.60455400 0
+c p weight -423 0.39544600 0
+c p weight 424 0.92146100 0
+c p weight -424 0.07853900 0
+c p weight 425 0.77880300 0
+c p weight -425 0.22119700 0
+c p weight 426 0.88044100 0
+c p weight -426 0.11955900 0
+c p weight 427 0.40234300 0
+c p weight -427 0.59765700 0
+c p weight 428 0.96175900 0
+c p weight -428 0.03824100 0
+c p weight 429 0.61349100 0
+c p weight -429 0.38650900 0
+c p weight 430 0.69889400 0
+c p weight -430 0.30110600 0
+c p weight 431 0.22175200 0
+c p weight -431 0.77824800 0
+c p weight 432 0.92296900 0
+c p weight -432 0.07703100 0
+c p weight 433 0.93734700 0
+c p weight -433 0.06265300 0
+c p weight 434 0.65383100 0
+c p weight -434 0.34616900 0
+c p weight 435 0.05825720 0
+c p weight -435 0.94174280 0
+c p weight 436 0.62853300 0
+c p weight -436 0.37146700 0
+c p weight 437 0.99225700 0
+c p weight -437 0.00774300 0
+c p weight 438 0.53723800 0
+c p weight -438 0.46276200 0
+c p weight 439 0.60894700 0
+c p weight -439 0.39105300 0
+c p weight 440 0.10482900 0
+c p weight -440 0.89517100 0
+c p weight 441 1 0
+c p weight -441 1 0
+c p weight 442 1 0
+c p weight -442 1 0
+c p weight 443 1 0
+c p weight -443 1 0
+c p weight 444 1 0
+c p weight -444 1 0
+c p weight 445 0.13291900 0
+c p weight -445 0.86708100 0
+c p weight 446 0.76085600 0
+c p weight -446 0.23914400 0
+c p weight 447 0.74256600 0
+c p weight -447 0.25743400 0
+c p weight 448 0.73747300 0
+c p weight -448 0.26252700 0
+c p weight 449 0.52136900 0
+c p weight -449 0.47863100 0
+c p weight 450 0.61791300 0
+c p weight -450 0.38208700 0
+c p weight 451 0.57518300 0
+c p weight -451 0.42481700 0
+c p weight 452 0.92371300 0
+c p weight -452 0.07628700 0
+c p weight 453 0.18867400 0
+c p weight -453 0.81132600 0
+c p weight 454 0.62260600 0
+c p weight -454 0.37739400 0
+c p weight 455 0.12439400 0
+c p weight -455 0.87560600 0
+c p weight 456 0.41042600 0
+c p weight -456 0.58957400 0
+c p weight 457 0.06174090 0
+c p weight -457 0.93825910 0
+c p weight 458 0.06425670 0
+c p weight -458 0.93574330 0
+c p weight 459 0.04898020 0
+c p weight -459 0.95101980 0
+c p weight 460 0.11999800 0
+c p weight -460 0.88000200 0
+c p weight 461 0.04123710 0
+c p weight -461 0.95876290 0
+c p weight 462 0.65723600 0
+c p weight -462 0.34276400 0
+c p weight 463 0.62725600 0
+c p weight -463 0.37274400 0
+c p weight 464 0.65018400 0
+c p weight -464 0.34981600 0
+c p weight 465 0.66517600 0
+c p weight -465 0.33482400 0
+c p weight 466 0.58873600 0
+c p weight -466 0.41126400 0
+c p weight 467 0.26036000 0
+c p weight -467 0.73964000 0
+c p weight 468 0.99847900 0
+c p weight -468 0.00152100 0
+c p weight 469 0.10862000 0
+c p weight -469 0.89138000 0
+c p weight 470 0.13139800 0
+c p weight -470 0.86860200 0
+c p weight 471 0.54504600 0
+c p weight -471 0.45495400 0
+c p weight 472 0.85118600 0
+c p weight -472 0.14881400 0
+c p weight 473 0.22736300 0
+c p weight -473 0.77263700 0
+c p weight 474 0.37255600 0
+c p weight -474 0.62744400 0
+c p weight 475 0.48678400 0
+c p weight -475 0.51321600 0
+c p weight 476 0.80254600 0
+c p weight -476 0.19745400 0
+c p weight 477 1 0
+c p weight -477 1 0
+c p weight 478 1 0
+c p weight -478 1 0
+c p weight 479 1 0
+c p weight -479 1 0
+c p weight 480 1 0
+c p weight -480 1 0
+c p weight 481 1 0
+c p weight -481 1 0
+c p weight 482 1 0
+c p weight -482 1 0
+c p weight 483 1 0
+c p weight -483 1 0
+c p weight 484 1 0
+c p weight -484 1 0
+c p weight 485 1 0
+c p weight -485 1 0
+c p weight 486 1 0
+c p weight -486 1 0
+c p weight 487 1 0
+c p weight -487 1 0
+c p weight 488 1 0
+c p weight -488 1 0
+c p weight 489 1 0
+c p weight -489 1 0
+c p weight 490 1 0
+c p weight -490 1 0
+c p weight 491 1 0
+c p weight -491 1 0
+c p weight 492 1 0
+c p weight -492 1 0
+c p weight 493 1 0
+c p weight -493 1 0
+c p weight 494 1 0
+c p weight -494 1 0
+c p weight 495 1 0
+c p weight -495 1 0
+c p weight 496 1 0
+c p weight -496 1 0
+c p weight 497 1 0
+c p weight -497 1 0
+c p weight 498 1 0
+c p weight -498 1 0
+c p weight 499 1 0
+c p weight -499 1 0
+c p weight 500 1 0
+c p weight -500 1 0
+c p weight 501 1 0
+c p weight -501 1 0
+c p weight 502 1 0
+c p weight -502 1 0
+c p weight 503 1 0
+c p weight -503 1 0
+c p weight 504 1 0
+c p weight -504 1 0
+c p weight 505 1 0
+c p weight -505 1 0
+c p weight 506 1 0
+c p weight -506 1 0
+c p weight 507 1 0
+c p weight -507 1 0
+c p weight 509 1 0
+c p weight -509 1 0
+c p weight 510 1 0
+c p weight -510 1 0
+c p weight 511 1 0
+c p weight -511 1 0
+c p weight 512 1 0
+c p weight -512 1 0
+c p weight 513 1 0
+c p weight -513 1 0
+c p weight 514 1 0
+c p weight -514 1 0
+c p weight 515 0.40726700 0
+c p weight -515 0.59273300 0
+c p weight 516 0.13074400 0
+c p weight -516 0.86925600 0
+c p weight 517 0.69310800 0
+c p weight -517 0.30689200 0
+c p weight 518 0.85687000 0
+c p weight -518 0.14313000 0
+c p weight 519 0.85397900 0
+c p weight -519 0.14602100 0
+c p weight 520 0.43787200 0
+c p weight -520 0.56212800 0
+c p weight 521 0.83134300 0
+c p weight -521 0.16865700 0
+c p weight 522 0.86603600 0
+c p weight -522 0.13396400 0
+c p weight 523 0.18152900 0
+c p weight -523 0.81847100 0
+c p weight 524 0.25064800 0
+c p weight -524 0.74935200 0
+c p weight 525 0.82440100 0
+c p weight -525 0.17559900 0
+c p weight 526 0.33426200 0
+c p weight -526 0.66573800 0
+c p weight 527 0.82751400 0
+c p weight -527 0.17248600 0
+c p weight 528 0.47821400 0
+c p weight -528 0.52178600 0
+c p weight 529 0.53128500 0
+c p weight -529 0.46871500 0
+c p weight 530 0.02147690 0
+c p weight -530 0.97852310 0
+c p weight 531 1 0
+c p weight -531 1 0
+c p weight 532 1 0
+c p weight -532 1 0
+c p weight 533 1 0
+c p weight -533 1 0
+c p weight 534 1 0
+c p weight -534 1 0
+c p weight 536 1 0
+c p weight -536 1 0
+c p weight 538 1 0
+c p weight -538 1 0
+c p weight 539 0.77700000 0
+c p weight -539 0.22300000 0
+c p weight 540 0.56891800 0
+c p weight -540 0.43108200 0
+c p weight 541 0.77333100 0
+c p weight -541 0.22666900 0
+c p weight 542 0.47010800 0
+c p weight -542 0.52989200 0
+c p weight 543 1 0
+c p weight -543 1 0
+c p weight 544 1 0
+c p weight -544 1 0
+c p weight 545 1 0
+c p weight -545 1 0
+c p weight 546 1 0
+c p weight -546 1 0
+c p weight 547 0.49472400 0
+c p weight -547 0.50527600 0
+c p weight 548 0.44077100 0
+c p weight -548 0.55922900 0
+c p weight 549 0.82898600 0
+c p weight -549 0.17101400 0
+c p weight 550 0.37230000 0
+c p weight -550 0.62770000 0
+c p weight 551 0.40332100 0
+c p weight -551 0.59667900 0
+c p weight 552 0.30720100 0
+c p weight -552 0.69279900 0
+c p weight 553 0.42479800 0
+c p weight -553 0.57520200 0
+c p weight 554 0.33101400 0
+c p weight -554 0.66898600 0
+c p weight 555 0.49907700 0
+c p weight -555 0.50092300 0
+c p weight 556 0.89282800 0
+c p weight -556 0.10717200 0
+c p weight 557 1 0
+c p weight -557 1 0
+c p weight 558 1 0
+c p weight -558 1 0
+c p weight 559 1 0
+c p weight -559 1 0
+c p weight 560 1 0
+c p weight -560 1 0
+c p weight 561 1 0
+c p weight -561 1 0
+c p weight 562 1 0
+c p weight -562 1 0
+c p weight 563 1 0
+c p weight -563 1 0
+c p weight 564 1 0
+c p weight -564 1 0
+c p weight 565 1 0
+c p weight -565 1 0
+c p weight 566 1 0
+c p weight -566 1 0
+c p weight 567 1 0
+c p weight -567 1 0
+c p weight 568 1 0
+c p weight -568 1 0
+c p weight 569 0.18860400 0
+c p weight -569 0.81139600 0
+c p weight 570 0.07746160 0
+c p weight -570 0.92253840 0
+c p weight 571 0.34326100 0
+c p weight -571 0.65673900 0
+c p weight 572 0.68332800 0
+c p weight -572 0.31667200 0
+c p weight 573 0.91906700 0
+c p weight -573 0.08093300 0
+c p weight 574 0.51231400 0
+c p weight -574 0.48768600 0
+c p weight 575 0.89053300 0
+c p weight -575 0.10946700 0
+c p weight 576 0.32238800 0
+c p weight -576 0.67761200 0
+c p weight 577 0.79411800 0
+c p weight -577 0.20588200 0
+c p weight 578 0.74718600 0
+c p weight -578 0.25281400 0
+c p weight 579 0.15052900 0
+c p weight -579 0.84947100 0
+c p weight 580 0.29319600 0
+c p weight -580 0.70680400 0
+c p weight 581 0.51685700 0
+c p weight -581 0.48314300 0
+c p weight 582 0.96540100 0
+c p weight -582 0.03459900 0
+c p weight 583 0.82001600 0
+c p weight -583 0.17998400 0
+c p weight 584 0.08869460 0
+c p weight -584 0.91130540 0
+c p weight 585 0.13616000 0
+c p weight -585 0.86384000 0
+c p weight 586 0.82218300 0
+c p weight -586 0.17781700 0
+c p weight 587 0.56326400 0
+c p weight -587 0.43673600 0
+c p weight 588 0.22930400 0
+c p weight -588 0.77069600 0
+c p weight 589 1 0
+c p weight -589 1 0
+c p weight 590 1 0
+c p weight -590 1 0
+c p weight 591 1 0
+c p weight -591 1 0
+c p weight 592 1 0
+c p weight -592 1 0
+c p weight 593 0.44464000 0
+c p weight -593 0.55536000 0
+c p weight 594 0.02083190 0
+c p weight -594 0.97916810 0
+c p weight 595 0.75735800 0
+c p weight -595 0.24264200 0
+c p weight 596 0.78790000 0
+c p weight -596 0.21210000 0
+c p weight 597 0.27559000 0
+c p weight -597 0.72441000 0
+c p weight 598 0.70696700 0
+c p weight -598 0.29303300 0
+c p weight 599 0.21647400 0
+c p weight -599 0.78352600 0
+c p weight 600 0.16612300 0
+c p weight -600 0.83387700 0
+c p weight 601 1 0
+c p weight -601 1 0
+c p weight 602 1 0
+c p weight -602 1 0
+c p weight 603 0.77654100 0
+c p weight -603 0.22345900 0
+c p weight 604 0.18651800 0
+c p weight -604 0.81348200 0
+c p weight 605 0.25343700 0
+c p weight -605 0.74656300 0
+c p weight 606 0.41655500 0
+c p weight -606 0.58344500 0
+c p weight 607 0.21883800 0
+c p weight -607 0.78116200 0
+c p weight 608 0.23657100 0
+c p weight -608 0.76342900 0
+c p weight 609 0.79207000 0
+c p weight -609 0.20793000 0
+c p weight 610 0.16187700 0
+c p weight -610 0.83812300 0
+c p weight 611 1 0
+c p weight -611 1 0
+c p weight 612 1 0
+c p weight -612 1 0
+c p weight 613 1 0
+c p weight -613 1 0
+c p weight 614 1 0
+c p weight -614 1 0
+c p weight 615 0.39459300 0
+c p weight -615 0.60540700 0
+c p weight 616 0.59162700 0
+c p weight -616 0.40837300 0
+c p weight 617 0.51418900 0
+c p weight -617 0.48581100 0
+c p weight 618 0.07448890 0
+c p weight -618 0.92551110 0
+c p weight 619 1 0
+c p weight -619 1 0
+c p weight 620 1 0
+c p weight -620 1 0
+c p weight 621 1 0
+c p weight -621 1 0
+c p weight 622 1 0
+c p weight -622 1 0
+c p weight 623 1 0
+c p weight -623 1 0
+c p weight 624 1 0
+c p weight -624 1 0
+c p weight 625 1 0
+c p weight -625 1 0
+c p weight 626 1 0
+c p weight -626 1 0
+c p weight 627 1 0
+c p weight -627 1 0
+c p weight 628 1 0
+c p weight -628 1 0
+c p weight 629 1 0
+c p weight -629 1 0
+c p weight 630 1 0
+c p weight -630 1 0
+c p weight 631 1 0
+c p weight -631 1 0
+c p weight 632 1 0
+c p weight -632 1 0
+c p weight 633 1 0
+c p weight -633 1 0
+c p weight 634 1 0
+c p weight -634 1 0
+c p weight 635 1 0
+c p weight -635 1 0
+c p weight 636 1 0
+c p weight -636 1 0
+c p weight 637 1 0
+c p weight -637 1 0
+c p weight 638 1 0
+c p weight -638 1 0
+c p weight 639 1 0
+c p weight -639 1 0
+c p weight 640 1 0
+c p weight -640 1 0
+c p weight 641 1 0
+c p weight -641 1 0
+c p weight 642 1 0
+c p weight -642 1 0
+c p weight 643 1 0
+c p weight -643 1 0
+c p weight 644 1 0
+c p weight -644 1 0
+c p weight 645 1 0
+c p weight -645 1 0
+c p weight 646 1 0
+c p weight -646 1 0
+c p weight 647 1 0
+c p weight -647 1 0
+c p weight 648 1 0
+c p weight -648 1 0
+c p weight 649 1 0
+c p weight -649 1 0
+c p weight 650 1 0
+c p weight -650 1 0
+c p weight 651 0.88064900 0
+c p weight -651 0.11935100 0
+c p weight 652 0.40741300 0
+c p weight -652 0.59258700 0
+c p weight 653 0.18890100 0
+c p weight -653 0.81109900 0
+c p weight 654 0.36788600 0
+c p weight -654 0.63211400 0
+c p weight 655 1 0
+c p weight -655 1 0
+c p weight 656 1 0
+c p weight -656 1 0
+c p weight 657 1 0
+c p weight -657 1 0
+c p weight 658 1 0
+c p weight -658 1 0
+c p weight 659 1 0
+c p weight -659 1 0
+c p weight 660 1 0
+c p weight -660 1 0
+c p weight 661 0.53500800 0
+c p weight -661 0.46499200 0
+c p weight 663 0.05860340 0
+c p weight -663 0.94139660 0
+c p weight 664 0.81006100 0
+c p weight -664 0.18993900 0
+c p weight 665 0.17693100 0
+c p weight -665 0.82306900 0
+c p weight 666 0.59930200 0
+c p weight -666 0.40069800 0
+c p weight 667 0.27248700 0
+c p weight -667 0.72751300 0
+c p weight 668 0.33152500 0
+c p weight -668 0.66847500 0
+c p weight 669 0.53833900 0
+c p weight -669 0.46166100 0
+c p weight 670 0.31028600 0
+c p weight -670 0.68971400 0
+c p weight 671 0.48700600 0
+c p weight -671 0.51299400 0
+c p weight 672 0.91162700 0
+c p weight -672 0.08837300 0
+c p weight 673 0.50610200 0
+c p weight -673 0.49389800 0
+c p weight 674 0.55847500 0
+c p weight -674 0.44152500 0
+c p weight 675 0.89056300 0
+c p weight -675 0.10943700 0
+c p weight 676 0.01684240 0
+c p weight -676 0.98315760 0
+c p weight 677 1 0
+c p weight -677 1 0
+c p weight 678 1 0
+c p weight -678 1 0
+c p weight 679 1 0
+c p weight -679 1 0
+c p weight 680 1 0
+c p weight -680 1 0
+c p weight 681 0.88097200 0
+c p weight -681 0.11902800 0
+c p weight 682 0.61012900 0
+c p weight -682 0.38987100 0
+c p weight 683 0.52022400 0
+c p weight -683 0.47977600 0
+c p weight 684 0.82288700 0
+c p weight -684 0.17711300 0
+c p weight 685 1 0
+c p weight -685 1 0
+c p weight 686 1 0
+c p weight -686 1 0
+c p weight 687 1 0
+c p weight -687 1 0
+c p weight 688 1 0
+c p weight -688 1 0
+c p weight 689 1 0
+c p weight -689 1 0
+c p weight 690 1 0
+c p weight -690 1 0
+c p weight 691 1 0
+c p weight -691 1 0
+c p weight 692 1 0
+c p weight -692 1 0
+c p weight 693 0.69082100 0
+c p weight -693 0.30917900 0
+c p weight 694 0.25244200 0
+c p weight -694 0.74755800 0
+c p weight 695 0.92947200 0
+c p weight -695 0.07052800 0
+c p weight 696 0.17782700 0
+c p weight -696 0.82217300 0
+c p weight 697 1 0
+c p weight -697 1 0
+c p weight 698 1 0
+c p weight -698 1 0
+c p weight 699 1 0
+c p weight -699 1 0
+c p weight 700 1 0
+c p weight -700 1 0
+c p weight 701 0.16166800 0
+c p weight -701 0.83833200 0
+c p weight 702 0.93819200 0
+c p weight -702 0.06180800 0
+c p weight 703 0.90651600 0
+c p weight -703 0.09348400 0
+c p weight 704 0.96867800 0
+c p weight -704 0.03132200 0
+c p weight 705 1 0
+c p weight -705 1 0
+c p weight 706 1 0
+c p weight -706 1 0
+c p weight 707 1 0
+c p weight -707 1 0
+c p weight 708 1 0
+c p weight -708 1 0
+c p weight 709 0.13146500 0
+c p weight -709 0.86853500 0
+c p weight 710 0.25504700 0
+c p weight -710 0.74495300 0
+c p weight 711 1 0
+c p weight -711 1 0
+c p weight 712 1 0
+c p weight -712 1 0
+c p weight 713 1 0
+c p weight -713 1 0
+c p weight 714 1 0
+c p weight -714 1 0
+c p weight 715 0.96564500 0
+c p weight -715 0.03435500 0
+c p weight 716 0.89032200 0
+c p weight -716 0.10967800 0
+c p weight 717 0.27262500 0
+c p weight -717 0.72737500 0
+c p weight 718 0.65646700 0
+c p weight -718 0.34353300 0
+c p weight 719 1 0
+c p weight -719 1 0
+c p weight 720 1 0
+c p weight -720 1 0
+c p weight 721 1 0
+c p weight -721 1 0
+c p weight 722 1 0
+c p weight -722 1 0
+c p weight 723 0.02937770 0
+c p weight -723 0.97062230 0
+c p weight 724 0.59196400 0
+c p weight -724 0.40803600 0
+c p weight 725 0.21899600 0
+c p weight -725 0.78100400 0
+c p weight 726 0.19104500 0
+c p weight -726 0.80895500 0
+c p weight 727 0.12551200 0
+c p weight -727 0.87448800 0
+c p weight 728 0.15972300 0
+c p weight -728 0.84027700 0
+c p weight 729 0.92732100 0
+c p weight -729 0.07267900 0
+c p weight 730 0.80820800 0
+c p weight -730 0.19179200 0
+c p weight 732 1 0
+c p weight -732 1 0
+c p weight 733 1 0
+c p weight -733 1 0
+c p weight 734 1 0
+c p weight -734 1 0
+c p weight 735 1 0
+c p weight -735 1 0
+c p weight 736 1 0
+c p weight -736 1 0
+c p weight 737 1 0
+c p weight -737 1 0
+c p weight 738 1 0
+c p weight -738 1 0
+c p weight 739 0.28539100 0
+c p weight -739 0.71460900 0
+c p weight 740 0.87637500 0
+c p weight -740 0.12362500 0
+c p weight 741 0.86722100 0
+c p weight -741 0.13277900 0
+c p weight 742 0.55801600 0
+c p weight -742 0.44198400 0
+c p weight 743 0.00998548 0
+c p weight -743 0.99001452 0
+c p weight 744 0.76011300 0
+c p weight -744 0.23988700 0
+c p weight 745 0.36713600 0
+c p weight -745 0.63286400 0
+c p weight 746 0.31681900 0
+c p weight -746 0.68318100 0
+c p weight 747 0.88536000 0
+c p weight -747 0.11464000 0
+c p weight 748 0.34619700 0
+c p weight -748 0.65380300 0
+c p weight 749 0.30382500 0
+c p weight -749 0.69617500 0
+c p weight 750 0.10435600 0
+c p weight -750 0.89564400 0
+c p weight 751 0.83398000 0
+c p weight -751 0.16602000 0
+c p weight 752 0.22986700 0
+c p weight -752 0.77013300 0
+c p weight 753 0.69696500 0
+c p weight -753 0.30303500 0
+c p weight 754 0.76130100 0
+c p weight -754 0.23869900 0
+c p weight 755 1 0
+c p weight -755 1 0
+c p weight 756 1 0
+c p weight -756 1 0
+c p weight 757 1 0
+c p weight -757 1 0
+c p weight 758 1 0
+c p weight -758 1 0
+c p weight 759 0.31538000 0
+c p weight -759 0.68462000 0
+c p weight 760 0.10059000 0
+c p weight -760 0.89941000 0
+c p weight 761 0.56268000 0
+c p weight -761 0.43732000 0
+c p weight 762 0.94733300 0
+c p weight -762 0.05266700 0
+c p weight 763 1 0
+c p weight -763 1 0
+c p weight 764 1 0
+c p weight -764 1 0
+c p weight 765 1 0
+c p weight -765 1 0
+c p weight 766 1 0
+c p weight -766 1 0
+c p weight 767 1 0
+c p weight -767 1 0
+c p weight 768 1 0
+c p weight -768 1 0
+c p weight 769 1 0
+c p weight -769 1 0
+c p weight 770 1 0
+c p weight -770 1 0
+c p weight 771 1 0
+c p weight -771 1 0
+c p weight 772 1 0
+c p weight -772 1 0
+c p weight 773 1 0
+c p weight -773 1 0
+c p weight 774 1 0
+c p weight -774 1 0
+c p weight 775 1 0
+c p weight -775 1 0
+c p weight 776 1 0
+c p weight -776 1 0
+c p weight 777 1 0
+c p weight -777 1 0
+c p weight 778 1 0
+c p weight -778 1 0
+c p weight 779 1 0
+c p weight -779 1 0
+c p weight 780 1 0
+c p weight -780 1 0
+c p weight 781 0.09453500 0
+c p weight -781 0.90546500 0
+c p weight 782 0.40859600 0
+c p weight -782 0.59140400 0
+c p weight 783 0.61973400 0
+c p weight -783 0.38026600 0
+c p weight 784 0.40991500 0
+c p weight -784 0.59008500 0
+c p weight 785 0.18241400 0
+c p weight -785 0.81758600 0
+c p weight 786 0.35724800 0
+c p weight -786 0.64275200 0
+c p weight 788 0.72199400 0
+c p weight -788 0.27800600 0
+c p weight 789 0.40820200 0
+c p weight -789 0.59179800 0
+c p weight 790 0.12879500 0
+c p weight -790 0.87120500 0
+c p weight 791 0.38071300 0
+c p weight -791 0.61928700 0
+c p weight 792 0.82873900 0
+c p weight -792 0.17126100 0
+c p weight 793 0.93156600 0
+c p weight -793 0.06843400 0
+c p weight 794 0.61641300 0
+c p weight -794 0.38358700 0
+c p weight 795 0.27918600 0
+c p weight -795 0.72081400 0
+c p weight 796 0.19428100 0
+c p weight -796 0.80571900 0
+c p weight 797 1 0
+c p weight -797 1 0
+c p weight 798 1 0
+c p weight -798 1 0
+c p weight 799 1 0
+c p weight -799 1 0
+c p weight 800 1 0
+c p weight -800 1 0
+c p weight 801 1 0
+c p weight -801 1 0
+c p weight 802 1 0
+c p weight -802 1 0
+c p weight 803 1 0
+c p weight -803 1 0
+c p weight 804 1 0
+c p weight -804 1 0
+c p weight 805 1 0
+c p weight -805 1 0
+c p weight 806 1 0
+c p weight -806 1 0
+c p weight 807 1 0
+c p weight -807 1 0
+c p weight 808 1 0
+c p weight -808 1 0
+c p weight 809 0.22817200 0
+c p weight -809 0.77182800 0
+c p weight 810 0.98304400 0
+c p weight -810 0.01695600 0
+c p weight 812 0.74867900 0
+c p weight -812 0.25132100 0
+c p weight 813 0.57109200 0
+c p weight -813 0.42890800 0
+c p weight 814 0.15688100 0
+c p weight -814 0.84311900 0
+c p weight 815 0.83383200 0
+c p weight -815 0.16616800 0
+c p weight 816 0.95180500 0
+c p weight -816 0.04819500 0
+c p weight 817 0.37941300 0
+c p weight -817 0.62058700 0
+c p weight 818 0.88337200 0
+c p weight -818 0.11662800 0
+c p weight 819 0.65860000 0
+c p weight -819 0.34140000 0
+c p weight 820 0.07765250 0
+c p weight -820 0.92234750 0
+c p weight 821 0.89147800 0
+c p weight -821 0.10852200 0
+c p weight 822 0.01758810 0
+c p weight -822 0.98241190 0
+c p weight 823 0.95831300 0
+c p weight -823 0.04168700 0
+c p weight 824 0.99362100 0
+c p weight -824 0.00637900 0
+c p weight 825 0.99981100 0
+c p weight -825 0.00018900 0
+c p weight 827 1 0
+c p weight -827 1 0
+c p weight 828 1 0
+c p weight -828 1 0
+c p weight 829 1 0
+c p weight -829 1 0
+c p weight 830 1 0
+c p weight -830 1 0
+c p weight 831 1 0
+c p weight -831 1 0
+c p weight 832 1 0
+c p weight -832 1 0
+c p weight 833 1 0
+c p weight -833 1 0
+c p weight 834 1 0
+c p weight -834 1 0
+c p weight 835 1 0
+c p weight -835 1 0
+c p weight 836 1 0
+c p weight -836 1 0
+c p weight 837 1 0
+c p weight -837 1 0
+c p weight 838 1 0
+c p weight -838 1 0
+c p weight 839 1 0
+c p weight -839 1 0
+c p weight 840 1 0
+c p weight -840 1 0
+c p weight 841 1 0
+c p weight -841 1 0
+c p weight 842 1 0
+c p weight -842 1 0
+c p weight 843 1 0
+c p weight -843 1 0
+c p weight 844 1 0
+c p weight -844 1 0
+c p weight 845 1 0
+c p weight -845 1 0
+c p weight 846 1 0
+c p weight -846 1 0
+c p weight 847 0.29316600 0
+c p weight -847 0.70683400 0
+c p weight 848 0.88421500 0
+c p weight -848 0.11578500 0
+c p weight 849 0.87562900 0
+c p weight -849 0.12437100 0
+c p weight 851 0.15929200 0
+c p weight -851 0.84070800 0
+c p weight 852 0.61594700 0
+c p weight -852 0.38405300 0
+c p weight 853 0.06844260 0
+c p weight -853 0.93155740 0
+c p weight 854 0.75334500 0
+c p weight -854 0.24665500 0
+c p weight 855 1 0
+c p weight -855 1 0
+c p weight 856 1 0
+c p weight -856 1 0
+c p weight 857 1 0
+c p weight -857 1 0
+c p weight 858 1 0
+c p weight -858 1 0
+c p weight 859 0.71184300 0
+c p weight -859 0.28815700 0
+c p weight 860 0.39464800 0
+c p weight -860 0.60535200 0
+c p weight 861 0.89748600 0
+c p weight -861 0.10251400 0
+c p weight 862 0.70441800 0
+c p weight -862 0.29558200 0
+c p weight 863 0.34425800 0
+c p weight -863 0.65574200 0
+c p weight 864 0.53082500 0
+c p weight -864 0.46917500 0
+c p weight 865 0.43018000 0
+c p weight -865 0.56982000 0
+c p weight 866 0.77664900 0
+c p weight -866 0.22335100 0
+c p weight 868 0.81107300 0
+c p weight -868 0.18892700 0
+c p weight 869 0.60106500 0
+c p weight -869 0.39893500 0
+c p weight 870 0.26191400 0
+c p weight -870 0.73808600 0
+c p weight 871 0.48307200 0
+c p weight -871 0.51692800 0
+c p weight 872 0.55508000 0
+c p weight -872 0.44492000 0
+c p weight 873 0.35870100 0
+c p weight -873 0.64129900 0
+c p weight 874 0.84805700 0
+c p weight -874 0.15194300 0
+c p weight 875 0.53780800 0
+c p weight -875 0.46219200 0
+c p weight 876 0.51799300 0
+c p weight -876 0.48200700 0
+c p weight 877 1 0
+c p weight -877 1 0
+c p weight 878 1 0
+c p weight -878 1 0
+c p weight 879 1 0
+c p weight -879 1 0
+c p weight 880 1 0
+c p weight -880 1 0
+c p weight 881 1 0
+c p weight -881 1 0
+c p weight 882 1 0
+c p weight -882 1 0
+c p weight 883 1 0
+c p weight -883 1 0
+c p weight 884 1 0
+c p weight -884 1 0
+c p weight 885 0.84280500 0
+c p weight -885 0.15719500 0
+c p weight 886 0.42438000 0
+c p weight -886 0.57562000 0
+c p weight 887 0.79551000 0
+c p weight -887 0.20449000 0
+c p weight 888 0.18706300 0
+c p weight -888 0.81293700 0
+c p weight 889 0.22569000 0
+c p weight -889 0.77431000 0
+c p weight 890 0.96371200 0
+c p weight -890 0.03628800 0
+c p weight 891 0.69185000 0
+c p weight -891 0.30815000 0
+c p weight 892 0.03291140 0
+c p weight -892 0.96708860 0
+c p weight 893 0.29291400 0
+c p weight -893 0.70708600 0
+c p weight 894 0.29482600 0
+c p weight -894 0.70517400 0
+c p weight 895 0.51176000 0
+c p weight -895 0.48824000 0
+c p weight 896 0.77598700 0
+c p weight -896 0.22401300 0
+c p weight 897 0.13295100 0
+c p weight -897 0.86704900 0
+c p weight 898 0.13468800 0
+c p weight -898 0.86531200 0
+c p weight 899 0.69796200 0
+c p weight -899 0.30203800 0
+c p weight 900 0.67075900 0
+c p weight -900 0.32924100 0
+c p weight 901 0.16196600 0
+c p weight -901 0.83803400 0
+c p weight 902 0.27701000 0
+c p weight -902 0.72299000 0
+c p weight 903 0.92401900 0
+c p weight -903 0.07598100 0
+c p weight 904 0.74578000 0
+c p weight -904 0.25422000 0
+c p weight 905 1 0
+c p weight -905 1 0
+c p weight 906 1 0
+c p weight -906 1 0
+c p weight 907 1 0
+c p weight -907 1 0
+c p weight 908 1 0
+c p weight -908 1 0
+c p weight 909 0.04986660 0
+c p weight -909 0.95013340 0
+c p weight 910 0.89824200 0
+c p weight -910 0.10175800 0
+c p weight 911 0.43634300 0
+c p weight -911 0.56365700 0
+c p weight 912 0.23693000 0
+c p weight -912 0.76307000 0
+c p weight 913 0.66203400 0
+c p weight -913 0.33796600 0
+c p weight 914 0.20064200 0
+c p weight -914 0.79935800 0
+c p weight 915 0.54529700 0
+c p weight -915 0.45470300 0
+c p weight 916 0.69494500 0
+c p weight -916 0.30505500 0
+c p weight 917 0.83821100 0
+c p weight -917 0.16178900 0
+c p weight 918 0.98977100 0
+c p weight -918 0.01022900 0
+c p weight 919 0.48718700 0
+c p weight -919 0.51281300 0
+c p weight 920 0.61419800 0
+c p weight -920 0.38580200 0
+c p weight 921 0.62013700 0
+c p weight -921 0.37986300 0
+c p weight 922 0.74888600 0
+c p weight -922 0.25111400 0
+c p weight 923 0.53763900 0
+c p weight -923 0.46236100 0
+c p weight 924 0.29089600 0
+c p weight -924 0.70910400 0
+-1 -197 2 0 
+-1 197 -2 0 
+1 -198 2 0 
+1 198 -2 0 
+-2  -3 0 
+2 3 0 
+-3 -201 4 0 
+-3 201 -4 0 
+3 -202 4 0 
+3 202 -4 0 
+-4 -203 5 0 
+-4 203 -5 0 
+4 -204 5 0 
+4 204 -5 0 
+-5  -6 0 
+5 6 0 
+-6 7 0 
+6  -7 0 
+-7 8 0 
+7  -8 0 
+-8  -9 0 
+8 9 0 
+-9 10 0 
+9  -10 0 
+-10 11 0 
+10  -11 0 
+-11  -12 0 
+11 12 0 
+-12 13 0 
+12  -13 0 
+-13 14 0 
+13  -14 0 
+-1 -223 15 0 
+-1 223 -15 0 
+1 -224 15 0 
+1 224 -15 0 
+-15 -2 -225 16 0 
+-15 -2 225 -16 0 
+-15 2 -226 16 0 
+-15 2 226 -16 0 
+15 -2 -227 16 0 
+15 -2 227 -16 0 
+15 2 -228 16 0 
+15 2 228 -16 0 
+-16 -3 17 0 
+-16 3 17 0 
+16 -3 17 0 
+16 3  -17 0 
+-17 -4  -18 0 
+-17 4  -18 0 
+17 -4 18 0 
+17 4  -18 0 
+-18 -5 -237 19 0 
+-18 -5 237 -19 0 
+-18 5 -238 19 0 
+-18 5 238 -19 0 
+18 -5 -239 19 0 
+18 -5 239 -19 0 
+18 5 -240 19 0 
+18 5 240 -19 0 
+-19 -6  -20 0 
+-19 6 20 0 
+19 -6  -20 0 
+19 6 20 0 
+-20 -7 -245 21 0 
+-20 -7 245 -21 0 
+-20 7 -246 21 0 
+-20 7 246 -21 0 
+20 -7 -247 21 0 
+20 -7 247 -21 0 
+20 7 -248 21 0 
+20 7 248 -21 0 
+-21 -8 -249 22 0 
+-21 -8 249 -22 0 
+-21 8 -250 22 0 
+-21 8 250 -22 0 
+21 -8 -251 22 0 
+21 -8 251 -22 0 
+21 8 -252 22 0 
+21 8 252 -22 0 
+-22 -9  -23 0 
+-22 9 23 0 
+22 -9  -23 0 
+22 9 23 0 
+-23 -10 -257 24 0 
+-23 -10 257 -24 0 
+-23 10 -258 24 0 
+-23 10 258 -24 0 
+23 -10 -259 24 0 
+23 -10 259 -24 0 
+23 10 -260 24 0 
+23 10 260 -24 0 
+-24 -11 -261 25 0 
+-24 -11 261 -25 0 
+-24 11 -262 25 0 
+-24 11 262 -25 0 
+24 -11 -263 25 0 
+24 -11 263 -25 0 
+24 11 -264 25 0 
+24 11 264 -25 0 
+-25 -12 -265 26 0 
+-25 -12 265 -26 0 
+-25 12 -266 26 0 
+-25 12 266 -26 0 
+25 -12 -267 26 0 
+25 -12 267 -26 0 
+25 12 -268 26 0 
+25 12 268 -26 0 
+-26 -13 -269 27 0 
+-26 -13 269 -27 0 
+-26 13 -270 27 0 
+-26 13 270 -27 0 
+26 -13 -271 27 0 
+26 -13 271 -27 0 
+26 13 -272 27 0 
+26 13 272 -27 0 
+-27 -14  -28 0 
+-27 14 28 0 
+27 -14  -28 0 
+27 14 28 0 
+-15 29 0 
+15  -29 0 
+-29 -16 -279 30 0 
+-29 -16 279 -30 0 
+-29 16 -280 30 0 
+-29 16 280 -30 0 
+29 -16 -281 30 0 
+29 -16 281 -30 0 
+29 16 -282 30 0 
+29 16 282 -30 0 
+-30 -17 -283 31 0 
+-30 -17 283 -31 0 
+-30 17 -284 31 0 
+-30 17 284 -31 0 
+30 -17 -285 31 0 
+30 -17 285 -31 0 
+30 17 -286 31 0 
+30 17 286 -31 0 
+-31 -18 -287 32 0 
+-31 -18 287 -32 0 
+-31 18 -288 32 0 
+-31 18 288 -32 0 
+31 -18 -289 32 0 
+31 -18 289 -32 0 
+31 18 -290 32 0 
+31 18 290 -32 0 
+-32 -19 33 0 
+-32 19  -33 0 
+32 -19  -33 0 
+32 19  -33 0 
+-33 -20  -34 0 
+-33 20 34 0 
+33 -20 34 0 
+33 20  -34 0 
+-34 -21 35 0 
+-34 21  -35 0 
+34 -21 35 0 
+34 21  -35 0 
+-35 -22 -303 36 0 
+-35 -22 303 -36 0 
+-35 22 -304 36 0 
+-35 22 304 -36 0 
+35 -22 -305 36 0 
+35 -22 305 -36 0 
+35 22 -306 36 0 
+35 22 306 -36 0 
+-36 -23 -307 37 0 
+-36 -23 307 -37 0 
+-36 23 -308 37 0 
+-36 23 308 -37 0 
+36 -23 -309 37 0 
+36 -23 309 -37 0 
+36 23 -310 37 0 
+36 23 310 -37 0 
+-37 -24 -311 38 0 
+-37 -24 311 -38 0 
+-37 24 -312 38 0 
+-37 24 312 -38 0 
+37 -24 -313 38 0 
+37 -24 313 -38 0 
+37 24 -314 38 0 
+37 24 314 -38 0 
+-38 -25 -315 39 0 
+-38 -25 315 -39 0 
+-38 25 -316 39 0 
+-38 25 316 -39 0 
+38 -25 -317 39 0 
+38 -25 317 -39 0 
+38 25 -318 39 0 
+38 25 318 -39 0 
+-39 -26 40 0 
+-39 26 40 0 
+39 -26  -40 0 
+39 26  -40 0 
+-40 -27  -41 0 
+-40 27 41 0 
+40 -27 41 0 
+40 27  -41 0 
+-41 -28 42 0 
+-41 28 42 0 
+41 -28  -42 0 
+41 28 42 0 
+-29 -331 43 0 
+-29 331 -43 0 
+29 -332 43 0 
+29 332 -43 0 
+-43 -30 -333 44 0 
+-43 -30 333 -44 0 
+-43 30 -334 44 0 
+-43 30 334 -44 0 
+43 -30 -335 44 0 
+43 -30 335 -44 0 
+43 30 -336 44 0 
+43 30 336 -44 0 
+-44 -31 -337 45 0 
+-44 -31 337 -45 0 
+-44 31 -338 45 0 
+-44 31 338 -45 0 
+44 -31 -339 45 0 
+44 -31 339 -45 0 
+44 31 -340 45 0 
+44 31 340 -45 0 
+-45 -32 -341 46 0 
+-45 -32 341 -46 0 
+-45 32 -342 46 0 
+-45 32 342 -46 0 
+45 -32 -343 46 0 
+45 -32 343 -46 0 
+45 32 -344 46 0 
+45 32 344 -46 0 
+-46 -33 47 0 
+-46 33  -47 0 
+46 -33 47 0 
+46 33  -47 0 
+-47 -34 -349 48 0 
+-47 -34 349 -48 0 
+-47 34 -350 48 0 
+-47 34 350 -48 0 
+47 -34 -351 48 0 
+47 -34 351 -48 0 
+47 34 -352 48 0 
+47 34 352 -48 0 
+-48 -35 -353 49 0 
+-48 -35 353 -49 0 
+-48 35 -354 49 0 
+-48 35 354 -49 0 
+48 -35 -355 49 0 
+48 -35 355 -49 0 
+48 35 -356 49 0 
+48 35 356 -49 0 
+-49 -36 50 0 
+-49 36 50 0 
+49 -36  -50 0 
+49 36  -50 0 
+-50 -37 51 0 
+-50 37 51 0 
+50 -37  -51 0 
+50 37 51 0 
+-51 -38 -365 52 0 
+-51 -38 365 -52 0 
+-51 38 -366 52 0 
+-51 38 366 -52 0 
+51 -38 -367 52 0 
+51 -38 367 -52 0 
+51 38 -368 52 0 
+51 38 368 -52 0 
+-52 -39 53 0 
+-52 39 53 0 
+52 -39  -53 0 
+52 39  -53 0 
+-53 -40  -54 0 
+-53 40  -54 0 
+53 -40 54 0 
+53 40 54 0 
+-54 -41 55 0 
+-54 41 55 0 
+54 -41  -55 0 
+54 41 55 0 
+-55 -42 -381 56 0 
+-55 -42 381 -56 0 
+-55 42 -382 56 0 
+-55 42 382 -56 0 
+55 -42 -383 56 0 
+55 -42 383 -56 0 
+55 42 -384 56 0 
+55 42 384 -56 0 
+-43 -385 57 0 
+-43 385 -57 0 
+43 -386 57 0 
+43 386 -57 0 
+-57 -44  -58 0 
+-57 44  -58 0 
+57 -44  -58 0 
+57 44 58 0 
+-58 -45 59 0 
+-58 45 59 0 
+58 -45  -59 0 
+58 45  -59 0 
+-59 -46 -395 60 0 
+-59 -46 395 -60 0 
+-59 46 -396 60 0 
+-59 46 396 -60 0 
+59 -46 -397 60 0 
+59 -46 397 -60 0 
+59 46 -398 60 0 
+59 46 398 -60 0 
+-60 -47 61 0 
+-60 47  -61 0 
+60 -47 61 0 
+60 47  -61 0 
+-61 -48 62 0 
+-61 48  -62 0 
+61 -48  -62 0 
+61 48 62 0 
+-62 -49  -63 0 
+-62 49 63 0 
+62 -49  -63 0 
+62 49  -63 0 
+-63 -50 64 0 
+-63 50 64 0 
+63 -50  -64 0 
+63 50 64 0 
+-64 -51 65 0 
+-64 51  -65 0 
+64 -51 65 0 
+64 51 65 0 
+-65 -52  -66 0 
+-65 52 66 0 
+65 -52  -66 0 
+65 52 66 0 
+-66 -53 -423 67 0 
+-66 -53 423 -67 0 
+-66 53 -424 67 0 
+-66 53 424 -67 0 
+66 -53 -425 67 0 
+66 -53 425 -67 0 
+66 53 -426 67 0 
+66 53 426 -67 0 
+-67 -54 -427 68 0 
+-67 -54 427 -68 0 
+-67 54 -428 68 0 
+-67 54 428 -68 0 
+67 -54 -429 68 0 
+67 -54 429 -68 0 
+67 54 -430 68 0 
+67 54 430 -68 0 
+-68 -55 -431 69 0 
+-68 -55 431 -69 0 
+-68 55 -432 69 0 
+-68 55 432 -69 0 
+68 -55 -433 69 0 
+68 -55 433 -69 0 
+68 55 -434 69 0 
+68 55 434 -69 0 
+-69 -56 -435 70 0 
+-69 -56 435 -70 0 
+-69 56 -436 70 0 
+-69 56 436 -70 0 
+69 -56 -437 70 0 
+69 -56 437 -70 0 
+69 56 -438 70 0 
+69 56 438 -70 0 
+-57 -439 71 0 
+-57 439 -71 0 
+57 -440 71 0 
+57 440 -71 0 
+-71 -58  -72 0 
+-71 58 72 0 
+71 -58  -72 0 
+71 58  -72 0 
+-72 -59 -445 73 0 
+-72 -59 445 -73 0 
+-72 59 -446 73 0 
+-72 59 446 -73 0 
+72 -59 -447 73 0 
+72 -59 447 -73 0 
+72 59 -448 73 0 
+72 59 448 -73 0 
+-73 -60 -449 74 0 
+-73 -60 449 -74 0 
+-73 60 -450 74 0 
+-73 60 450 -74 0 
+73 -60 -451 74 0 
+73 -60 451 -74 0 
+73 60 -452 74 0 
+73 60 452 -74 0 
+-74 -61 -453 75 0 
+-74 -61 453 -75 0 
+-74 61 -454 75 0 
+-74 61 454 -75 0 
+74 -61 -455 75 0 
+74 -61 455 -75 0 
+74 61 -456 75 0 
+74 61 456 -75 0 
+-75 -62 -457 76 0 
+-75 -62 457 -76 0 
+-75 62 -458 76 0 
+-75 62 458 -76 0 
+75 -62 -459 76 0 
+75 -62 459 -76 0 
+75 62 -460 76 0 
+75 62 460 -76 0 
+-76 -63 -461 77 0 
+-76 -63 461 -77 0 
+-76 63 -462 77 0 
+-76 63 462 -77 0 
+76 -63 -463 77 0 
+76 -63 463 -77 0 
+76 63 -464 77 0 
+76 63 464 -77 0 
+-77 -64 -465 78 0 
+-77 -64 465 -78 0 
+-77 64 -466 78 0 
+-77 64 466 -78 0 
+77 -64 -467 78 0 
+77 -64 467 -78 0 
+77 64 -468 78 0 
+77 64 468 -78 0 
+-78 -65 -469 79 0 
+-78 -65 469 -79 0 
+-78 65 -470 79 0 
+-78 65 470 -79 0 
+78 -65 -471 79 0 
+78 -65 471 -79 0 
+78 65 -472 79 0 
+78 65 472 -79 0 
+-79 -66 -473 80 0 
+-79 -66 473 -80 0 
+-79 66 -474 80 0 
+-79 66 474 -80 0 
+79 -66 -475 80 0 
+79 -66 475 -80 0 
+79 66 -476 80 0 
+79 66 476 -80 0 
+-80 -67 81 0 
+-80 67 81 0 
+80 -67 81 0 
+80 67  -81 0 
+-81 -68  -82 0 
+-81 68 82 0 
+81 -68 82 0 
+81 68 82 0 
+-82 -69  -83 0 
+-82 69  -83 0 
+82 -69  -83 0 
+82 69 83 0 
+-83 -70 84 0 
+-83 70 84 0 
+83 -70  -84 0 
+83 70 84 0 
+-71 85 0 
+71  -85 0 
+-85 -72 86 0 
+-85 72  -86 0 
+85 -72  -86 0 
+85 72  -86 0 
+-86 -73 87 0 
+-86 73  -87 0 
+86 -73 87 0 
+86 73 87 0 
+-87 -74  -88 0 
+-87 74 88 0 
+87 -74 88 0 
+87 74 88 0 
+-88 -75  -89 0 
+-88 75 89 0 
+88 -75  -89 0 
+88 75 89 0 
+-89 -76  -90 0 
+-89 76 90 0 
+89 -76 90 0 
+89 76  -90 0 
+-90 -77 -515 91 0 
+-90 -77 515 -91 0 
+-90 77 -516 91 0 
+-90 77 516 -91 0 
+90 -77 -517 91 0 
+90 -77 517 -91 0 
+90 77 -518 91 0 
+90 77 518 -91 0 
+-91 -78 -519 92 0 
+-91 -78 519 -92 0 
+-91 78 -520 92 0 
+-91 78 520 -92 0 
+91 -78 -521 92 0 
+91 -78 521 -92 0 
+91 78 -522 92 0 
+91 78 522 -92 0 
+-92 -79 -523 93 0 
+-92 -79 523 -93 0 
+-92 79 -524 93 0 
+-92 79 524 -93 0 
+92 -79 -525 93 0 
+92 -79 525 -93 0 
+92 79 -526 93 0 
+92 79 526 -93 0 
+-93 -80 -527 94 0 
+-93 -80 527 -94 0 
+-93 80 -528 94 0 
+-93 80 528 -94 0 
+93 -80 -529 94 0 
+93 -80 529 -94 0 
+93 80 -530 94 0 
+93 80 530 -94 0 
+-94 -81  -95 0 
+-94 81  -95 0 
+94 -81 95 0 
+94 81  -95 0 
+-95 -82 96 0 
+-95 82  -96 0 
+95 -82  -96 0 
+95 82  -96 0 
+-96 -83 -539 97 0 
+-96 -83 539 -97 0 
+-96 83 -540 97 0 
+-96 83 540 -97 0 
+96 -83 -541 97 0 
+96 -83 541 -97 0 
+96 83 -542 97 0 
+96 83 542 -97 0 
+-97 -84  -98 0 
+-97 84  -98 0 
+97 -84  -98 0 
+97 84 98 0 
+-85 -547 99 0 
+-85 547 -99 0 
+85 -548 99 0 
+85 548 -99 0 
+-99 -86 -549 100 0 
+-99 -86 549 -100 0 
+-99 86 -550 100 0 
+-99 86 550 -100 0 
+99 -86 -551 100 0 
+99 -86 551 -100 0 
+99 86 -552 100 0 
+99 86 552 -100 0 
+-100 -87 -553 101 0 
+-100 -87 553 -101 0 
+-100 87 -554 101 0 
+-100 87 554 -101 0 
+100 -87 -555 101 0 
+100 -87 555 -101 0 
+100 87 -556 101 0 
+100 87 556 -101 0 
+-101 -88  -102 0 
+-101 88  -102 0 
+101 -88 102 0 
+101 88  -102 0 
+-102 -89 103 0 
+-102 89  -103 0 
+102 -89  -103 0 
+102 89  -103 0 
+-103 -90  -104 0 
+-103 90 104 0 
+103 -90 104 0 
+103 90  -104 0 
+-104 -91 -569 105 0 
+-104 -91 569 -105 0 
+-104 91 -570 105 0 
+-104 91 570 -105 0 
+104 -91 -571 105 0 
+104 -91 571 -105 0 
+104 91 -572 105 0 
+104 91 572 -105 0 
+-105 -92 -573 106 0 
+-105 -92 573 -106 0 
+-105 92 -574 106 0 
+-105 92 574 -106 0 
+105 -92 -575 106 0 
+105 -92 575 -106 0 
+105 92 -576 106 0 
+105 92 576 -106 0 
+-106 -93 -577 107 0 
+-106 -93 577 -107 0 
+-106 93 -578 107 0 
+-106 93 578 -107 0 
+106 -93 -579 107 0 
+106 -93 579 -107 0 
+106 93 -580 107 0 
+106 93 580 -107 0 
+-107 -94 -581 108 0 
+-107 -94 581 -108 0 
+-107 94 -582 108 0 
+-107 94 582 -108 0 
+107 -94 -583 108 0 
+107 -94 583 -108 0 
+107 94 -584 108 0 
+107 94 584 -108 0 
+-108 -95 -585 109 0 
+-108 -95 585 -109 0 
+-108 95 -586 109 0 
+-108 95 586 -109 0 
+108 -95 -587 109 0 
+108 -95 587 -109 0 
+108 95 -588 109 0 
+108 95 588 -109 0 
+-109 -96 110 0 
+-109 96  -110 0 
+109 -96  -110 0 
+109 96 110 0 
+-110 -97 -593 111 0 
+-110 -97 593 -111 0 
+-110 97 -594 111 0 
+-110 97 594 -111 0 
+110 -97 -595 111 0 
+110 -97 595 -111 0 
+110 97 -596 111 0 
+110 97 596 -111 0 
+-111 -98 -597 112 0 
+-111 -98 597 -112 0 
+-111 98 -598 112 0 
+-111 98 598 -112 0 
+111 -98 -599 112 0 
+111 -98 599 -112 0 
+111 98 -600 112 0 
+111 98 600 -112 0 
+-99  -113 0 
+99 113 0 
+-113 -100 -603 114 0 
+-113 -100 603 -114 0 
+-113 100 -604 114 0 
+-113 100 604 -114 0 
+113 -100 -605 114 0 
+113 -100 605 -114 0 
+113 100 -606 114 0 
+113 100 606 -114 0 
+-114 -101 -607 115 0 
+-114 -101 607 -115 0 
+-114 101 -608 115 0 
+-114 101 608 -115 0 
+114 -101 -609 115 0 
+114 -101 609 -115 0 
+114 101 -610 115 0 
+114 101 610 -115 0 
+-115 -102  -116 0 
+-115 102 116 0 
+115 -102  -116 0 
+115 102 116 0 
+-116 -103 -615 117 0 
+-116 -103 615 -117 0 
+-116 103 -616 117 0 
+-116 103 616 -117 0 
+116 -103 -617 117 0 
+116 -103 617 -117 0 
+116 103 -618 117 0 
+116 103 618 -117 0 
+-117 -104 118 0 
+-117 104 118 0 
+117 -104  -118 0 
+117 104  -118 0 
+-118 -105  -119 0 
+-118 105  -119 0 
+118 -105 119 0 
+118 105  -119 0 
+-119 -106  -120 0 
+-119 106 120 0 
+119 -106 120 0 
+119 106 120 0 
+-120 -107  -121 0 
+-120 107  -121 0 
+120 -107  -121 0 
+120 107 121 0 
+-121 -108  -122 0 
+-121 108  -122 0 
+121 -108  -122 0 
+121 108 122 0 
+-122 -109 123 0 
+-122 109  -123 0 
+122 -109 123 0 
+122 109 123 0 
+-123 -110  -124 0 
+-123 110  -124 0 
+123 -110  -124 0 
+123 110 124 0 
+-124 -111  -125 0 
+-124 111 125 0 
+124 -111  -125 0 
+124 111  -125 0 
+-125 -112 -651 126 0 
+-125 -112 651 -126 0 
+-125 112 -652 126 0 
+-125 112 652 -126 0 
+125 -112 -653 126 0 
+125 -112 653 -126 0 
+125 112 -654 126 0 
+125 112 654 -126 0 
+-113 127 0 
+113  -127 0 
+-127 -114  -128 0 
+-127 114 128 0 
+127 -114 128 0 
+127 114  -128 0 
+-128 -115 -661 129 0 
+-128 -115 661 -129 0 
+-128 115 -662 129 0 
+-128 115 662 -129 0 
+128 -115 -663 129 0 
+128 -115 663 -129 0 
+128 115 -664 129 0 
+128 115 664 -129 0 
+-129 -116 -665 130 0 
+-129 -116 665 -130 0 
+-129 116 -666 130 0 
+-129 116 666 -130 0 
+129 -116 -667 130 0 
+129 -116 667 -130 0 
+129 116 -668 130 0 
+129 116 668 -130 0 
+-130 -117 -669 131 0 
+-130 -117 669 -131 0 
+-130 117 -670 131 0 
+-130 117 670 -131 0 
+130 -117 -671 131 0 
+130 -117 671 -131 0 
+130 117 -672 131 0 
+130 117 672 -131 0 
+-131 -118 -673 132 0 
+-131 -118 673 -132 0 
+-131 118 -674 132 0 
+-131 118 674 -132 0 
+131 -118 -675 132 0 
+131 -118 675 -132 0 
+131 118 -676 132 0 
+131 118 676 -132 0 
+-132 -119  -133 0 
+-132 119 133 0 
+132 -119  -133 0 
+132 119  -133 0 
+-133 -120 -681 134 0 
+-133 -120 681 -134 0 
+-133 120 -682 134 0 
+-133 120 682 -134 0 
+133 -120 -683 134 0 
+133 -120 683 -134 0 
+133 120 -684 134 0 
+133 120 684 -134 0 
+-134 -121 135 0 
+-134 121  -135 0 
+134 -121 135 0 
+134 121  -135 0 
+-135 -122 136 0 
+-135 122  -136 0 
+135 -122  -136 0 
+135 122  -136 0 
+-136 -123 -693 137 0 
+-136 -123 693 -137 0 
+-136 123 -694 137 0 
+-136 123 694 -137 0 
+136 -123 -695 137 0 
+136 -123 695 -137 0 
+136 123 -696 137 0 
+136 123 696 -137 0 
+-137 -124 138 0 
+-137 124  -138 0 
+137 -124 138 0 
+137 124 138 0 
+-138 -125 -701 139 0 
+-138 -125 701 -139 0 
+-138 125 -702 139 0 
+-138 125 702 -139 0 
+138 -125 -703 139 0 
+138 -125 703 -139 0 
+138 125 -704 139 0 
+138 125 704 -139 0 
+-139 -126  -140 0 
+-139 126 140 0 
+139 -126 140 0 
+139 126  -140 0 
+-127 -709 141 0 
+-127 709 -141 0 
+127 -710 141 0 
+127 710 -141 0 
+-141 -128  -142 0 
+-141 128 142 0 
+141 -128  -142 0 
+141 128 142 0 
+-142 -129 -715 143 0 
+-142 -129 715 -143 0 
+-142 129 -716 143 0 
+-142 129 716 -143 0 
+142 -129 -717 143 0 
+142 -129 717 -143 0 
+142 129 -718 143 0 
+142 129 718 -143 0 
+-143 -130  -144 0 
+-143 130 144 0 
+143 -130 144 0 
+143 130 144 0 
+-144 -131 -723 145 0 
+-144 -131 723 -145 0 
+-144 131 -724 145 0 
+-144 131 724 -145 0 
+144 -131 -725 145 0 
+144 -131 725 -145 0 
+144 131 -726 145 0 
+144 131 726 -145 0 
+-145 -132 -727 146 0 
+-145 -132 727 -146 0 
+-145 132 -728 146 0 
+-145 132 728 -146 0 
+145 -132 -729 146 0 
+145 -132 729 -146 0 
+145 132 -730 146 0 
+145 132 730 -146 0 
+-146 -133  -147 0 
+-146 133 147 0 
+146 -133 147 0 
+146 133  -147 0 
+-147 -134  -148 0 
+-147 134  -148 0 
+147 -134  -148 0 
+147 134 148 0 
+-148 -135 -739 149 0 
+-148 -135 739 -149 0 
+-148 135 -740 149 0 
+-148 135 740 -149 0 
+148 -135 -741 149 0 
+148 -135 741 -149 0 
+148 135 -742 149 0 
+148 135 742 -149 0 
+-149 -136 -743 150 0 
+-149 -136 743 -150 0 
+-149 136 -744 150 0 
+-149 136 744 -150 0 
+149 -136 -745 150 0 
+149 -136 745 -150 0 
+149 136 -746 150 0 
+149 136 746 -150 0 
+-150 -137 -747 151 0 
+-150 -137 747 -151 0 
+-150 137 -748 151 0 
+-150 137 748 -151 0 
+150 -137 -749 151 0 
+150 -137 749 -151 0 
+150 137 -750 151 0 
+150 137 750 -151 0 
+-151 -138 -751 152 0 
+-151 -138 751 -152 0 
+-151 138 -752 152 0 
+-151 138 752 -152 0 
+151 -138 -753 152 0 
+151 -138 753 -152 0 
+151 138 -754 152 0 
+151 138 754 -152 0 
+-152 -139 153 0 
+-152 139  -153 0 
+152 -139  -153 0 
+152 139  -153 0 
+-153 -140 -759 154 0 
+-153 -140 759 -154 0 
+-153 140 -760 154 0 
+-153 140 760 -154 0 
+153 -140 -761 154 0 
+153 -140 761 -154 0 
+153 140 -762 154 0 
+153 140 762 -154 0 
+-141  -155 0 
+141 155 0 
+-155 -142  -156 0 
+-155 142  -156 0 
+155 -142  -156 0 
+155 142 156 0 
+-156 -143 157 0 
+-156 143 157 0 
+156 -143 157 0 
+156 143  -157 0 
+-157 -144  -158 0 
+-157 144 158 0 
+157 -144  -158 0 
+157 144  -158 0 
+-158 -145 159 0 
+-158 145 159 0 
+158 -145  -159 0 
+158 145  -159 0 
+-159 -146 -781 160 0 
+-159 -146 781 -160 0 
+-159 146 -782 160 0 
+-159 146 782 -160 0 
+159 -146 -783 160 0 
+159 -146 783 -160 0 
+159 146 -784 160 0 
+159 146 784 -160 0 
+-160 -147 -785 161 0 
+-160 -147 785 -161 0 
+-160 147 -786 161 0 
+-160 147 786 -161 0 
+160 -147 -787 161 0 
+160 -147 787 -161 0 
+160 147 -788 161 0 
+160 147 788 -161 0 
+-161 -148 -789 162 0 
+-161 -148 789 -162 0 
+-161 148 -790 162 0 
+-161 148 790 -162 0 
+161 -148 -791 162 0 
+161 -148 791 -162 0 
+161 148 -792 162 0 
+161 148 792 -162 0 
+-162 -149 -793 163 0 
+-162 -149 793 -163 0 
+-162 149 -794 163 0 
+-162 149 794 -163 0 
+162 -149 -795 163 0 
+162 -149 795 -163 0 
+162 149 -796 163 0 
+162 149 796 -163 0 
+-163 -150 164 0 
+-163 150 164 0 
+163 -150 164 0 
+163 150  -164 0 
+-164 -151  -165 0 
+-164 151 165 0 
+164 -151  -165 0 
+164 151  -165 0 
+-165 -152  -166 0 
+-165 152  -166 0 
+165 -152 166 0 
+165 152 166 0 
+-166 -153 -809 167 0 
+-166 -153 809 -167 0 
+-166 153 -810 167 0 
+-166 153 810 -167 0 
+166 -153 -811 167 0 
+166 -153 811 -167 0 
+166 153 -812 167 0 
+166 153 812 -167 0 
+-167 -154 -813 168 0 
+-167 -154 813 -168 0 
+-167 154 -814 168 0 
+-167 154 814 -168 0 
+167 -154 -815 168 0 
+167 -154 815 -168 0 
+167 154 -816 168 0 
+167 154 816 -168 0 
+-155 -817 169 0 
+-155 817 -169 0 
+155 -818 169 0 
+155 818 -169 0 
+-169 -156 -819 170 0 
+-169 -156 819 -170 0 
+-169 156 -820 170 0 
+-169 156 820 -170 0 
+169 -156 -821 170 0 
+169 -156 821 -170 0 
+169 156 -822 170 0 
+169 156 822 -170 0 
+-170 -157 -823 171 0 
+-170 -157 823 -171 0 
+-170 157 -824 171 0 
+-170 157 824 -171 0 
+170 -157 -825 171 0 
+170 -157 825 -171 0 
+170 157 -826 171 0 
+170 157 826 -171 0 
+-171 -158 172 0 
+-171 158 172 0 
+171 -158  -172 0 
+171 158 172 0 
+-172 -159  -173 0 
+-172 159 173 0 
+172 -159  -173 0 
+172 159 173 0 
+-173 -160  -174 0 
+-173 160 174 0 
+173 -160  -174 0 
+173 160 174 0 
+-174 -161 175 0 
+-174 161 175 0 
+174 -161  -175 0 
+174 161  -175 0 
+-175 -162  -176 0 
+-175 162 176 0 
+175 -162  -176 0 
+175 162  -176 0 
+-176 -163 -847 177 0 
+-176 -163 847 -177 0 
+-176 163 -848 177 0 
+-176 163 848 -177 0 
+176 -163 -849 177 0 
+176 -163 849 -177 0 
+176 163 -850 177 0 
+176 163 850 -177 0 
+-177 -164 -851 178 0 
+-177 -164 851 -178 0 
+-177 164 -852 178 0 
+-177 164 852 -178 0 
+177 -164 -853 178 0 
+177 -164 853 -178 0 
+177 164 -854 178 0 
+177 164 854 -178 0 
+-178 -165 179 0 
+-178 165  -179 0 
+178 -165 179 0 
+178 165 179 0 
+-179 -166 -859 180 0 
+-179 -166 859 -180 0 
+-179 166 -860 180 0 
+-179 166 860 -180 0 
+179 -166 -861 180 0 
+179 -166 861 -180 0 
+179 166 -862 180 0 
+179 166 862 -180 0 
+-180 -167 -863 181 0 
+-180 -167 863 -181 0 
+-180 167 -864 181 0 
+-180 167 864 -181 0 
+180 -167 -865 181 0 
+180 -167 865 -181 0 
+180 167 -866 181 0 
+180 167 866 -181 0 
+-181 -168 -867 182 0 
+-181 -168 867 -182 0 
+-181 168 -868 182 0 
+-181 168 868 -182 0 
+181 -168 -869 182 0 
+181 -168 869 -182 0 
+181 168 -870 182 0 
+181 168 870 -182 0 
+-169 -871 183 0 
+-169 871 -183 0 
+169 -872 183 0 
+169 872 -183 0 
+-183 -170 -873 184 0 
+-183 -170 873 -184 0 
+-183 170 -874 184 0 
+-183 170 874 -184 0 
+183 -170 -875 184 0 
+183 -170 875 -184 0 
+183 170 -876 184 0 
+183 170 876 -184 0 
+-184 -171  -185 0 
+-184 171 185 0 
+184 -171  -185 0 
+184 171 185 0 
+-185 -172 186 0 
+-185 172  -186 0 
+185 -172  -186 0 
+185 172 186 0 
+-186 -173 -885 187 0 
+-186 -173 885 -187 0 
+-186 173 -886 187 0 
+-186 173 886 -187 0 
+186 -173 -887 187 0 
+186 -173 887 -187 0 
+186 173 -888 187 0 
+186 173 888 -187 0 
+-187 -174 -889 188 0 
+-187 -174 889 -188 0 
+-187 174 -890 188 0 
+-187 174 890 -188 0 
+187 -174 -891 188 0 
+187 -174 891 -188 0 
+187 174 -892 188 0 
+187 174 892 -188 0 
+-188 -175 -893 189 0 
+-188 -175 893 -189 0 
+-188 175 -894 189 0 
+-188 175 894 -189 0 
+188 -175 -895 189 0 
+188 -175 895 -189 0 
+188 175 -896 189 0 
+188 175 896 -189 0 
+-189 -176 -897 190 0 
+-189 -176 897 -190 0 
+-189 176 -898 190 0 
+-189 176 898 -190 0 
+189 -176 -899 190 0 
+189 -176 899 -190 0 
+189 176 -900 190 0 
+189 176 900 -190 0 
+-190 -177 -901 191 0 
+-190 -177 901 -191 0 
+-190 177 -902 191 0 
+-190 177 902 -191 0 
+190 -177 -903 191 0 
+190 -177 903 -191 0 
+190 177 -904 191 0 
+190 177 904 -191 0 
+-191 -178 192 0 
+-191 178  -192 0 
+191 -178  -192 0 
+191 178  -192 0 
+-192 -179 -909 193 0 
+-192 -179 909 -193 0 
+-192 179 -910 193 0 
+-192 179 910 -193 0 
+192 -179 -911 193 0 
+192 -179 911 -193 0 
+192 179 -912 193 0 
+192 179 912 -193 0 
+-193 -180 -913 194 0 
+-193 -180 913 -194 0 
+-193 180 -914 194 0 
+-193 180 914 -194 0 
+193 -180 -915 194 0 
+193 -180 915 -194 0 
+193 180 -916 194 0 
+193 180 916 -194 0 
+-194 -181 -917 195 0 
+-194 -181 917 -195 0 
+-194 181 -918 195 0 
+-194 181 918 -195 0 
+194 -181 -919 195 0 
+194 -181 919 -195 0 
+194 181 -920 195 0 
+194 181 920 -195 0 
+-195 -182 -921 196 0 
+-195 -182 921 -196 0 
+-195 182 -922 196 0 
+-195 182 922 -196 0 
+195 -182 -923 196 0 
+195 -182 923 -196 0 
+195 182 -924 196 0 
+195 182 924 -196 0 
+196 0
+c p show 374 811 731 392 54 537 508 850 867 206 151 381 535 662 185 787 176 826 1 0

@@ -2,7 +2,7 @@
 
 `dirname $0`/driver.py \
   --task=mc \
-  --pre=1 \
+  --pre=0 \
+  --mp=1 \
   --width=100 \
-  --mp=0 \
   $@ \

@@ -135,7 +135,7 @@ def preprocessCnf(megs, cnf, outDirPath, task, mp, vs):
                 if line.startswith('c p'):
                     cpLines.append(line)
 
-    outFilePath = os.path.join(outDirPath, 'preprocessed.cnf')
+    outFilePath = os.path.join(outDirPath, 'preprocessed_' + os.path.basename(cnf))
     cmd.append(f'>{outFilePath}')
 
     if not vs:
@@ -230,7 +230,7 @@ def main():
     dmcCmd = [
         getBinPath('dmc'),
         f'--cf={cnfPath}',
-        f'--wc={int(args.task in {WMC, PWMC})}',
+        f'--wc={2 if args.task in {WMC, PWMC} else 0}', # overwrites non-show weights with 1
         f'--pc={int(args.task in {PMC, PWMC})}',
         f'--dp={"s" if args.mp else "c"}',
         f'--mm={megs}',

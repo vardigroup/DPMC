@@ -1,0 +1,8 @@
+#!/bin/bash
+
+`dirname $0`/driver.py \
+  --task=pwmc \
+  --pre=1 \
+  --mp=0 \
+  --width=100 \
+  $@ \

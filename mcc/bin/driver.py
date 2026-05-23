@@ -131,7 +131,7 @@ def preprocessCnf(megs, cnf, outDirPath, task, mp, vs):
         ]
     else: # WMC, PMC, PWMC
         with open(cnf) as inFile:
-            for line in open(cnf):
+            for line in inFile:
                 if line.startswith('c p'):
                     cpLines.append(line)
 
